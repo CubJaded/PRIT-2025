@@ -1,0 +1,584 @@
+<!DOCTYPE html> 
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salgaderia Mestre</title>
+  <link rel="icon" href="imgs/mestreSalgado.jpg" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #fff8f0;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(to right, #b84a1b, #ff914d);
+      padding: 20px 0;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      letter-spacing: 2px;
+    }
+
+    nav {
+      background-color: #fff3e0;
+      padding: 10px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    nav ul {
+      display: flex;
+      justify-content: center;
+      list-style: none;
+    }
+
+    nav li {
+      margin: 0 20px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #b84a1b;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #ff5a1f;
+    }
+
+    .section {
+      padding: 60px 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .section h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #b84a1b;
+      border-bottom: 2px solid #ffe1cc;
+      padding-bottom: 10px;
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+    }
+
+    .sobre p {
+      font-size: 1.1rem;
+    }
+
+    .cardapio-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px 24px;
+    justify-items: center;
+    margin: 32px 0 0 0;
+  }
+  .cardapio-card {
+    background: #fff3e0;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px #0001;
+    width: 210px;
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #b84a1b;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: transform 0.18s, box-shadow 0.18s;
+    padding: 18px 10px 10px 10px;
+    cursor: pointer;
+  }
+  .cardapio-card:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 6px 16px #ff914d44;
+    background: #ffe1cc;
+    color: #ff5a1f;
+  }
+  .cardapio-card img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 18px;
+    background: #fff;
+    border: 2px solid #ffccac;
+  }
+  .cardapio-card span {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 1.08rem;
+  }
+  @media (max-width: 900px) {
+    .cardapio-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .cardapio-card {
+      width: 90vw;
+      max-width: 320px;
+    }
+  }
+  @media (max-width: 600px) {
+    .cardapio-cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+    .galeria {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .galeria img {
+      width: 300px;
+      height: 200px;
+      object-fit: cover;
+      border: 3px solid #ffccac;
+      border-radius: 8px;
+    }
+
+    .contato p {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #ffede0;
+      color: #b84a1b;
+      border-top: 1px solid #ffd6b0;
+    }
+
+     /* ...existing styles... */
+    .carousel-container {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff3e0;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #0001;
+      padding: 24px 0;
+    }
+    .carousel-slide {
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+    .carousel-img {
+      width: 96%;
+      max-width: 900px;
+      height: 420px;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px #0002;
+      margin: 0 auto;
+      display: none;
+      transition: opacity 0.5s;
+    }
+    .carousel-btn {
+      background: #b84a1b;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 2rem;
+      cursor: pointer;
+      margin: 0 12px;
+      transition: background 0.2s;
+      z-index: 2;
+    }
+    .carousel-btn:hover {
+      background: #ff914d;
+    }
+    .carousel-dots .dot {
+      height: 14px;
+      width: 14px;
+      margin: 0 6px;
+      background-color: #bbb;
+      border-radius: 50%;
+      display: inline-block;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .carousel-dots .dot.active {
+      background-color: #b84a1b;
+    }
+    @media (max-width: 1100px) {
+      .carousel-container {
+        max-width: 98vw;
+      }
+      .carousel-img {
+        max-width: 98vw;
+        height: 32vw;
+        min-height: 160px;
+      }
+    }
+    @media (max-width: 700px) {
+      .carousel-img {
+        height: 140px;
+      }
+      .carousel-container {
+        max-width: 98vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Salgaderia Mestre</h1>
+    <p>Tradição, sabor e qualidade em cada mordida!</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#cardapio">Cardápio</a></li>
+      <li><a href="#galeria">Galeria</a></li>
+      <li><a href="#contato">Contato</a></li>
+      <li style="margin-left:auto;">
+        <a href="#" id="entrar-btn" style="color:#b84a1b; font-weight:bold;">Entrar</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Substitua a seção Sobre Nós pelo carrossel -->
+  <section class="section carrossel" id="carrossel">
+    <h2>Bem-vindo a Salgaderia Mestre!</h2>
+    <div class="carousel-container">
+      <button class="carousel-btn left" onclick="moveCarousel(-1)">&#10094;</button>
+      <div class="carousel-slide">
+        <img src="https://img.cybercook.com.br/receitas/886/coxinha-de-frango-bella-paulista-1.jpeg" alt="Coxinhas" class="carousel-img" style="display:block;">
+        <img src="https://imagens.jotaja.com/produtos/ac77e0cb-2279-4e82-af29-ac6d87ca1c09.jpg" alt="Tabua de salgados" class="carousel-img" style="display:none;">
+        <img src="https://i.pinimg.com/736x/95/86/51/9586515700f9bbaebaaca53dda0d0fb3.jpg" alt="Festa com salgados" class="carousel-img" style="display:none;">
+      </div>
+      <button class="carousel-btn right" onclick="moveCarousel(1)">&#10095;</button>
+    </div>
+    <div class="carousel-dots" style="text-align:center; margin-top: 12px;">
+      <span class="dot active" onclick="showSlide(0)"></span>
+      <span class="dot" onclick="showSlide(1)"></span>
+      <span class="dot" onclick="showSlide(2)"></span>
+    </div>
+  </section>
+
+  <section class="section cardapio" id="cardapio">
+  <h2>Cardápio</h2>
+  <div class="cardapio-cards-grid">
+    <a class="cardapio-card" href="cardapio_Combos.html">
+      <img src="https://scontent.cdninstagram.com/v/t39.30808-6/497902493_685866737528562_4804004332829471430_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ig_cache_key=MzYzMzgxMTE4OTI2ODY4ODg5MQ%3D%3D.3-ccb1-7&ccb=1-7&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjEwODB4MTM1MC5zZHIuQzMifQ%3D%3D&_nc_ohc=9KIuMBgBw6QQ7kNvwH43qVl&_nc_oc=Admi7S7SVCcMXfdAoCVbReRfb2xf0pGB2KEhgNNM9QN5P8JrdVQXIpL4z7_z-0upHTJw39iooXQySVfO5e6lJCNc&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&_nc_gid=KyxteTzX3Lk_IUwkxdMNgg&oh=00_AfazSkptDy74X2xfpyUOdlhYgu0bvQQkUcCgZPOX3ljx4w&oe=68DF8AE8" alt="Combos">
+      <span>Combos</span>
+    </a>
+    <a class="cardapio-card" href="cardapio_Fritos.html">
+      <img src="https://d2qcpt1idvpipw.cloudfront.net/recipes/2022/01/Massa-de-salgado-frito.png" alt="Fritos">
+      <span>Fritos</span>
+    </a>
+    <a class="cardapio-card" href="cardapio_Assados.html">
+      <img src="https://www.tiaeliana.com.br/alimentacao-salgados/imagens/fabrica-salgados-assados.jpg" alt="Assados">
+      <span>Assados</span>
+    </a>
+    <a class="cardapio-card" href="cardapio_MiniSalgados.html">
+      <img src="https://ibassets.com.br/ib.item.image.large/l-9113aff4d6bf4046ad19a23785233444.jpeg" alt="Mini Salgados">
+      <span>Mini Salgados</span>
+    </a>
+    <a class="cardapio-card" href="cardapio_Doces.html">
+      <img src="https://receitasdebemcasado.com/wp-content/uploads/2025/05/Brigadeiro.png" alt="Doces">
+      <span>Doces</span>
+    </a>
+    <a class="cardapio-card" href="cardapio_bebidas.html">
+      <img src="https://www.gizmodo.com.br/app/uploads/2025/09/refrigerantes.png" alt="Bebidas">
+      <span>Bebidas</span>
+    </a>
+  </div>
+
+  <section class="section galeria" id="galeria">
+    <h2>Galeria</h2>
+    <div class="galeria">
+      <img src="https://img.cybercook.com.br/receitas/886/coxinha-de-frango-bella-paulista-1.jpeg" alt="Coxinhas">
+      <img src="https://imagens.jotaja.com/produtos/ac77e0cb-2279-4e82-af29-ac6d87ca1c09.jpg" alt="Tabua de salgados">
+      <img src="https://i.pinimg.com/736x/95/86/51/9586515700f9bbaebaaca53dda0d0fb3.jpg" alt="Festa com salgados">
+    </div>
+  </section>
+
+  <section class="section contato" id="contato" >
+    <div class="contato">
+    <h2>contato</h2>
+    <p><strong>WhatsApp:</strong> (11) 99999-9999</p>
+    <p><strong>Instagram:</strong> @mestredossalgados</p>
+    <p><strong>Endereço:</strong> Rua dos Sabores, 123 - São Paulo/SP</p>
+    <p><strong>Horário:</strong> Seg a Sáb - 08h às 19h</p>
+
+    </div>
+    </section>
+    
+   <footer style="
+    background: linear-gradient(to right, #b84a1b, #ff914d);
+    color: #fff;
+    text-align: center;
+    padding: 28px 0;
+    font-size: 1.1rem;
+    border-top: none;
+    box-shadow: 0 -2px 8px #0001;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    position: static;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+  ">
+    <p>&copy; 2025 Mestre dos Salgados &mdash; Todos os direitos reservados</p>
+    <p style="margin-top:8px; font-size:0.98rem;">
+      Rua dos Sabores, 123 - São Paulo/SP &nbsp;|&nbsp; WhatsApp: (11) 99999-9999 &nbsp;|&nbsp; Instagram: <a href="https://instagram.com/mestredossalgados" target="_blank" style="color:#fff; text-decoration:underline;">@mestredossalgados</a>
+    </p>
+  </footer>
+  <!-- Login Modal -->
+<div id="login-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:32px 28px; border-radius:16px; box-shadow:0 4px 24px #0006; max-width:350px; width:90vw; position:relative; text-align:center; display:flex; flex-direction:column; align-items:center;">
+    <button id="close-login" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.5rem; color:#b84a1b; cursor:pointer;">&times;</button>
+    <h2 style="color:#b84a1b; margin-bottom:18px;">Entrar</h2>
+    <input type="text" id="login-user" placeholder="Usuário" style="width:90%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #ffd6b0;">
+    <div style="width:90%; position:relative; margin-bottom:18px;">
+      <input type="password" id="login-pass" placeholder="Senha" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ffd6b0;">
+      <button type="button" id="toggle-login-pass" style="position:absolute; right:8px; top:8px; background:none; border:none; cursor:pointer; font-size:1.3rem; color:#b84a1b; padding:0;">
+        <span style="pointer-events:none;">
+          <i class="fa-regular fa-eye"></i>
+        </span>
+      </button>
+    </div>
+    <div id="login-error" style="color:#ff5a1f; font-size:0.98rem; margin-bottom:10px; display:none;"></div>
+    <button id="login-confirm" style="background:linear-gradient(to right,#b84a1b,#ff914d); color:#fff;font-weight:bold; border:none;border-radius:8px; padding:10px 32px;font-size:1.1rem;cursor:pointer; box-shadow:0 2px 8px #0002; margin-top:8px;">Entrar</button>
+    <button id="open-register" style="background:none; color:#b84a1b; border:none; font-size:1rem; margin-top:14px; text-decoration:underline; cursor:pointer;">Cadastre-se</button>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div id="register-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:32px 28px; border-radius:16px; box-shadow:0 4px 24px #0006; max-width:350px; width:90vw; position:relative; text-align:center; display:flex; flex-direction:column; align-items:center;">
+    <button id="close-register" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.5rem; color:#b84a1b; cursor:pointer;">&times;</button>
+    <h2 style="color:#b84a1b; margin-bottom:18px;">Cadastre-se</h2>
+    <!-- Foto de perfil -->
+    <img id="register-avatar-preview" src="imgs/default-avatar.png" alt="Foto de perfil" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #b84a1b;background:#ffe1cc;margin-bottom:10px;">
+    <input type="file" id="register-avatar" accept="image/*" style="margin-bottom:12px;">
+    <input type="text" id="register-user" placeholder="Usuário" style="width:90%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #ffd6b0;">
+    <div style="width:90%; position:relative; margin-bottom:12px;">
+      <input type="password" id="register-pass" placeholder="Senha" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ffd6b0;">
+      <button type="button" id="toggle-register-pass" style="position:absolute; right:8px; top:8px; background:none; border:none; cursor:pointer; font-size:1.3rem; color:#b84a1b; padding:0;">
+        <span style="pointer-events:none;">
+          <i class="fa-regular fa-eye"></i>
+        </span>
+      </button>
+    </div>
+    <input type="text" id="register-nome" placeholder="Nome completo" style="width:90%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #ffd6b0;">
+    <input type="email" id="register-email" placeholder="E-mail" style="width:90%;padding:10px;margin-bottom:18px;border-radius:8px;border:1px solid #ffd6b0;">
+    <div id="register-error" style="color:#ff5a1f; font-size:0.98rem; margin-bottom:10px; display:none;"></div>
+    <button id="register-confirm" style="background:linear-gradient(to right,#b84a1b,#ff914d); color:#fff;font-weight:bold; border:none;border-radius:8px; padding:10px 32px;font-size:1.1rem;cursor:pointer; box-shadow:0 2px 8px #0002; margin-top:8px;">Cadastrar</button>
+  </div>
+</div>
+<script>
+    // Carousel JS
+    let currentSlide = 0;
+    let carouselInterval = null;
+
+    function showSlide(n) {
+      const slides = document.querySelectorAll('.carousel-img');
+      const dots = document.querySelectorAll('.dot');
+      if (n >= slides.length) currentSlide = 0;
+      else if (n < 0) currentSlide = slides.length - 1;
+      else currentSlide = n;
+      slides.forEach((img, i) => {
+        img.style.display = i === currentSlide ? 'block' : 'none';
+      });
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+    }
+
+    function moveCarousel(dir) {
+      showSlide(currentSlide + dir);
+      resetCarouselInterval();
+    }
+
+    function nextSlideAuto() {
+      showSlide(currentSlide + 1);
+    }
+
+    function resetCarouselInterval() {
+      if (carouselInterval) clearInterval(carouselInterval);
+      carouselInterval = setInterval(nextSlideAuto, 10000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      showSlide(0);
+      carouselInterval = setInterval(nextSlideAuto, 10000);
+      // Reinicia o timer ao clicar nos dots
+      document.querySelectorAll('.dot').forEach((dot, idx) => {
+        dot.onclick = () => {
+          showSlide(idx);
+          resetCarouselInterval();
+        };
+      });
+    });
+
+  // Login modal logic
+  const entrarBtn = document.getElementById('entrar-btn');
+  const loginModal = document.getElementById('login-modal');
+  const closeLogin = document.getElementById('close-login');
+  const loginConfirm = document.getElementById('login-confirm');
+  const loginError = document.getElementById('login-error');
+  const openRegister = document.getElementById('open-register');
+
+  const registerModal = document.getElementById('register-modal');
+  const closeRegister = document.getElementById('close-register');
+  const registerConfirm = document.getElementById('register-confirm');
+  const registerError = document.getElementById('register-error');
+
+  entrarBtn.onclick = function(e) {
+    e.preventDefault();
+    loginModal.style.display = 'flex';
+    loginError.style.display = 'none';
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+  };
+  closeLogin.onclick = function() {
+    loginModal.style.display = 'none';
+  };
+  loginModal.onclick = function(e) {
+    if (e.target === loginModal) loginModal.style.display = 'none';
+  };
+
+  openRegister.onclick = function() {
+    loginModal.style.display = 'none';
+    registerModal.style.display = 'flex';
+    registerError.style.display = 'none';
+    document.getElementById('register-user').value = '';
+    document.getElementById('register-pass').value = '';
+    document.getElementById('register-nome').value = '';
+    document.getElementById('register-email').value = '';
+  };
+
+  closeRegister.onclick = function() {
+    registerModal.style.display = 'none';
+  };
+  registerModal.onclick = function(e) {
+    if (e.target === registerModal) registerModal.style.display = 'none';
+  };
+
+  registerConfirm.onclick = function() {
+    const user = document.getElementById('register-user').value.trim();
+    const pass = document.getElementById('register-pass').value.trim();
+    const nome = document.getElementById('register-nome').value.trim();
+    const email = document.getElementById('register-email').value.trim();
+    const avatarSrc = document.getElementById('register-avatar-preview').src;
+
+    if (!user || !pass || !nome || !email) {
+      registerError.textContent = 'Preencha todos os campos!';
+      registerError.style.display = 'block';
+      return;
+    }
+    // Salva os dados em memória (poderia ser localStorage)
+    cadastro = { user, pass, nome, email, avatar: avatarSrc };
+    registerModal.style.display = 'none';
+    loginModal.style.display = 'flex';
+    document.getElementById('login-user').value = user;
+    document.getElementById('login-pass').value = '';
+    loginError.style.display = 'none';
+  };
+
+    loginConfirm.onclick = function() {
+      const user = document.getElementById('login-user').value.trim();
+      const pass = document.getElementById('login-pass').value.trim();
+
+      // Se usuário e senha são do cadastro, loga
+      if (cadastro.user && user === cadastro.user && pass === cadastro.pass) {
+        // Passa dados via URL (exemplo simples)
+        const params = new URLSearchParams(cadastro).toString();
+        window.location.href = 'SalgaderiaMestreLogOn.html?' + params;
+        return;
+      }
+      // Removido login fixo do usuário Bruno
+      loginError.textContent = 'Usuário ou senha incorretos!';
+      loginError.style.display = 'block';
+    };
+
+  // Mostrar/ocultar senha login
+  document.getElementById('toggle-login-pass').onclick = function() {
+    const input = document.getElementById('login-pass');
+    const icon = this.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  };
+
+  // Mostrar/ocultar senha cadastro
+  document.getElementById('toggle-register-pass').onclick = function() {
+    const input = document.getElementById('register-pass');
+    const icon = this.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  };
+
+  // Preview da foto de perfil no cadastro
+  document.getElementById('register-avatar').onchange = function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById('register-avatar-preview').src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Guardar dados do cadastro
+  let cadastro = {};
+
+  // ...restante do JS (login/cadastro/modal/carrossel)...
+</script>
+<!-- ...existing content... -->
+</body>
+</html>
