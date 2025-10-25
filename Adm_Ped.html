@@ -1,1 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status de Pedidos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --color-primary: #b95c21; /* Tom de laranja/marrom da barra superior */
+            --color-text-dark: #333;
+            --color-text-light: #555;
+            --color-text-header: #777;
+            --color-text-timestamp: #888;
+            --color-success: #28a745;
+            --color-warning: #f5a623; /* Laranja/Amarelo para trânsito */
+            --color-danger: #d9534f;  /* Vermelho para atraso */
+            --color-border: #e9e9e9;
+            --color-bg-page: #ffffff;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header (Barra Laranja) - Reutilizado da imagem anterior --- */
+        .top-bar {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info .user-avatar {
+            font-size: 36px;
+            opacity: 0.9;
+        }
+
+        .user-info div {
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+        }
+
+        .user-info .user-name {
+            font-weight: 600;
+        }
+
+        .user-info .user-role {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 28px;
+        }
+
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .header-nav a:hover {
+            opacity: 0.8;
+        }
+
+        .header-nav i {
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .header-nav i:hover {
+            opacity: 1;
+        }
+        
+        /* --- Container Principal da Página --- */
+        .page-container {
+            max-width: 1000px;
+            width: 95%;
+            margin: 32px auto;
+            padding: 24px;
+        }
+
+        /* Cabeçalho da Página (Título e Data) */
+        .page-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 400; /* Fonte fina como na imagem */
+            color: var(--color-text-header);
+            letter-spacing: 0.5px;
+            display: inline-block; /* Para a borda se ajustar ao texto */
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .page-header .timestamp {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 16px;
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+
+        /* Lista de Pedidos */
+        .order-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Para responsividade */
+            gap: 16px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            color: var(--color-text-light);
+        }
+
+        .order-details .status-icon {
+            font-size: 22px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .order-timestamp {
+            display: flex;
+            gap: 16px;
+            font-size: 15px;
+            color: var(--color-text-timestamp);
+            font-weight: 500;
+        }
+
+        /* Modificadores de Cor de Status */
+        .order-item.status-danger .status-icon {
+            color: var(--color-danger);
+        }
+        .order-item.status-danger .status-text {
+            color: var(--color-danger);
+            font-weight: 600;
+        }
+
+        .order-item.status-transit .status-icon {
+            color: var(--color-warning);
+        }
+        /* O texto de "Em Trânsito" não é colorido na imagem */
+
+        .order-item.status-success .status-icon {
+            color: var(--color-success);
+        }
+        .order-item.status-success .status-text {
+            color: var(--color-success);
+            font-weight: 600;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .header-nav {
+                gap: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .page-header {
+                text-align: left;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .page-header h2 {
+                font-size: 18px;
+            }
+
+            .page-header .timestamp {
+                position: static;
+                font-size: 14px;
+            }
+
+            .page-container {
+                margin-top: 24px;
+                padding: 16px;
+            }
+            
+            .order-item {
+                gap: 8px; /* Reduz o gap no mobile */
+            }
+
+            .order-details {
+                font-size: 14px;
+                gap: 8px;
+            }
+
+            .order-timestamp {
+                width: 100%;
+                justify-content: space-between;
+                font-size: 13px;
+                color: #999;
+                padding-left: 32px; /* Alinha com o texto, pulando o ícone */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle user-avatar"></i>
+            <div>
+                <span class="user-name">Felipe</span>
+                <span class="user-role">administração da plataforma</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="vendas.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="estoque.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="agenda.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="funcionarios.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="relatorios.html"><i class="fa-solid fa-download" title="Relatórios"></i></a>
+            <a href="javascript:void(0)" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
+    </header>
+
+    <main class="page-container">
+
+        <header class="page-header">
+            <h2>STATUS DE PEDIDOS</h2>
+            <span class="timestamp">24/07/25 19:37</span>
+        </header>
+
+        <section class="order-list">
+
+            <div class="order-item status-danger">
+                <div class="order-details">
+                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
+                    <span>PEDIDO 93628 - STATUS: </span>
+                    <span class="status-text">COM ATRASO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>19:37</span>
+                </div>
+            </div>
+
+            <div class="order-item status-danger">
+                <div class="order-details">
+                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
+                    <span>PEDIDO 34629 - STATUS: </span>
+                    <span class="status-text">COM ATRASO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>19:37</span>
+                </div>
+            </div>
+
+            <div class="order-item status-transit">
+                <div class="order-details">
+                    <i class="fa-solid fa-shipping-fast status-icon"></i>
+                    <span>PEDIDO 4002 - STATUS: EM TRANSITO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>19:11</span>
+                </div>
+            </div>
+
+            <div class="order-item status-transit">
+                <div class="order-details">
+                    <i class="fa-solid fa-shipping-fast status-icon"></i>
+                    <span>PEDIDO 8922 - STATUS: EM TRANSITO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>19:22</span>
+                </div>
+            </div>
+            <div class="order-item status-transit">
+                <div class="order-details">
+                    <i class="fa-solid fa-shipping-fast status-icon"></i>
+                    <span>PEDIDO 17250 - STATUS: EM TRANSITO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>19:06</span>
+                </div>
+            </div>
+
+            <div class="order-item status-success">
+                <div class="order-details">
+                    <i class="fa-solid fa-check-circle status-icon"></i>
+                    <span>PEDIDO 36834 - STATUS: </span>
+                    <span class="status-text">CONCLUÍDO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>18:22</span>
+                </div>
+            </div>
+
+            <div class="order-item status-success">
+                <div class="order-details">
+                    <i class="fa-solid fa-check-circle status-icon"></i>
+                    <span>PEDIDO 34654 - STATUS: </span>
+                    <span class="status-text">CONCLUÍDO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>18:54</span>
+                </div>
+            </div>
+            
+            <div class="order-item status-success">
+                <div class="order-details">
+                    <i class="fa-solid fa-check-circle status-icon"></i>
+                    <span>PEDIDO 45639 - STATUS: </span>
+                    <span class="status-text">CONCLUÍDO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>18:37</span>
+                </div>
+            </div>
+
+            <div class="order-item status-success">
+                <div class="order-details">
+                    <i class="fa-solid fa-check-circle status-icon"></i>
+                    <span>PEDIDO 21097 - STATUS: </span>
+                    <span class="status-text">CONCLUÍDO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>17:49</span>
+                </div>
+            </div>
+
+            <div class="order-item status-success">
+                <div class="order-details">
+                    <i class="fa-solid fa-check-circle status-icon"></i>
+                    <span>PEDIDO 52076 - STATUS: </span>
+                    <span class="status-text">CONCLUÍDO</span>
+                </div>
+                <div class="order-timestamp">
+                    <span>24/07/25</span>
+                    <span>16:51</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+function logout() {
+    if (confirm('Deseja realmente sair?')) {
+        // Aqui você pode adicionar a lógica de logout
+        window.location.href = 'login.html'; // Redireciona para a página de login
+    }
+}
+
+function atualizarDataHora() {
+    const agora = new Date();
+    
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = String(agora.getFullYear()).slice(-2);
+    const hora = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    
+    const dataHoraFormatada = `${dia}/${mes}/${ano} ${hora}:${minutos}`;
+    document.querySelector('.timestamp').textContent = dataHoraFormatada;
+}
+
+// Atualiza imediatamente e a cada minuto
+atualizarDataHora();
+setInterval(atualizarDataHora, 60000);
+</script>
+</body>
+</html>

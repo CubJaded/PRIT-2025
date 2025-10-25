@@ -321,6 +321,31 @@
         </section>
 
     </main>
+    <script>
+function atualizarDataHora() {
+    const agora = new Date();
+    
+    // Formata a data (DD/MM/YY)
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = String(agora.getFullYear()).slice(-2);
+    
+    // Formata a hora (HH:MM)
+    const hora = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    
+    // Cria a string formatada
+    const dataHoraFormatada = `${dia}/${mes}/${ano} ${hora}:${minutos}`;
+    
+    // Atualiza o elemento na página
+    document.querySelector('.timestamp').textContent = dataHoraFormatada;
+}
 
+// Atualiza imediatamente ao carregar a página
+atualizarDataHora();
+
+// Atualiza a cada minuto (60000 milissegundos)
+setInterval(atualizarDataHora, 60000);
+</script>
 </body>
 </html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funcionários - Salgaderia Mestre</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --color-primary: #b95c21;
+            --color-text-dark: #333;
+            --color-text-light: #555;
+            --color-text-header: #777;
+            --color-text-timestamp: #888;
+            --color-success: #28a745;
+            --color-border: #e9e9e9;
+            --color-bg-page: #ffffff;
+            --color-bg-light: #f9f9f9;
+            --color-bg-table-header: #f1f1f1;
+            --color-success-bg: #e9f7ec;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header (Barra Laranja) --- */
+        .top-bar {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
+        .user-info div { display: flex; flex-direction: column; font-size: 14px; }
+        .user-info .user-name { font-weight: 600; }
+        .user-info .user-role { font-size: 12px; opacity: 0.8; }
+        .header-nav { display: flex; gap: 28px; }
+        .header-nav i { font-size: 20px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
+        .header-nav i:hover { opacity: 1; }
+
+        /* --- Container Principal da Página --- */
+        .page-container {
+            max-width: 1100px;
+            width: 95%;
+            margin: 32px auto;
+            padding: 24px;
+            flex-grow: 1;
+        }
+
+        /* Cabeçalho da Página (Título e Data) */
+        .page-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--color-text-header);
+            letter-spacing: 0.5px;
+            display: inline-block;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .page-header .timestamp {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 16px;
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+
+        /* --- KPIs de Resumo --- */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background-color: var(--color-bg-light);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .kpi-card .icon {
+            font-size: 24px;
+            color: var(--color-primary);
+            margin-top: 4px;
+        }
+
+        .kpi-card-info .kpi-title {
+            font-size: 14px;
+            color: var(--color-text-light);
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .kpi-card-info .kpi-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        /* --- Controles (Busca) --- */
+        .controls-container {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: flex-end; /* Alinha a busca à direita */
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px; /* Limita a largura da busca */
+        }
+
+        /* --- Tabela de Funcionários --- */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Permite rolagem horizontal em telas pequenas */
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden; /* Garante que o border-radius funcione */
+            border: 1px solid var(--color-border);
+        }
+
+        .employee-table th,
+        .employee-table td {
+            padding: 14px 18px;
+            text-align: left;
+            vertical-align: middle; /* Centraliza verticalmente */
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .employee-table thead th {
+            background-color: var(--color-bg-table-header);
+            font-size: 13px;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            white-space: nowrap; /* Impede quebra de linha nos headers */
+        }
+
+        .employee-table tbody tr:hover {
+            background-color: #fcfcfc;
+        }
+
+        .employee-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .employee-info img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--color-border); /* Adiciona uma borda sutil */
+        }
+
+        .employee-details .name {
+            font-weight: 600;
+            display: block; /* Garante que nome e cargo fiquem em linhas separadas */
+        }
+
+        .employee-details .role {
+            font-size: 13px;
+            color: var(--color-text-light);
+            display: block;
+        }
+
+        .salary {
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex; /* Para alinhar com o ícone */
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-paid {
+            background-color: var(--color-success-bg);
+            color: var(--color-success);
+        }
+        .status-paid .icon {
+            color: var(--color-success);
+        }
+
+        .actions button {
+            background: none;
+            border: 1px solid var(--color-border);
+            border-radius: 5px;
+            padding: 6px 12px;
+            margin-right: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.2s;
+            color: var(--color-text-light); /* Cor do ícone */
+        }
+        .actions button:hover {
+            background-color: var(--color-bg-light);
+            color: var(--color-text-dark);
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 900px) {
+            .controls-container {
+                justify-content: flex-start; /* Alinha busca à esquerda */
+            }
+            .search-input {
+                max-width: none; /* Busca ocupa toda a largura */
+            }
+        }
+        @media (max-width: 768px) {
+            .top-bar { flex-direction: column; gap: 16px; padding: 16px; }
+            .header-nav { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            .page-header { text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+            .page-header h2 { font-size: 18px; }
+            .page-header .timestamp { position: static; font-size: 14px; }
+            .page-container { margin-top: 24px; padding: 16px; }
+            .kpi-card-info .kpi-value { font-size: 20px; }
+
+            /* Adapta a tabela para telas menores */
+            .employee-table th,
+            .employee-table td {
+                padding: 10px 12px;
+            }
+            .employee-info img { width: 35px; height: 35px; }
+            .employee-details .name { font-size: 15px; }
+            .employee-details .role { font-size: 12px; }
+            .salary { font-size: 15px; }
+            .status-badge { font-size: 12px; padding: 4px 10px; }
+            .actions button { font-size: 12px; padding: 5px 8px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle user-avatar"></i>
+            <div>
+                <span class="user-name">Felipe</span>
+                <span class="user-role">administração da plataforma</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <i class="fa-solid fa-list-check" title="Quadro"></i>
+            <i class="fa-solid fa-truck" title="Entregas"></i>
+            <i class="fa-solid fa-chart-line" title="Vendas"></i>
+            <i class="fa-solid fa-box" title="Estoque"></i>
+            <i class="fa-solid fa-calendar-days" title="Agenda"></i>
+            <i class="fa-solid fa-user" title="Funcionários"></i>
+            <i class="fa-solid fa-download" title="Relatórios"></i>
+            <i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i>
+        </nav>
+    </header>
+
+    <main class="page-container">
+
+        <header class="page-header">
+            <h2>FUNCIONÁRIOS SALGADERIA MESTRE</h2>
+            <span class="timestamp" id="current-timestamp"></span>
+        </header>
+
+        <section class="kpi-container">
+            <div class="kpi-card">
+                <i class="fa-solid fa-users icon"></i>
+                <div class="kpi-card-info">
+                    <span class="kpi-title">Total de Funcionários</span>
+                    <span class="kpi-value" id="kpi-total-employees">0</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fa-solid fa-hand-holding-dollar icon"></i>
+                <div class="kpi-card-info">
+                    <span class="kpi-title">Folha Mensal (Estimada)</span>
+                    <span class="kpi-value" id="kpi-total-payroll">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fa-solid fa-money-bill-trend-up icon"></i>
+                <div class="kpi-card-info">
+                    <span class="kpi-title">Salário Médio</span>
+                    <span class="kpi-value" id="kpi-avg-salary">R$ 0,00</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="controls-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Buscar funcionário por nome...">
+        </section>
+
+        <section class="table-wrapper">
+            <table class="employee-table">
+                <thead>
+                    <tr>
+                        <th>Funcionário</th>
+                        <th>Salário</th>
+                        <th>Status Pagamento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="employee-table-body">
+                    </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- 1. DADOS DOS FUNCIONÁRIOS (MOCK) ---
+            // **** IMPORTANTE: Ajuste os caminhos e extensões das imagens ****
+            const employeeData = [
+                { name: 'Diego Monteiro Costa', role: 'ENTREGADOR', salary: 1750.00, status: 'PAGO', picture: 'imagens usadas/diego.png' }, // Ajuste o nome/extensão
+                { name: 'Neymar da S. Santos Jr.', role: 'ENTREGADOR', salary: 1800.00, status: 'PAGO', picture: 'imagens usadas/ney.webp' }, // Ajuste o nome/extensão
+                { name: 'Lucas Maciel da Silva', role: 'COZINHEIRO', salary: 2400.00, status: 'PAGO', picture: 'imagens usadas/lucas.jpg' }, // Ajuste o nome/extensão
+                { name: 'Pedro Henrique Gomes', role: 'COZINHEIRO CHEFE', salary: 2800.00, status: 'PAGO', picture: 'imagens usadas/Pedro Henrique gomes.webp' }, // Ajuste o nome/extensão
+                { name: 'Davi Nogueira Batista', role: 'ESTOQUISTA', salary: 1700.99, status: 'PAGO', picture: 'imagens usadas/Davi Nogueira.png' }, // Ajuste o nome/extensão
+                { name: 'Erick Santos', role: 'GERENTE DE PRODUÇÃO', salary: 3000.00, status: 'PAGO', picture: 'imagens usadas/aspas.png' }, // Ajuste o nome/extensão
+                { name: 'Bruna Marquezine', role: 'MARKETING', salary: 2000.00, status: 'PAGO', picture: 'imagens usadas/bruna mark.webp' }, // Ajuste o nome/extensão
+                { name: 'Erika Cristina Silva Rocha', role: 'ANALISTA DE RECURSOS HUMANOS', salary: 2300.00, status: 'PAGO', picture: 'imagens usadas/erika cortada.jpg' } // Ajuste o nome/extensão
+            ];
+
+            // --- 2. SELETORES DO DOM ---
+            const timestampElement = document.getElementById('current-timestamp');
+            const tableBody = document.getElementById('employee-table-body');
+            const searchInput = document.getElementById('search-input');
+            const kpiTotalEmployees = document.getElementById('kpi-total-employees');
+            const kpiTotalPayroll = document.getElementById('kpi-total-payroll');
+            const kpiAvgSalary = document.getElementById('kpi-avg-salary');
+
+            // --- 3. ATUALIZAÇÃO DO TIMESTAMP ---
+            function updateCurrentTime() {
+                const now = new Date();
+                const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
+                const optionsTime = { hour: '2-digit', minute: '2-digit' };
+                const date = now.toLocaleDateString('pt-BR', optionsDate);
+                const time = now.toLocaleTimeString('pt-BR', optionsTime);
+                if (timestampElement) {
+                    timestampElement.textContent = `${date} ${time}`;
+                }
+            }
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+
+            // --- 4. FUNÇÃO PARA RENDERIZAR A TABELA ---
+            function renderTable(data) {
+                tableBody.innerHTML = ''; // Limpa a tabela
+
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-text-light);">Nenhum funcionário encontrado.</td></tr>';
+                    return;
+                }
+
+                data.forEach(employee => {
+                    const row = document.createElement('tr');
+
+                    // Formata o salário para Real Brasileiro
+                    const formattedSalary = employee.salary.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                    row.innerHTML = `
+                        <td>
+                            <div class="employee-info">
+                                <img src="${employee.picture}" alt="${employee.name}" onerror="this.src='https://via.placeholder.com/45/CCCCCC/FFFFFF?text=??'"> <div class="employee-details">
+                                    <span class="name">${employee.name}</span>
+                                    <span class="role">${employee.role}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="salary">${formattedSalary}</span></td>
+                        <td>
+                            <span class="status-badge status-paid">
+                                ${employee.status}
+                                <i class="fa-solid fa-check-circle icon"></i>
+                            </span>
+                        </td>
+                        <td class="actions">
+                            <button title="Ver Perfil"><i class="fa-solid fa-eye"></i></button>
+                            <button title="Editar"><i class="fa-solid fa-pencil"></i></button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            // --- 5. FUNÇÃO PARA CALCULAR KPIs ---
+            function updateKPIs(data) {
+                const totalEmployees = data.length;
+                const totalPayroll = data.reduce((sum, emp) => sum + emp.salary, 0);
+                const avgSalary = totalEmployees > 0 ? totalPayroll / totalEmployees : 0;
+
+                kpiTotalEmployees.textContent = totalEmployees;
+                kpiTotalPayroll.textContent = totalPayroll.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                kpiAvgSalary.textContent = avgSalary.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+
+            // --- 6. LÓGICA DA BUSCA ---
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                const filteredData = employeeData.filter(employee =>
+                    employee.name.toLowerCase().includes(searchTerm)
+                );
+
+                renderTable(filteredData);
+            });
+
+            // --- 7. INICIALIZAÇÃO ---
+            renderTable(employeeData); // Renderiza a tabela inicial
+            updateKPIs(employeeData); // Calcula os KPIs iniciais
+
+        });
+    </script>
+
+</body>
+</html>
