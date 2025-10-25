@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forma de Pagamento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --color-primary-orange: #d96d24;
+            --color-secondary-orange: #f57c00;
+            --color-product-bg: #8c4a28;
+            --color-text-dark: #333;
+            --color-text-light: #666;
+            --color-text-inactive: #888;
+            --color-bg-page: #f4f4f4;
+            --color-bg-container: #ffffff;
+            --color-bg-option-light: #f9f9f9;
+            --color-bg-option-dark: #f0f0f0;
+            --color-bg-cart: #e9e9e9;
+            --color-border: #ddd;
+            --color-pix-green: #32c7b1;
+            --color-success: #4caf50;
+            --color-footer-bg: #b84a1b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header (Barra Laranja) --- */
+        .top-bar {
+            background-color: var(--color-primary-orange);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .user-info div {
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+        }
+
+        .user-info .user-name {
+            font-weight: 600;
+        }
+
+        .user-info .user-type {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 24px;
+        }
+
+        .header-nav i {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .header-nav i:hover {
+            transform: scale(1.1);
+        }
+
+        /* --- Container Principal do Checkout --- */
+        .checkout-container {
+            background-color: var(--color-bg-container);
+            max-width: 1000px;
+            width: 95%;
+            margin: 24px auto;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            flex: 1;
+        }
+
+        .checkout-container>h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .checkout-layout {
+            display: flex;
+            gap: 24px;
+        }
+
+        /* --- Coluna da Esquerda: Opções de Pagamento --- */
+        .payment-options {
+            flex: 6;
+            /* Ocupa mais espaço */
+        }
+
+        .payment-tabs {
+            display: flex;
+            gap: 24px;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: 24px;
+        }
+
+        .payment-tabs span {
+            font-size: 16px;
+            font-weight: 500;
+            padding-bottom: 12px;
+            cursor: pointer;
+            color: var(--color-text-inactive);
+            border-bottom: 3px solid transparent;
+            position: relative;
+            top: 1px;
+            /* Alinha com a borda inferior do container */
+            transition: color 0.2s;
+        }
+
+        .payment-tabs span.active {
+            color: var(--color-secondary-orange);
+            border-bottom-color: var(--color-secondary-orange);
+        }
+
+        .payment-content {
+            display: none;
+            /* Escondido por padrão */
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .payment-content.active {
+            display: flex;
+            /* Visível quando ativo */
+        }
+
+        .payment-method {
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            overflow: hidden;
+        }
+
+        .payment-method:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo de seleção para "Pague na entrega" */
+        #pague-na-entrega .payment-method.active {
+            border-color: var(--color-secondary-orange);
+            box-shadow: 0 0 0 1px var(--color-secondary-orange);
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background-color: var(--color-bg-option-light);
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        /* Estilo de acordeão para "Pague online" */
+        #pague-online .payment-method.active>.method-header {
+            background-color: white;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .payment-method .icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+        }
+
+        .pix-icon {
+            color: var(--color-pix-green);
+            background-color: #e0f8f5;
+            border-radius: 50%;
+        }
+
+        .card-icon {
+            color: #1976d2;
+            /* Azul do ícone do cartão */
+        }
+
+        .method-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .method-info .title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .method-info .description {
+            font-size: 14px;
+            color: var(--color-text-light);
+        }
+
+        .method-header i.fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+
+        .payment-method.active .method-header i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        /* Detalhes do Método de Pagamento (Expandido) */
+        .method-details {
+            display: none;
+            /* Escondido por padrão */
+            background-color: var(--color-bg-option-dark);
+            padding: 20px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            border-top: 1px solid var(--color-border);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        #pague-online .payment-method.active .method-details {
+            display: block;
+            /* Mostra quando o .payment-method está ativo */
+        }
+
+        /* QR Code para Pix */
+        .pix-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .qr-code-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--color-border);
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .pix-code {
+            background-color: white;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 14px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            background-color: var(--color-pix-green);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #2ab09d;
+        }
+
+        .copy-btn.copied {
+            background-color: var(--color-success);
+        }
+
+        /* Detalhes do Cartão */
+        .card-options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .radio-option:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        /* Custom Radio Button */
+        .radio-option input[type="radio"] {
+            display: none;
+            /* Esconde o radio button real */
+        }
+
+        .radio-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--color-text-inactive);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            transition: all 0.2s;
+        }
+
+        .radio-custom::after {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background-color: var(--color-secondary-orange);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.2s;
+        }
+
+        .radio-option input[type="radio"]:checked+.radio-custom {
+            border-color: var(--color-secondary-orange);
+        }
+
+        .radio-option input[type="radio"]:checked+.radio-custom::after {
+            transform: scale(1);
+        }
+
+        .radio-option .icon {
+            font-size: 20px;
+            color: var(--color-text-light);
+        }
+
+        /* Formulário do Cartão */
+        .card-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text-dark);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            font-family: inherit;
+            /* Garante que a select use a mesma fonte */
+            background-color: white;
+        }
+
+        /* Estilização customizada para o select */
+        .form-group select {
+            appearance: none;
+            /* Remove seta padrão */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-secondary-orange);
+            box-shadow: 0 0 0 2px rgba(245, 124, 0, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* --- Coluna da Direita: Resumo do Pedido --- */
+        .order-summary {
+            flex: 4;
+            /* Ocupa menos espaço */
+            background-color: var(--color-bg-cart);
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+            /* Ajusta a altura ao conteúdo */
+        }
+
+        .order-summary h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .product-card {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 8px;
+            /* Imagem de placeholder - substitua pela URL da imagem real */
+            background-image: url('https://i.imgur.com/7gMuzvN.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .product-overlay {
+            width: 100%;
+            max-width: 250px;
+            position: relative;
+            margin-top: -60px;
+            /* Sobrepõe a imagem */
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d9534f;
+            /* Tom de vermelho/laranja para o texto */
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.3);
+            /* Fundo semi-transparente para legibilidade */
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .product-price {
+            background-color: var(--color-product-bg);
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .continue-button {
+            width: 100%;
+            background-color: var(--color-secondary-orange);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .continue-button:hover {
+            background-color: #e66f00;
+            /* Tom mais escuro no hover */
+        }
+
+        .continue-button:active {
+            transform: scale(0.98);
+        }
+
+        /* --- Footer --- */
+        .footer {
+            background-color: var(--color-footer-bg);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--color-secondary-orange);
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #ffffff;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--color-secondary-orange);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .social-links a:hover {
+            box-shadow: #80310f 0px 0px 10px;
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            padding: 20px 24px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .payment-methods-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .payment-method-icon {
+            width: 40px;
+            height: 25px;
+            background-color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #333;
+        }
+
+        /* --- Estilos do Modal de Sucesso --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            color: var(--color-success);
+            margin-bottom: 16px;
+        }
+
+        .modal-content h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: var(--color-text-dark);
+        }
+
+        .modal-content p {
+            font-size: 16px;
+            color: var(--color-text-light);
+        }
+
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            .checkout-layout {
+                flex-direction: column-reverse;
+                /* Carrinho vem primeiro no mobile */
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+            }
+
+            .header-nav {
+                gap: 16px;
+            }
+
+            .header-nav i {
+                font-size: 22px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top-bar">
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle" style="font-size: 40px;"></i>
+            <div>
+                <span class="user-name">Bruno</span>
+                <span class="user-type">cliente</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <i class="fa-solid fa-book-open"></i>
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </nav>
+    </header>
+
+    <main class="checkout-container">
+        <h1>Forma de pagamento</h1>
+
+        <div class="checkout-layout">
+
+            <section class="payment-options">
+                <div class="payment-tabs">
+                    <span class="tab-link active" data-tab="pague-online">Pague online</span>
+                    <span class="tab-link" data-tab="pague-na-entrega">Pague na entrega</span>
+                </div>
+
+                <div id="pague-online" class="payment-content active">
+
+                    <div class="payment-method" id="method-pix">
+                        <div class="method-header" role="button" aria-expanded="false">
+                            <div class="icon pix-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 0C5.373 0 0 5.373 0 12C0 18.627 5.373 24 12 24C18.627 24 24 18.627 24 12C24 5.373 18.627 0 12 0ZM18.47 16.903L12 13.013L5.53 16.903C5.347 17.01 5.127 16.96 4.99 16.79C4.853 16.62 4.83 16.38 4.94 16.2L11.4 12L4.94 7.8C4.83 7.62 4.853 7.38 4.99 7.21C5.127 7.04 5.347 6.99 5.53 7.097L12 10.987L18.47 7.097C18.653 6.99 18.873 7.04 19.01 7.21C19.147 7.38 19.17 7.62 19.06 7.8L12.6 12L19.06 16.2C19.17 16.38 19.147 16.62 19.01 16.79C18.873 16.96 18.653 17.01 18.47 16.903Z"
+                                        fill="#32C7B1" />
+                                </svg>
+                            </div>
+                            <div class="method-info">
+                                <span class="title">Pix</span>
+                                <span class="description">Use o qr code ou copie e cole o código</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="method-details" aria-hidden="true">
+                            <div class="pix-content">
+                                <div class="qr-code-container">
+                                    <div class="qr-code">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PIX_CODIGO_1234567890"
+                                            alt="QR Code Pix">
+                                    </div>
+                                    <p>Escaneie o código com seu app bancário</p>
+                                </div>
+                                <div class="pix-code" id="pix-code">
+                                    00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-4266141740005204000053039865802BR5913NOME
+                                    DO VENDEDOR6008SAO PAULO62070503***6304E2CA
+                                </div>
+                                <button class="copy-btn" id="copy-pix-btn">Copiar código</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-method" id="method-card">
+                        <div class="method-header" role="button" aria-expanded="false">
+                            <div class="icon card-icon">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <div class="method-info">
+                                <span class="title">Cartão</span>
+                                <span class="description">Escolha o tipo de cartão</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="method-details" aria-hidden="true">
+                            <div class="card-options-list">
+                                <label class="radio-option">
+                                    <input type="radio" name="card-type" value="credito" checked>
+                                    <span class="radio-custom"></span>
+                                    <i class="fa-regular fa-credit-card icon"></i>
+                                    <span>Crédito</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="card-type" value="debito">
+                                    <span class="radio-custom"></span>
+                                    <i class="fa-solid fa-credit-card icon"></i>
+                                    <span>Débito</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="card-type" value="refeicao">
+                                    <span class="radio-custom"></span>
+                                    <i class="fa-solid fa-utensils icon"></i>
+                                    <span>Vale-refeição</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="card-type" value="alimentacao">
+                                    <span class="radio-custom"></span>
+                                    <i class="fa-solid fa-cart-shopping icon"></i>
+                                    <span>Vale-alimentação</span>
+                                </label>
+                            </div>
+
+                            <form class="card-form" id="card-form" novalidate>
+                                <div class="form-group">
+                                    <label for="card-number">Número do cartão</label>
+                                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19"
+                                        inputmode="numeric" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="card-name">Nome no cartão</label>
+                                    <input type="text" id="card-name" placeholder="Como está no cartão" required>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="card-expiry">Validade</label>
+                                        <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5"
+                                            inputmode="numeric" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="card-cvv">CVV</label>
+                                        <input type="text" id="card-cvv" placeholder="123" maxlength="4"
+                                            inputmode="numeric" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="card-installments">Parcelas</label>
+                                    <select id="card-installments" required>
+                                        <option value="1">1x de R$ 14,99 sem juros</option>
+                                        <option value="2">2x de R$ 7,50 sem juros</option>
+                                        <option value="3">3x de R$ 5,00 sem juros</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="pague-na-entrega" class="payment-content">
+                    <div class="payment-method" id="method-dinheiro">
+                        <div class="method-header">
+                            <div class="icon">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            </div>
+                            <div class="method-info">
+                                <span class="title">Dinheiro</span>
+                                <span class="description">Pague com dinheiro na entrega</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-method" id="method-cartao-entrega">
+                        <div class="method-header">
+                            <div class="icon">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <div class="method-info">
+                                <span class="title">Cartão na entrega</span>
+                                <span class="description">Máquina de cartão na entrega</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <aside class="order-summary">
+                <h2>há 1 item no seu carrinho</h2>
+
+                <div class="product-card">
+                    <div class="product-image">
+                    </div>
+                    <div class="product-overlay">
+                        <div class="product-name">MORANGO DO AMOR</div>
+                        <div class="product-price">R$ 14,99</div>
+                    </div>
+                </div>
+
+                <button class="continue-button">Continuar</button>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Sobre Nós</h3>
+                <p>Somos uma empresa dedicada a oferecer os melhores produtos com qualidade e preço justo. Nossa missão
+                    é proporcionar uma experiência de compra excepcional.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Links Rápidos</h3>
+                <a href="#">Início</a>
+                <a href="#">Produtos</a>
+                <a href="#">Sobre</a>
+                <a href="#">Contato</a>
+                <a href="#">Política de Privacidade</a>
+                <a href="#">Termos de Uso</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Formas de Pagamento</h3>
+                <div class="payment-methods-footer">
+                    <div class="payment-method-icon">PIX</div>
+                    <div class="payment-method-icon">VISA</div>
+                    <div class="payment-method-icon">MC</div>
+                    <div class="payment-method-icon">ELO</div>
+                    <div class="payment-method-icon">VR</div>
+                    <div class="payment-method-icon">VA</div>
+                </div>
+                <h3 style="margin-top: 20px;">Contato</h3>
+                <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
+                <p><i class="fas fa-envelope"></i> contato@exemplo.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> São Paulo, SP</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; Salgaderia mestre 2025 Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div id="success-modal" class="modal-overlay">
+        <div class="modal-content">
+            <i class="fa-solid fa-check-circle modal-icon"></i>
+            <h2>Pagamento processado com sucesso!</h2>
+            <p>Você será redirecionado em instantes...</p>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // --- Seletores Globais ---
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const paymentContents = document.querySelectorAll('.payment-content');
+            const modal = document.getElementById('success-modal');
+            const continueButton = document.querySelector('.continue-button');
+            const cardForm = document.getElementById('card-form');
+            const copyPixBtn = document.getElementById('copy-pix-btn');
+            const pixCode = document.getElementById('pix-code');
+            const cardNumber = document.getElementById('card-number');
+            const cardExpiry = document.getElementById('card-expiry');
+            const cardCvv = document.getElementById('card-cvv');
+            const cardName = document.getElementById('card-name');
+
+
+            // --- Lógica para as Tabs ---
+            tabLinks.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabLinks.forEach(link => link.classList.remove('active'));
+                    paymentContents.forEach(content => content.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+
+                    // Desmarca qualquer seleção ao trocar de aba
+                    document.querySelectorAll('.payment-method.active').forEach(m => m.classList.remove('active'));
+                });
+            });
+
+            // --- Lógica para o Acordeão (Pague online) ---
+            const onlineMethods = document.querySelectorAll('#pague-online .payment-method');
+            onlineMethods.forEach(method => {
+                const header = method.querySelector('.method-header');
+                const details = method.querySelector('.method-details');
+
+                if (header) {
+                    header.addEventListener('click', () => {
+                        const isActive = method.classList.contains('active');
+                        // Fecha todos os *outros* métodos online
+                        onlineMethods.forEach(m => {
+                            if (m !== method) {
+                                m.classList.remove('active');
+                                m.querySelector('.method-header')?.setAttribute('aria-expanded', 'false');
+                                m.querySelector('.method-details')?.setAttribute('aria-hidden', 'true');
+                            }
+                        });
+                        // Alterna o método clicado
+                        method.classList.toggle('active');
+                        header.setAttribute('aria-expanded', !isActive);
+                        details?.setAttribute('aria-hidden', isActive);
+                    });
+                }
+            });
+
+            // --- Lógica para Seleção (Pague na entrega) ---
+            const deliveryMethods = document.querySelectorAll('#pague-na-entrega .payment-method');
+            deliveryMethods.forEach(method => {
+                // Adiciona o listener ao método inteiro
+                method.addEventListener('click', () => {
+                    // Remove 'active' de todos os métodos de entrega
+                    deliveryMethods.forEach(m => m.classList.remove('active'));
+                    // Adiciona 'active' apenas ao clicado
+                    method.classList.add('active');
+                });
+            });
+
+
+            // --- Cópia do código Pix (Método Moderno) ---
+            if (copyPixBtn) {
+                copyPixBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Impede que o clique feche o acordeão
+                    const codeToCopy = pixCode.textContent.trim();
+
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(codeToCopy).then(() => {
+                            showCopyFeedback(copyPixBtn);
+                        }).catch(err => {
+                            console.error('Falha ao copiar: ', err);
+                            alert('Não foi possível copiar o código.');
+                        });
+                    } else {
+                        // Fallback para navegadores antigos (raro)
+                        try {
+                            const textArea = document.createElement('textarea');
+                            textArea.value = codeToCopy;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            showCopyFeedback(copyPixBtn);
+                        } catch (err) {
+                            alert('Não foi possível copiar o código.');
+                        }
+                    }
+                });
+            }
+
+            function showCopyFeedback(button) {
+                button.textContent = 'Código copiado!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copiar código';
+                    button.classList.remove('copied');
+                }, 2000);
+            }
+
+            // --- Formatação dos campos do cartão ---
+            if (cardNumber) {
+                cardNumber.addEventListener('input', function (e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                    e.target.value = value.substring(0, 19);
+                });
+            }
+
+            if (cardExpiry) {
+                cardExpiry.addEventListener('input', function (e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 2) {
+                        let month = value.substring(0, 2);
+                        let year = value.substring(2, 4);
+                        if (parseInt(month) > 12) month = '12'; // Valida o mês
+                        value = month + (year ? '/' + year : '');
+                    }
+                    e.target.value = value.substring(0, 5);
+                });
+            }
+
+            if (cardCvv) {
+                cardCvv.addEventListener('input', function (e) {
+                    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+                });
+            }
+
+            // --- Lógica do botão Continuar (COM MODAL) ---
+            if (continueButton) {
+                continueButton.addEventListener('click', function (e) {
+                    e.preventDefault(); // Previne qualquer envio de formulário padrão
+
+                    const activeTab = document.querySelector('.payment-tabs .tab-link.active');
+                    let selectedMethod = null;
+                    let isValid = false;
+
+                    if (activeTab.dataset.tab === 'pague-online') {
+                        selectedMethod = document.querySelector('#pague-online .payment-method.active');
+
+                        if (selectedMethod) {
+                            if (selectedMethod.id === 'method-card') {
+                                // Valida o formulário do cartão
+                                if (cardForm.checkValidity()) {
+                                    isValid = true;
+                                } else {
+                                    cardForm.reportValidity(); // Mostra erros de validação do HTML5
+                                    return;
+                                }
+                            } else if (selectedMethod.id === 'method-pix') {
+                                isValid = true; // Pix não precisa de validação extra
+                            }
+                        }
+
+                    } else if (activeTab.dataset.tab === 'pague-na-entrega') {
+                        selectedMethod = document.querySelector('#pague-na-entrega .payment-method.active');
+
+                        if (selectedMethod) { // Se 'method-dinheiro' ou 'method-cartao-entrega'
+                            isValid = true;
+                        }
+                    }
+
+                    // --- Se a validação falhar ou nada for selecionado ---
+                    if (!selectedMethod || !isValid) {
+                        alert('Por favor, selecione um método de pagamento válido.');
+                        return;
+                    }
+
+                    // --- Se a validação passar ---
+
+                    // Simulação de processamento
+                    continueButton.textContent = 'Processando...';
+                    continueButton.disabled = true;
+
+                    setTimeout(() => {
+                        // 1. Mostrar o modal
+                        modal.classList.add('active');
+
+                        // 2. Esperar o modal ser exibido e redirecionar
+                        setTimeout(() => {
+                            // 3. Redirecionar para a página de sucesso/obrigado
+                            // Altere "obrigado.html" para sua página de destino
+                            window.location.href = 'obrigado.html';
+
+                        }, 2500); // Tempo que o modal fica visível (2.5 segundos)
+
+                    }, 2000); // Tempo do "Processando..." (2 segundos)
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
