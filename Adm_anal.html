@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -663,4 +664,671 @@
         }
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Mensal de Vendas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --color-primary: #b95c21;
+            --color-text-dark: #333;
+            --color-text-light: #555;
+            --color-text-header: #777;
+            --color-text-timestamp: #888;
+            --color-grid-line: #ddd;
+            --color-border: #e9e9e9;
+            --color-bar-green: #28a745; 
+            --color-bar-blue: #007bff;  
+            --color-bar-red: #b32a31;   
+            --color-bg-page: #ffffff;
+            --color-bg-light: #f9f9f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header (Barra Laranja) --- */
+        .top-bar {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
+        .user-info div { display: flex; flex-direction: column; font-size: 14px; }
+        .user-info .user-name { font-weight: 600; }
+        .user-info .user-role { font-size: 12px; opacity: 0.8; }
+        .header-nav { display: flex; gap: 28px; }
+        .header-nav i { font-size: 20px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
+        .header-nav i:hover { opacity: 1; }
+        
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .header-nav a:hover {
+            opacity: 0.8;
+        }
+
+        .header-nav a:visited {
+            color: white;
+        }
+
+        .header-nav a:active {
+            color: white;
+        }
+        
+        /* --- Container Principal da Página --- */
+        .page-container {
+            max-width: 1000px;
+            width: 95%;
+            margin: 32px auto;
+            padding: 24px;
+            flex-grow: 1;
+        }
+
+        /* Cabeçalho da Página (Título e Data) */
+        .page-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 40px; 
+            padding-bottom: 16px;
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--color-text-header);
+            letter-spacing: 0.5px;
+            display: inline-block;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .page-header .timestamp {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 16px;
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+
+        /* --- NOVA SEÇÃO: Cartões KPI --- */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .kpi-card {
+            background-color: var(--color-bg-light);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .kpi-card .icon {
+            font-size: 24px;
+            color: var(--color-primary);
+            margin-top: 4px;
+        }
+        
+        .kpi-card-info .kpi-title {
+            font-size: 14px;
+            color: var(--color-text-light);
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        
+        .kpi-card-info .kpi-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        /* --- Seção do Gráfico --- */
+        .chart-section {
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            gap: 30px; 
+        }
+
+        .bar-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px; 
+            height: 400px; 
+            padding-left: 50px; 
+        }
+
+        /* Eixo Y (Labels e Linhas) */
+        .y-axis {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            margin-left: 50px; 
+            z-index: 1;
+        }
+        
+        .y-axis::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1px;
+            height: calc(100% - 40px); 
+            background-color: var(--color-text-dark);
+        }
+        .y-axis::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 40px; 
+            width: calc(100% - 50px);
+            height: 1px;
+            background-color: var(--color-text-dark);
+        }
+
+        .y-axis-label {
+            position: absolute;
+            left: -40px; 
+            font-size: 13px;
+            color: var(--color-text-light);
+            text-align: right;
+            width: 35px;
+        }
+
+        .grid-line {
+            position: absolute;
+            width: calc(100% - 50px); 
+            height: 1px;
+            background-color: var(--color-grid-line);
+            z-index: 0; 
+            left: 0; 
+        }
+
+        /* Posições (Baseado em 400px de altura total) */
+        .y-axis-label[data-value="0"] { bottom: 40px; transform: translateY(50%); left: -45px; }
+        .y-axis-label[data-value="50"] { bottom: calc(40px + (360px * 0.1)); transform: translateY(50%); }
+        .y-axis-label[data-value="100"] { bottom: calc(40px + (360px * 0.2)); transform: translateY(50%); }
+        .y-axis-label[data-value="150"] { bottom: calc(40px + (360px * 0.3)); transform: translateY(50%); }
+        .y-axis-label[data-value="200"] { bottom: calc(40px + (360px * 0.4)); transform: translateY(50%); }
+        .y-axis-label[data-value="250"] { bottom: calc(40px + (360px * 0.5)); transform: translateY(50%); }
+        .y-axis-label[data-value="300"] { bottom: calc(40px + (360px * 0.6)); transform: translateY(50%); }
+        .y-axis-label[data-value="350"] { bottom: calc(40px + (360px * 0.7)); transform: translateY(50%); }
+        .y-axis-label[data-value="400"] { bottom: calc(40px + (360px * 0.8)); transform: translateY(50%); }
+        .y-axis-label[data-value="450"] { bottom: calc(40px + (360px * 0.9)); transform: translateY(50%); }
+        .y-axis-label[data-value="500+"] { bottom: calc(40px + 360px); transform: translateY(50%); }
+
+        .grid-line[data-value="50"] { bottom: calc(40px + (360px * 0.1)); }
+        .grid-line[data-value="100"] { bottom: calc(40px + (360px * 0.2)); }
+        .grid-line[data-value="150"] { bottom: calc(40px + (360px * 0.3)); }
+        .grid-line[data-value="200"] { bottom: calc(40px + (360px * 0.4)); }
+        .grid-line[data-value="250"] { bottom: calc(40px + (360px * 0.5)); }
+        .grid-line[data-value="300"] { bottom: calc(40px + (360px * 0.6)); }
+        .grid-line[data-value="350"] { bottom: calc(40px + (360px * 0.7)); }
+        .grid-line[data-value="400"] { bottom: calc(40px + (360px * 0.8)); }
+        .grid-line[data-value="450"] { bottom: calc(40px + (360px * 0.9)); }
+        .grid-line[data-value="500"] { bottom: calc(40px + 360px); }
+
+        /* Scroll Wrapper para as barras */
+        .chart-scroll-wrapper {
+            position: absolute;
+            left: 50px; 
+            top: 0;
+            width: calc(100% - 50px); 
+            height: 100%; 
+            overflow-x: auto; 
+            overflow-y: hidden;
+            z-index: 5; 
+        }
+        
+        .bars {
+            position: relative;
+            width: 1000px; 
+            height: 100%;
+            display: flex;
+            align-items: flex-end; 
+            justify-content: space-around; 
+            padding: 0 10px; 
+            padding-bottom: 40px; 
+        }
+
+        .bar-item {
+            width: 10%; 
+            background-color: lightgray; 
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            transition: height 0.5s ease-out; 
+            position: relative;
+            cursor: pointer;
+        }
+        .bar-item:hover {
+            opacity: 0.85;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -30px; 
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px; 
+            font-weight: 600;
+            color: var(--color-text-dark);
+            white-space: nowrap; 
+        }
+
+        /* --- Legenda --- */
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 24px; 
+            width: 100%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--color-text-dark);
+            font-weight: 500;
+        }
+
+        .legend-color {
+            width: 20px; 
+            height: 20px;
+            border-radius: 2px;
+        }
+        .legend-color.green { background-color: var(--color-bar-green); }
+        .legend-color.blue { background-color: var(--color-bar-blue); }
+        .legend-color.red { background-color: var(--color-bar-red); }
+
+        /* --- NOVA SEÇÃO: Tabela de Dados --- */
+        .data-table-container {
+            margin-top: 40px;
+            width: 100%;
+        }
+        
+        .data-table-container h2 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--color-text-header);
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 8px;
+        }
+        
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Permite rolagem da tabela em telas pequenas */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        thead th {
+            background-color: var(--color-bg-light);
+            font-size: 13px;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+        }
+        
+        tbody tr:hover {
+            background-color: #fcfcfc;
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-green { background-color: #e9f7ec; color: var(--color-bar-green); }
+        .status-blue { background-color: #e6f2ff; color: var(--color-bar-blue); }
+        .status-red { background-color: #fbe9e9; color: var(--color-bar-red); }
+
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            .top-bar { flex-direction: column; gap: 16px; padding: 16px; }
+            .header-nav { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            .page-header { text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+            .page-header h2 { font-size: 18px; }
+            .page-header .timestamp { position: static; font-size: 14px; }
+            .page-container { margin-top: 24px; padding: 16px; }
+            .bar-chart-container { max-width: 100%; height: 300px; padding-left: 40px; }
+            .y-axis::before { height: calc(100% - 30px); } 
+            .y-axis::after { bottom: 30px; } 
+            .y-axis-label { left: -35px; font-size: 12px; }
+            .y-axis-label[data-value="0"] { left: -40px; bottom: 30px; }
+            .y-axis-label[data-value="50"] { bottom: calc(30px + (270px * 0.1)); }
+            .y-axis-label[data-value="100"] { bottom: calc(30px + (270px * 0.2)); }
+            .y-axis-label[data-value="150"] { bottom: calc(30px + (270px * 0.3)); }
+            .y-axis-label[data-value="200"] { bottom: calc(30px + (270px * 0.4)); }
+            .y-axis-label[data-value="250"] { bottom: calc(30px + (270px * 0.5)); }
+            .y-axis-label[data-value="300"] { bottom: calc(30px + (270px * 0.6)); }
+            .y-axis-label[data-value="350"] { bottom: calc(30px + (270px * 0.7)); }
+            .y-axis-label[data-value="400"] { bottom: calc(30px + (270px * 0.8)); }
+            .y-axis-label[data-value="450"] { bottom: calc(30px + (270px * 0.9)); }
+            .y-axis-label[data-value="500+"] { bottom: calc(30px + 270px); }
+            .grid-line[data-value="50"] { bottom: calc(30px + (270px * 0.1)); }
+            .grid-line[data-value="100"] { bottom: calc(30px + (270px * 0.2)); }
+            .grid-line[data-value="150"] { bottom: calc(30px + (270px * 0.3)); }
+            .grid-line[data-value="200"] { bottom: calc(30px + (270px * 0.4)); }
+            .grid-line[data-value="250"] { bottom: calc(30px + (270px * 0.5)); }
+            .grid-line[data-value="300"] { bottom: calc(30px + (270px * 0.6)); }
+            .grid-line[data-value="350"] { bottom: calc(30px + (270px * 0.7)); }
+            .grid-line[data-value="400"] { bottom: calc(30px + (270px * 0.8)); }
+            .grid-line[data-value="450"] { bottom: calc(30px + (270px * 0.9)); }
+            .grid-line[data-value="500"] { bottom: calc(30px + 270px); }
+            .chart-scroll-wrapper { left: 40px; width: calc(100% - 40px); }
+            .bars { width: 800px; padding-bottom: 30px; }
+            .bar-item { width: 10%; }
+            .bar-label { font-size: 13px; bottom: -25px; }
+            .chart-legend { gap: 16px; }
+            .legend-item { font-size: 13px; gap: 6px; }
+            .legend-color { width: 14px; height: 14px; }
+            .kpi-card-info .kpi-value { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle user-avatar"></i>
+            <div>
+                <span class="user-name">Felipe</span>
+                <span class="user-role">administração da plataforma</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="estoque.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="agenda.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="funcionarios.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="relatorios.html"><i class="fa-solid fa-download" title="Relatórios"></i></a>
+            <a href="javascript:void(0)" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
+    </header>
+
+    <main class="page-container">
+
+        <header class="page-header">
+            <h2>ANALISE MENSAL DE VENDAS</h2>
+            <span class="timestamp">24/07/25 19:37</span>
+        </header>
+        
+        <section class="kpi-container">
+            <div class="kpi-card">
+                <i class="fa-solid fa-dollar-sign icon"></i>
+                <div class="kpi-card-info">
+                    <span class="kpi-title">TOTAL DE VENDAS (PERÍODO)</span>
+                    <span class="kpi-value" id="kpi-total-sales">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fa-solid fa-receipt icon"></i>
+                <div class="kpi-card-info">
+                    <span class="kpi-title">TICKET MÉDIO</span>
+                    <span class="kpi-value" id="kpi-avg-ticket">R$ 0,00</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fa-solid fa-arrow-trend-up icon"></i>
+                <div class="kpi-card-info">
+                    <span class="kpi-title">MÊS DE DESTAQUE</span>
+                    <span class="kpi-value" id="kpi-best-month">--</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <i class="fa-solid fa-arrow-trend-down icon"></i>
+                <div class="kpi-card-info">
+                    <span class="kpi-title">MÊS COM BAIXA</span>
+                    <span class="kpi-value" id="kpi-worst-month">--</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="chart-section">
+            <div class="bar-chart-container">
+                <div class="y-axis">
+                    <span class="y-axis-label" data-value="0">0</span>
+                    <span class="y-axis-label" data-value="50">50</span><div class="grid-line" data-value="50"></div>
+                    <span class="y-axis-label" data-value="100">100</span><div class="grid-line" data-value="100"></div>
+                    <span class="y-axis-label" data-value="150">150</span><div class="grid-line" data-value="150"></div>
+                    <span class="y-axis-label" data-value="200">200</span><div class="grid-line" data-value="200"></div>
+                    <span class="y-axis-label" data-value="250">250</span><div class="grid-line" data-value="250"></div>
+                    <span class="y-axis-label" data-value="300">300</span><div class="grid-line" data-value="300"></div>
+                    <span class="y-axis-label" data-value="350">350</span><div class="grid-line" data-value="350"></div>
+                    <span class="y-axis-label" data-value="400">400</span><div class="grid-line" data-value="400"></div>
+                    <span class="y-axis-label" data-value="450">450</span><div class="grid-line" data-value="450"></div>
+                    <span class="y-axis-label" data-value="500+">500+</span><div class="grid-line" data-value="500"></div>
+                </div>
+
+                <div class="chart-scroll-wrapper">
+                    <div class="bars" id="chart-bars">
+                        </div>
+                </div>
+            </div>
+
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <span class="legend-color green"></span>
+                    <span>VENDAS ACIMA</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color blue"></span>
+                    <span>VENDAS NORMAIS</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color red"></span>
+                    <span>VENDAS ABAIXO</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="data-table-container">
+            <h2>Dados Detalhados</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mês</th>
+                            <th>Vendas (em unidades)</th>
+                            <th>Total de Pedidos</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- FONTE DE DADOS CENTRAL ---
+            // Aqui você pode adicionar/remover meses.
+            // O gráfico, a tabela e os KPIs se ajustarão.
+            const dashboardData = [
+                { month: 'MARÇO', value: 430, orders: 150, colorClass: 'green', statusText: 'Vendas Acima' },
+                { month: 'ABRIL', value: 180, orders: 75, colorClass: 'red', statusText: 'Vendas Abaixo' },
+                { month: 'MAIO', value: 345, orders: 110, colorClass: 'blue', statusText: 'Vendas Normais' },
+                { month: 'JUNHO', value: 265, orders: 90, colorClass: 'blue', statusText: 'Vendas Normais' },
+                { month: 'JULHO', value: 310, orders: 105, colorClass: 'blue', statusText: 'Vendas Normais' },
+                { month: 'AGOSTO', value: 220, orders: 85, colorClass: 'red', statusText: 'Vendas Abaixo' },
+                { month: 'SETEMBRO', value: 480, orders: 160, colorClass: 'green', statusText: 'Vendas Acima' },
+                { month: 'OUTUBRO', value: 510, orders: 170, colorClass: 'green', statusText: 'Vendas Acima' }
+            ];
+
+            // --- Seletores do DOM ---
+            const barsContainer = document.getElementById('chart-bars');
+            const tableBody = document.getElementById('data-table-body');
+            const kpiTotalSales = document.getElementById('kpi-total-sales');
+            const kpiAvgTicket = document.getElementById('kpi-avg-ticket');
+            const kpiBestMonth = document.getElementById('kpi-best-month');
+            const kpiWorstMonth = document.getElementById('kpi-worst-month');
+            
+            // --- Constantes do Gráfico ---
+            const maxValue = 500; 
+
+            // --- Inicialização ---
+            renderDashboard(dashboardData);
+
+
+            function renderDashboard(data) {
+                // Limpa o conteúdo anterior
+                barsContainer.innerHTML = '';
+                tableBody.innerHTML = '';
+
+                let totalSales = 0;
+                let totalOrders = 0;
+                let bestMonth = { month: '--', value: -Infinity };
+                let worstMonth = { month: '--', value: Infinity };
+
+                data.forEach(item => {
+                    // 1. Renderiza o Gráfico
+                    createBarItem(item);
+
+                    // 2. Renderiza a Tabela
+                    createTableRow(item);
+                    
+                    // 3. Calcula KPIs
+                    totalSales += item.value;
+                    totalOrders += item.orders;
+                    if (item.value > bestMonth.value) {
+                        bestMonth = item;
+                    }
+                    if (item.value < worstMonth.value) {
+                        worstMonth = item;
+                    }
+                });
+                
+                // 4. Preenche os KPIs
+                const avgTicket = totalOrders > 0 ? (totalSales / totalOrders) : 0;
+                
+                // Usando .toLocaleString para formatar os números
+                kpiTotalSales.textContent = `${totalSales.toLocaleString('pt-BR')} unidades`;
+                kpiAvgTicket.textContent = `${avgTicket.toFixed(1).replace('.', ',')} unid./pedido`;
+                kpiBestMonth.textContent = `${bestMonth.month} (${bestMonth.value} unid.)`;
+                kpiWorstMonth.textContent = `${worstMonth.month} (${worstMonth.value} unid.)`;
+            }
+
+            function createBarItem(item) {
+                const barHeightPercentage = Math.min((item.value / maxValue) * 100, 100);
+                
+                const barItem = document.createElement('div');
+                barItem.className = `bar-item ${item.colorClass}`;
+                barItem.style.height = `${barHeightPercentage}%`;
+                
+                const barLabel = document.createElement('span');
+                barLabel.className = 'bar-label';
+                barLabel.textContent = item.month;
+                
+                barItem.appendChild(barLabel);
+                barsContainer.appendChild(barItem);
+            }
+
+            function createTableRow(item) {
+                const row = document.createElement('tr');
+                
+                // Mapeia os dados para as células
+                row.innerHTML = `
+                    <td>${item.month}</td>
+                    <td>${item.value}</td>
+                    <td>${item.orders}</td>
+                    <td>
+                        <span class="status-badge status-${item.colorClass}">
+                            ${item.statusText}
+                        </span>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+        });
+
+        function atualizarDataHora() {
+            const agora = new Date();
+            
+            const dia = String(agora.getDate()).padStart(2, '0');
+            const mes = String(agora.getMonth() + 1).padStart(2, '0');
+            const ano = String(agora.getFullYear()).slice(-2);
+            const hora = String(agora.getHours()).padStart(2, '0');
+            const minutos = String(agora.getMinutes()).padStart(2, '0');
+            
+            const dataHoraFormatada = `${dia}/${mes}/${ano} ${hora}:${minutos}`;
+            document.querySelector('.timestamp').textContent = dataHoraFormatada;
+        }
+
+        // Atualiza imediatamente e a cada minuto
+        atualizarDataHora();
+        setInterval(atualizarDataHora, 60000);
+
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+>>>>>>> f8f523d0b5f7ea16c840bd1dcf1d7fd706b6d3af
 </html>

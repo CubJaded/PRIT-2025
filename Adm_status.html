@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -348,4 +349,356 @@ atualizarDataHora();
 setInterval(atualizarDataHora, 60000);
 </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status das Operações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --color-primary: #b95c21; /* Tom de laranja/marrom da barra superior */
+            --color-text-dark: #333;
+            --color-text-light: #555;
+            --color-text-header: #777;
+            --color-success: #28a745;
+            --color-warning: #ffc107;
+            --color-banner-bg: #f0f0f0;
+            --color-border: #e9e9e9;
+            --color-bg-page: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header (Barra Laranja) --- */
+        .top-bar {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info .user-avatar {
+            font-size: 36px; /* Usando ícone como placeholder para a imagem */
+            opacity: 0.9;
+        }
+
+        .user-info div {
+            display: flex;
+            flex-direction: column;
+            font-size: 14px;
+        }
+
+        .user-info .user-name {
+            font-weight: 600;
+        }
+
+        .user-info .user-role {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 28px;
+        }
+
+        .header-nav i {
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .header-nav i:hover {
+            opacity: 1;
+        }
+        
+        /* --- Container Principal do Status --- */
+        .status-container {
+            max-width: 1000px;
+            width: 95%;
+            margin: 32px auto;
+            padding: 24px;
+        }
+
+        /* Cabeçalho da Página (Título e Data) */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .page-header h2 {
+            font-size: 18px;
+            font-weight: 400; /* Fonte fina como na imagem */
+            color: var(--color-text-header);
+            letter-spacing: 0.5px;
+        }
+
+        .page-header .timestamp {
+            font-size: 16px;
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+
+        /* Banner de Alerta Global */
+        .status-banner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            border-radius: 4px;
+            margin-bottom: 32px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: var(--color-banner-bg);
+            color: var(--color-text-dark);
+        }
+
+        .status-banner i {
+            font-size: 24px;
+            color: var(--color-warning);
+        }
+
+        /* Lista de Serviços */
+        .service-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px 8px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-item .status-icon {
+            font-size: 24px;
+            width: 28px; /* Alinhamento */
+            text-align: center;
+        }
+
+        .service-item .service-icon {
+            font-size: 22px;
+            color: var(--color-text-light);
+            width: 28px; /* Alinhamento */
+            text-align: center;
+        }
+
+        .service-item .service-details {
+            display: flex;
+            flex-wrap: wrap; /* Para mobile */
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .service-item .service-name {
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .service-item .service-status {
+            color: var(--color-text-light);
+        }
+
+        /* Modificadores de Cor */
+        .service-item.status-success .status-icon {
+            color: var(--color-success);
+        }
+
+        .service-item.status-warning .status-icon {
+            color: var(--color-warning);
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .header-nav {
+                gap: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .status-container {
+                margin-top: 24px;
+                padding: 16px;
+            }
+            
+            .service-item {
+                gap: 12px;
+                padding: 20px 0;
+            }
+            
+            .service-item .status-icon,
+            .service-item .service-icon {
+                font-size: 20px;
+                width: 24px;
+            }
+
+            .service-item .service-details {
+                font-size: 14px;
+                gap: 4px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle user-avatar"></i>
+            <div>
+                <span class="user-name">Felipe</span>
+                <span class="user-role">administração da plataforma</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <i class="fa-solid fa-list-check" title="Quadro"></i>
+            <i class="fa-solid fa-truck" title="Entregas"></i>
+            <i class="fa-solid fa-chart-line" title="Vendas"></i>
+            <i class="fa-solid fa-box" title="Estoque"></i>
+            <i class="fa-solid fa-calendar-days" title="Agenda"></i>
+            <i class="fa-solid fa-user" title="Funcionários"></i>
+            <i class="fa-solid fa-download" title="Relatórios"></i>
+            <i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i>
+        </nav>
+    </header>
+
+    <main class="status-container">
+
+        <header class="page-header">
+            <h2>STATUS DE SERVIÇO DAS OPERAÇÕES</h2>
+            <span class="timestamp">24/07/25 19:37</span>
+        </header>
+
+        <div class="status-banner">
+            <i class="fa-solid fa-exclamation-circle"></i>
+            <span>ALGUNS SERVIÇOS NECESSITAM ATENÇÃO</span>
+        </div>
+
+        <section class="service-list">
+
+            <div class="service-item status-success">
+                <i class="fa-solid fa-check-circle status-icon"></i>
+                <i class="fa-solid fa-truck service-icon"></i>
+                <div class="service-details">
+                    <span class="service-name">PEDIDOS</span>
+                    <span class="service-status">- FUNCIONANDO NORMALMENTE</span>
+                </div>
+            </div>
+
+            <div class="service-item status-success">
+                <i class="fa-solid fa-check-circle status-icon"></i>
+                <i class="fa-solid fa-chart-line service-icon"></i>
+                <div class="service-details">
+                    <span class="service-name">VENDAS</span>
+                    <span class="service-status">- FUNCIONANDO NORMALMENTE</span>
+                </div>
+            </div>
+
+            <div class="service-item status-warning">
+                <i class="fa-solid fa-exclamation-circle status-icon"></i>
+                <i class="fa-solid fa-box service-icon"></i>
+                <div class="service-details">
+                    <span class="service-name">ESTOQUE</span>
+                    <span class="service-status">- ALGUNS PRODUTOS ESTÃO COM POUCO ESTOQUE</span>
+                </div>
+            </div>
+
+            <div class="service-item status-success">
+                <i class="fa-solid fa-check-circle status-icon"></i>
+                <i class="fa-solid fa-calendar-days service-icon"></i>
+                <div class="service-details">
+                    <span class="service-name">AGENDA</span>
+                    <span class="service-status">- FUNCIONANDO NORMALMENTE</span>
+                </div>
+            </div>
+
+            <div class="service-item status-success">
+                <i class="fa-solid fa-check-circle status-icon"></i>
+                <i class="fa-solid fa-user service-icon"></i>
+                <div class="service-details">
+                    <span class="service-name">FUNCIONÁRIOS</span>
+                    <span class="service-status">- FUNCIONANDO NORMALMENTE</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+    <script>
+function atualizarDataHora() {
+    const agora = new Date();
+    
+    // Formata a data (DD/MM/YY)
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = String(agora.getFullYear()).slice(-2);
+    
+    // Formata a hora (HH:MM)
+    const hora = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    
+    // Cria a string formatada
+    const dataHoraFormatada = `${dia}/${mes}/${ano} ${hora}:${minutos}`;
+    
+    // Atualiza o elemento na página
+    document.querySelector('.timestamp').textContent = dataHoraFormatada;
+}
+
+// Atualiza imediatamente ao carregar a página
+atualizarDataHora();
+
+// Atualiza a cada minuto (60000 milissegundos)
+setInterval(atualizarDataHora, 60000);
+</script>
+</body>
+>>>>>>> f8f523d0b5f7ea16c840bd1dcf1d7fd706b6d3af
 </html>
