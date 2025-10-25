@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status do Pedido</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --cor-principal: #E46E22; /* Laranja do cabeçalho */
+            --cor-footer: #b3581b;   /* Laranja escuro do rodapé */
+            --cor-texto: #333;
+            --cor-cinza: #777;
+            --cor-borda: #ddd;
+            --cor-fundo-leve: #f5f5f5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: #fff;
+            color: var(--cor-texto);
+            padding-bottom: 80px; 
+        }
+
+        /* --- Classe de Centralização --- */
+        .wrapper {
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        /* --- Cabeçalho (ESTRUTURA ATUALIZADA) --- */
+        header {
+            background-color: var(--cor-principal);
+            color: white;
+            padding: 15px 20px; /* Padding geral para a barra única */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1; /* Ocupa 1/3 */
+            justify-content: flex-start; /* Alinha à esquerda */
+        }
+
+        .user-info i {
+            font-size: 24px;
+        }
+
+        .user-info div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info strong {
+            font-size: 1rem;
+        }
+        
+        .user-info span {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .header-title {
+            flex: 1; /* Ocupa 1/3 */
+            text-align: center;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .header-title p {
+            margin: 2px 0 0;
+            font-size: 0.9rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .header-exit {
+            flex: 1; /* Ocupa 1/3 */
+            text-align: right; /* Alinha à direita */
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+        }
+
+
+        /* --- Conteúdo Principal (Sem alteração) --- */
+        .container {
+            padding: 30px 0;
+        }
+
+        .status-box {
+            background-color: var(--cor-fundo-leve);
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid var(--cor-borda);
+        }
+
+        .status-steps {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .step {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--cor-cinza);
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--cor-borda);
+            transition: all 0.4s ease; /* Animação da cor e borda */
+        }
+        
+        .step.active {
+            color: var(--cor-texto);
+            font-weight: 700;
+            border-bottom-color: var(--cor-principal);
+        }
+
+        .delivery-time {
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 25px;
+            margin-bottom: 0;
+        }
+
+        .order-details {
+            margin-top: 30px;
+            border-top: 1px solid var(--cor-borda);
+            padding-top: 30px;
+        }
+
+        .order-details h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--cor-cinza);
+            margin: 0 0 15px 0;
+        }
+        
+        .address-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .address-info .icon {
+            font-size: 1.5rem;
+            color: var(--cor-texto);
+        }
+
+        .address-text p {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .address-text span {
+            font-size: 0.9rem;
+            color: var(--cor-cinza);
+        }
+        
+        .total-info {
+            margin-top: 25px;
+            font-size: 1.1rem;
+            color: var(--cor-cinza);
+            line-height: 1.5;
+        }
+
+        .total-info strong.free {
+            color: var(--cor-texto);
+            font-weight: 600;
+        }
+        
+        .total-info strong.price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--cor-texto);
+            display: block;
+        }
+
+
+        /* --- Rodapé Fixo (Mantido) --- */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--cor-footer);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle"></i>
+            <div>
+                <strong>Bruno</strong>
+                <span>cliente</span>
+            </div>
+        </div>
+        
+        <div class="header-title">
+            <h1>Pedido</h1>
+            <p>Em alguns minutos seu pedido estará com você</p>
+        </div>
+        
+        <a href="#" id="exit-link" class="header-exit">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </a>
+    </header>
+
+    <main>
+        <div class="container wrapper">
+            
+            <section class="status-box">
+                <div class="status-steps">
+                    <div class="step active" id="step-1">Confirmando Pagamento</div>
+                    <div class="step" id="step-2">Sendo preparado</div>
+                    <div class="step" id="step-3">Entrega</div>
+                </div>
+                <p class="delivery-time">Previsão de entrega: 35-40min</p>
+            </section>
+
+            <section class="order-details">
+                <h2>Entrega no endereço</h2>
+                <div class="address-info">
+                    <i class="fa-solid fa-location-dot icon"></i>
+                    <div class="address-text">
+                        <p>R. Delfim, 156 - Jardim Paraiso</p>
+                        <span>Barueri - SP</span>
+                    </div>
+                </div>
+                
+                <div class="total-info">
+                    Total com <strong class="free">entrega grátis</strong>
+                    <strong class="price">R$ 14,99</strong>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="wrapper">
+            <p>© MESTRE DOS SALGADOS. TODOS OS DIREITOS RESERVADOS</p>
+        </div>
+    </footer>
+
+    <script>
+        // Seleciona os elementos da barra de status
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const step3 = document.getElementById('step-3');
+        
+        // Seleciona o link de saída
+        const exitLink = document.getElementById('exit-link');
+
+        function setStatus(activeStep) {
+            step1.classList.remove('active');
+            step2.classList.remove('active');
+            step3.classList.remove('active');
+
+            if (activeStep === 1) {
+                step1.classList.add('active');
+            } else if (activeStep === 2) {
+                step2.classList.add('active');
+            } else if (activeStep === 3) {
+                step3.classList.add('active');
+            }
+        }
+
+        // --- SIMULAÇÃO DA PROGRESSÃO DO PEDIDO ---
+
+        // Após 8 segundos, muda para "Sendo preparado"
+        setTimeout(() => {
+            console.log('Pedido sendo preparado...');
+            setStatus(2);
+        }, 8000); // 8000ms = 8 segundos
+
+        // Após mais 12 segundos (total 20s), muda para "Entrega"
+        setTimeout(() => {
+            console.log('Pedido saiu para entrega...');
+            setStatus(3);
+        }, 20000); // 20000ms = 20 segundos
+        
+        
+        // --- Simulação do link de saída ---
+        exitLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Saindo da tela de pedido...');
+            // window.location.href = "/";
+        });
+
+    </script>
+
+</body>
+</html>
