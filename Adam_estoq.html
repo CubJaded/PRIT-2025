@@ -1,33 +1,34 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status do Estoque</title>
+    <title>Admin - Controle de Estoque</title> 
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <style>
         /* --- Configurações Globais --- */
         :root {
             --color-primary: #b95c21;
+            --color-secondary: #007bff;
+            --color-danger: #d9534f;
+            --color-warning: #f5a623;
+            --color-success: #28a745;
             --color-text-dark: #333;
             --color-text-light: #555;
             --color-text-header: #777;
             --color-text-timestamp: #888;
-            --color-success: #28a745;
-            --color-warning: #ffc107;
-            --color-danger-light: #fbe9e9;
-            --color-danger-dark: #b32a31;
             --color-border: #e9e9e9;
             --color-bg-page: #ffffff;
             --color-bg-light: #f9f9f9;
+            --color-bg-table-header: #f1f1f1;
+            --color-success-bg: #e9f7ec;
+            --color-warning-bg: #fff8e6;
+            --color-danger-bg: #fdeaea;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -39,6 +40,7 @@
         }
 
         /* --- Header (Barra Laranja) --- */
+                /* --- Header (Barra Laranja) --- */
         .top-bar {
             background-color: var(--color-primary);
             color: white;
@@ -48,33 +50,48 @@
             align-items: center;
             width: 100%;
         }
-
         .user-info { display: flex; align-items: center; gap: 12px; }
         .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
         .user-info div { display: flex; flex-direction: column; font-size: 14px; }
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
-        .header-nav { display: flex; gap: 28px; }
-        .header-nav i { font-size: 20px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
-        .header-nav i:hover { opacity: 1; }
         
-        /* --- Container Principal do Status --- */
+        .header-nav { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; /* ESPAÇAMENTO ORIGINAL */
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8; 
+            padding: 8px 12px; /* ESPAÇAMENTO ORIGINAL */
+            border-radius: 6px; 
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+        .header-nav a:hover {
+            opacity: 1; 
+            background-color: rgba(255, 255, 255, 0.1); 
+        }
+        .header-nav i { 
+            font-size: 20px; 
+            cursor: pointer; 
+            display: block; 
+        }
+        /* --- Layout Principal --- */
         .page-container {
-            max-width: 1000px;
+            max-width: 1100px;
             width: 95%;
             margin: 32px auto;
             padding: 24px;
             flex-grow: 1;
         }
-
-        /* Cabeçalho da Página (Título e Data) */
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 24px;
+            position: relative;
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
         }
-
         .page-header h2 {
             font-size: 20px;
             font-weight: 400;
@@ -84,187 +101,277 @@
             padding-bottom: 8px;
             border-bottom: 1px solid #ccc;
         }
-
         .page-header .timestamp {
+            position: absolute;
+            top: 0;
+            right: 0;
             font-size: 16px;
             color: var(--color-text-light);
             font-weight: 500;
         }
+        .section-title { font-size: 18px; font-weight: 500; color: var(--color-text-header); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px; }
 
-        /* --- NOVA SEÇÃO: Cartões KPI --- */
-        .kpi-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
+        /* --- KPIs (Cards de Resumo) --- */
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+        .kpi-card { background-color: var(--color-bg-light); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .kpi-card .icon { font-size: 28px; width: 40px; text-align: center; }
+        .kpi-card .icon.success { color: var(--color-success); }
+        .kpi-card .icon.warning { color: var(--color-warning); }
+        .kpi-card .icon.danger { color: var(--color-danger); }
+        .kpi-card .icon.info, .kpi-card .icon.total { color: var(--color-primary); }
+        .kpi-card-info .kpi-value { font-size: 24px; font-weight: 600; color: var(--color-text-dark); display: block; margin-bottom: 4px; }
+        .kpi-card-info .kpi-title { font-size: 13px; color: var(--color-text-light); font-weight: 500; text-transform: uppercase; }
+        .kpi-card.status-warning .icon, .kpi-card.status-warning .kpi-value { color: var(--color-warning); }
+        .kpi-card.status-danger .icon, .kpi-card.status-danger .kpi-value { color: var(--color-danger); }
+
+        /* --- Controles (Filtros e Botão Adicionar) --- */
+        .controls-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); }
+        .filter-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tab-filter { background: none; border: 1px solid var(--color-border); border-radius: 6px; padding: 8px 14px; font-size: 14px; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; color: var(--color-text-light); }
+        .tab-filter.active, .tab-filter:hover { background-color: var(--color-primary); color: white; border-color: var(--color-primary); }
+        
+        .btn-primary { background-color: var(--color-primary); color: white; border: none; padding: 9px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: #9d4d1c; }
+        .btn-primary i { margin-right: 6px; }
+
+        /* --- Lista de Estoque --- */
+        .stock-list { display: flex; flex-direction: column; gap: 12px; }
+        .stock-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            padding: 20px; 
+            transition: all 0.3s ease; 
+            flex-wrap: wrap; 
+            background-color: #fff; 
+            border: 1px solid var(--color-border); 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
+        }
+        .stock-item:hover { 
+            background-color: var(--color-bg-light); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            transform: translateY(-2px);
         }
         
-        .kpi-card {
-            background-color: var(--color-bg-light);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 20px;
+        /* NOVO: Indicador de Status Visual */
+        .status-visual {
             display: flex;
-            align-items: flex-start;
-            gap: 16px;
+            align-items: center;
+            gap: 12px;
+            flex-basis: 250px;
+            flex-grow: 1;
         }
         
-        .kpi-card .icon {
-            font-size: 24px;
-            color: var(--color-primary);
-            margin-top: 4px;
-        }
-        
-        .kpi-card-info .kpi-title {
+        .status-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
             font-size: 14px;
-            color: var(--color-text-light);
-            font-weight: 500;
-            text-transform: uppercase;
-            margin-bottom: 4px;
+            color: white;
+            flex-shrink: 0;
         }
         
-        .kpi-card-info .kpi-value {
-            font-size: 24px;
+        .status-success .status-badge {
+            background: linear-gradient(135deg, var(--color-success), #34c759);
+        }
+        
+        .status-warning .status-badge {
+            background: linear-gradient(135deg, var(--color-warning), #ff9500);
+        }
+        
+        .status-danger .status-badge {
+            background: linear-gradient(135deg, var(--color-danger), #ff3b30);
+        }
+        
+        .item-name {
+            font-size: 16px;
             font-weight: 600;
             color: var(--color-text-dark);
         }
-        /* Cor de aviso para KPI de Itens Baixos */
-        .kpi-card.warning .icon,
-        .kpi-card.warning .kpi-value {
-            color: var(--color-warning);
-        }
-
-        /* --- NOVA SEÇÃO: Filtros --- */
-        .stock-controls {
-            display: flex;
-            gap: 12px;
-            border-bottom: 1px solid var(--color-border);
-            margin-bottom: 24px;
+        
+        .stock-info-group { 
+            display: flex; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 24px; 
+            flex-basis: 500px; 
+            flex-grow: 2; 
+            justify-content: space-between; 
         }
         
-        .tab-filter {
-            background-color: transparent;
-            border: none;
-            font-size: 16px;
+        .stock-level { 
+            flex-basis: 180px; 
+            flex-grow: 1; 
+        }
+        
+        .stock-level .label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 13px; 
+            margin-bottom: 8px; 
+            color: var(--color-text-light); 
             font-weight: 500;
-            padding: 12px 16px;
-            cursor: pointer;
-            color: var(--color-text-light);
-            border-bottom: 3px solid transparent;
+        }
+        
+        .stock-level .label .percent { 
+            font-weight: 700; 
+            color: var(--color-text-dark); 
+        }
+        
+        .progress-bar-bg { 
+            width: 100%; 
+            height: 12px; 
+            background-color: var(--color-bg-light); 
+            border: 1px solid var(--color-border); 
+            border-radius: 6px; 
+            overflow: hidden; 
             position: relative;
-            top: 1px;
         }
         
-        .tab-filter.active {
-            color: var(--color-primary);
-            border-bottom-color: var(--color-primary);
-        }
-
-        /* Lista de Itens de Estoque (MELHORADA) */
-        .stock-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .stock-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            padding: 20px 16px;
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            background-color: white;
-            transition: box-shadow 0.2s;
+        .progress-bar-fill { 
+            height: 100%; 
+            border-radius: 6px; 
+            transition: width 0.5s ease; 
+            position: relative;
         }
         
-        .stock-item:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        .status-success .progress-bar-fill {
+            background: linear-gradient(90deg, var(--color-success), #34c759);
         }
         
-        /* Lado Esquerdo: Ícone e Nome */
-        .stock-details {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        .status-warning .progress-bar-fill {
+            background: linear-gradient(90deg, var(--color-warning), #ff9500);
+        }
+        
+        .status-danger .progress-bar-fill {
+            background: linear-gradient(90deg, var(--color-danger), #ff3b30);
+        }
+        
+        .stock-date { 
+            font-size: 15px; 
+            font-weight: 500; 
+            color: var(--color-text-dark); 
+            text-align: left; 
+            flex-basis: 150px; 
+            flex-grow: 1; 
+        }
+        
+        .stock-date .label { 
+            font-size: 13px; 
+            color: var(--color-text-timestamp); 
+            margin-bottom: 6px; 
+            display: block; 
+            font-weight: 500;
+        }
+        
+        .stock-action { 
+            flex-basis: 130px; 
+            flex-grow: 1; 
+            text-align: right; 
+            display: flex; 
+            gap: 8px; 
+            justify-content: flex-end; 
+        }
+        
+        .btn-base { 
+            border: none; 
+            padding: 10px 16px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+        }
+        
+        .repor-btn { 
+            background-color: var(--color-primary); 
+            color: white; 
+        }
+        
+        .repor-btn:hover { 
+            background-color: #9d4d1c; 
+            transform: translateY(-1px);
+        }
+        
+        .delete-btn { 
+            background-color: var(--color-danger); 
+            color: white; 
+            padding: 10px 12px;
+        }
+        
+        .delete-btn:hover { 
+            background-color: #c82333; 
+            transform: translateY(-1px);
+        }
+        
+        .stock-item.status-success .repor-btn { display: none; }
+        
+        .no-items-message { 
+            padding: 40px 20px; 
+            text-align: center; 
+            color: var(--color-text-light); 
+            font-style: italic; 
             font-size: 16px;
-            font-weight: 500;
-            color: var(--color-text-dark);
-            flex-basis: 250px; /* Base para crescer */
-            flex-grow: 1;
         }
 
-        .stock-details .status-icon {
-            font-size: 22px;
-            width: 24px;
-            text-align: center;
-        }
+        /* --- Modal (Genérico) --- */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 90%; max-width: 500px; position: relative; }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; }
+        .modal-close:hover { color: #333; }
+        .modal-content h3 { margin-top: 0; margin-bottom: 20px; font-size: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 16px; margin-bottom: 5px; }
 
-        /* Lado Direito: Nível, Data e Ação */
-        .stock-info-group {
+        /* --- Modal de Reposição Específico --- */
+        .reposicao-modal .modal-content {
+            max-width: 450px;
+        }
+        .reposicao-header {
             display: flex;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 24px;
-            flex-basis: 500px; /* Base para crescer */
-            flex-grow: 2;
-            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
         }
-
-        /* Nível de Estoque (Progress Bar) */
-        .stock-level {
-            flex-basis: 180px;
-            flex-grow: 1;
+        .reposicao-icon {
+            font-size: 36px;
+            color: var(--color-primary);
         }
-        .stock-level .label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 4px;
-            color: var(--color-text-light);
+        .reposicao-header h3 {
+            margin: 0;
+            color: var(--color-primary);
         }
-        .stock-level .label .percent { font-weight: 600; color: var(--color-text-dark); }
-        
-        .progress-bar-bg {
-            width: 100%;
-            height: 10px;
+        .reposicao-info {
             background-color: var(--color-bg-light);
-            border: 1px solid var(--color-border);
-            border-radius: 5px;
-            overflow: hidden;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
-        .progress-bar-fill {
-            height: 100%;
-            border-radius: 5px;
-            background-color: var(--color-success);
-        }
-        
-        /* Data de Reposição */
-        .stock-date {
+        .reposicao-info p {
+            margin: 5px 0;
             font-size: 15px;
-            font-weight: 500;
-            color: var(--color-text-dark);
-            text-align: left;
-            flex-basis: 150px;
-            flex-grow: 1;
         }
-        .stock-date .label {
-            font-size: 13px;
-            color: var(--color-text-timestamp);
-            margin-bottom: 4px;
-            display: block;
+        .reposicao-info strong {
+            color: var(--color-primary);
         }
-
-        /* Ação de Repor */
-        .stock-action {
-            flex-basis: 80px;
-            flex-grow: 1;
-            text-align: right;
+        .reposicao-form .form-group {
+            margin-bottom: 20px;
         }
-        .repor-btn {
-            background-color: var(--color-primary);
+        .reposicao-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
             color: white;
             border: none;
             padding: 10px 16px;
@@ -274,48 +381,49 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        .repor-btn:hover { background-color: #9d4d1c; }
-        
-        /* Oculta botão se não for necessário */
-        .stock-item.status-success .repor-btn {
-            display: none;
-        }
-        
-        /* Modificadores de Cor */
-        .stock-item.status-success .status-icon {
-            color: var(--color-success);
-        }
-        .stock-item.status-warning .status-icon {
-            color: var(--color-warning);
-        }
-        .stock-item.status-warning .progress-bar-fill {
-            background-color: var(--color-warning);
-        }
-        .stock-item.status-danger .status-icon {
-            color: var(--color-danger-dark);
-        }
-        .stock-item.status-danger .progress-bar-fill {
-            background-color: var(--color-danger-dark);
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
 
         /* --- Responsividade --- */
         @media (max-width: 768px) {
             .top-bar { flex-direction: column; gap: 16px; padding: 16px; }
             .header-nav { gap: 20px; flex-wrap: wrap; justify-content: center; }
-            .page-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .page-header { text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+            .page-header h2 { font-size: 18px; }
+            .page-header .timestamp { position: static; font-size: 14px; }
             .page-container { margin-top: 24px; padding: 16px; }
-            
-            .stock-item { flex-direction: column; align-items: flex-start; }
-            .stock-info-group { flex-direction: column; align-items: stretch; width: 100%; gap: 16px; }
-            .stock-date { text-align: left; }
-            .stock-action { text-align: left; }
-            .repor-btn { width: 100%; }
+            .kpi-card-info .kpi-value { font-size: 20px; }
+            .controls-container { flex-direction: column; align-items: stretch; gap: 10px;}
+            .filter-buttons { justify-content: center; }
+            .stock-item { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                padding: 16px;
+            }
+            .status-visual {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+            .stock-info-group { 
+                flex-direction: column; 
+                align-items: stretch; 
+                width: 100%; 
+                gap: 16px; 
+            }
+            .stock-date, .stock-action { text-align: left; }
+            .repor-btn, .delete-btn { width: 100%; }
+            .stock-action {
+                justify-content: stretch;
+            }
+            .reposicao-actions {
+                flex-direction: column;
+            }
         }
-
     </style>
 </head>
-<body>
-
+<body> 
+    
     <header class="top-bar">
         <div class="user-info">
             <i class="fa-solid fa-user-circle user-avatar"></i>
@@ -325,275 +433,532 @@
             </div>
         </div>
         <nav class="header-nav">
-            <i class="fa-solid fa-list-check" title="Quadro"></i>
-            <i class="fa-solid fa-truck" title="Entregas"></i>
-            <i class="fa-solid fa-chart-line" title="Vendas"></i>
-            <i class="fa-solid fa-box" title="Estoque"></i>
-            <i class="fa-solid fa-calendar-days" title="Agenda"></i>
-            <i class="fa-solid fa-user" title="Funcionários"></i>
-            <i class="fa-solid fa-download" title="Relatórios"></i>
-            <i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
         </nav>
     </header>
 
     <main class="page-container">
-
         <header class="page-header">
-            <h2>ESTOQUE</h2>
+            <h2>CONTROLE DE ESTOQUE</h2>
             <span class="timestamp" id="current-timestamp"></span>
         </header>
 
         <section class="kpi-container">
             <div class="kpi-card">
-                <i class="fa-solid fa-boxes-stacked icon"></i>
+                <i class="fa-solid fa-boxes-stacked icon info"></i>
                 <div class="kpi-card-info">
-                    <span class="kpi-title">Categorias Totais</span>
                     <span class="kpi-value" id="kpi-total-items">0</span>
+                    <span class="kpi-title">Categorias Totais</span>
                 </div>
             </div>
             <div class="kpi-card" id="kpi-low-items-card">
                 <i class="fa-solid fa-triangle-exclamation icon"></i>
                 <div class="kpi-card-info">
-                    <span class="kpi-title">Itens Baixos</span>
                     <span class="kpi-value" id="kpi-low-items">0</span>
+                    <span class="kpi-title">Itens Baixos</span>
                 </div>
             </div>
             <div class="kpi-card">
                 <i class="fa-solid fa-dollar-sign icon"></i>
                 <div class="kpi-card-info">
-                    <span class="kpi-title">Valor em Estoque</span>
-                    <span class="kpi-value">R$ 4.850</span>
-                </div>
-            </div>
-            <div class="kpi-card">
-                <i class="fa-solid fa-calendar-check icon"></i>
-                <div class="kpi-card-info">
-                    <span class="kpi-title">Última Reposição</span>
-                    <span class="kpi-value">07/07/25</span>
+                    <span class="kpi-value">R$ 4.850</span> <span class="kpi-title">Valor em Estoque</span>
                 </div>
             </div>
         </section>
 
-        <div class="stock-controls">
-            <button class="tab-filter active" data-filter="all">Todos</button>
-            <button class="tab-filter" data-filter="warning">Estoque Baixo</button>
-            <button class="tab-filter" data-filter="success">Estoque OK</button>
+        <div class="controls-container">
+            <div class="filter-buttons">
+                <button class="tab-filter active" data-filter="all">Todos</button>
+                <button class="tab-filter" data-filter="warning">Estoque Baixo ( &lt; 40% )</button>
+                <button class="tab-filter" data-filter="danger">Estoque Crítico ( &lt; 15% )</button>
+                <button class="tab-filter" data-filter="success">Estoque OK</button>
+            </div>
+            <div class="add-item-container">
+                <button class="btn-primary" id="add-item-btn">
+                    <i class="fa-solid fa-plus"></i> Adicionar Item
+                </button>
+            </div>
         </div>
-
+        
+        <h3 class="section-title">Itens de Estoque</h3>
         <section class="stock-list" id="stock-list">
-
-            <div class="stock-item" data-status="warning" data-level="20">
-                <div class="stock-details">
-                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
-                    <span>INGREDIENTES PARA MASSA</span>
+            <!-- Exemplo de item de estoque com Farinha de Trigo -->
+            <div class="stock-item status-success">
+                <div class="status-visual">
+                    <div class="status-badge">OK</div>
+                    <span class="item-name">Farinha de trigo</span>
                 </div>
                 <div class="stock-info-group">
                     <div class="stock-level">
-                        <div class="label"><span>Nível</span><span class="percent">20%</span></div>
+                        <div class="label"><span>Nível</span><span class="percent">76%</span></div>
                         <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: 20%;"></div>
+                            <div class="progress-bar-fill" style="width: 76%;"></div>
                         </div>
                     </div>
                     <div class="stock-date">
                         <span class="label">PRÓXIMA REPOSIÇÃO</span>
-                        <span>31/07/25</span>
+                        <span>2025-12-15</span>
                     </div>
                     <div class="stock-action">
-                        <button class="repor-btn">Repor</button>
+                        <button class="btn-base repor-btn">Repor</button>
+                        <button class="btn-base delete-btn" title="Excluir">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <div class="stock-item" data-status="warning" data-level="15">
-                <div class="stock-details">
-                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
-                    <span>RECHEIOS</span>
-                </div>
-                <div class="stock-info-group">
-                    <div class="stock-level">
-                        <div class="label"><span>Nível</span><span class="percent">15%</span></div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: 15%;"></div>
-                        </div>
-                    </div>
-                    <div class="stock-date">
-                        <span class="label">PRÓXIMA REPOSIÇÃO</span>
-                        <span>31/07/25</span>
-                    </div>
-                    <div class="stock-action">
-                        <button class="repor-btn">Repor</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stock-item" data-status="success" data-level="80">
-                <div class="stock-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>INGREDIENTES PARA FRITURA</span>
-                </div>
-                <div class="stock-info-group">
-                    <div class="stock-level">
-                        <div class="label"><span>Nível</span><span class="percent">80%</span></div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: 80%;"></div>
-                        </div>
-                    </div>
-                    <div class="stock-date">
-                        <span class="label">PRÓXIMA REPOSIÇÃO</span>
-                        <span>15/08/25</span>
-                    </div>
-                    <div class="stock-action">
-                        <button class="repor-btn">Repor</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stock-item" data-status="success" data-level="65">
-                <div class="stock-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>TEMPEROS</span>
-                </div>
-                <div class="stock-info-group">
-                    <div class="stock-level">
-                        <div class="label"><span>Nível</span><span class="percent">65%</span></div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: 65%;"></div>
-                        </div>
-                    </div>
-                    <div class="stock-date">
-                        <span class="label">PRÓXIMA REPOSIÇÃO</span>
-                        <span>10/08/25</span>
-                    </div>
-                    <div class="stock-action">
-                        <button class="repor-btn">Repor</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stock-item" data-status="success" data-level="70">
-                <div class="stock-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>INGREDIENTES PARA DOCES</span>
-                </div>
-                <div class="stock-info-group">
-                    <div class="stock-level">
-                        <div class="label"><span>Nível</span><span class="percent">70%</span></div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: 70%;"></div>
-                        </div>
-                    </div>
-                    <div class="stock-date">
-                        <span class="label">PRÓXIMA REPOSIÇÃO</span>
-                        <span>15/08/25</span>
-                    </div>
-                    <div class="stock-action">
-                        <button class="repor-btn">Repor</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="stock-item" data-status="danger" data-level="5">
-                <div class="stock-details">
-                    <i class="fa-solid fa-circle-xmark status-icon"></i>
-                    <span>EMBALAGENS (CAIXAS)</span>
-                </div>
-                <div class="stock-info-group">
-                    <div class="stock-level">
-                        <div class="label"><span>Nível</span><span class="percent">5%</span></div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: 5%;"></div>
-                        </div>
-                    </div>
-                    <div class="stock-date">
-                        <span class="label">PRÓXIMA REPOSIÇÃO</span>
-                        <span>URGENTE</span>
-                    </div>
-                    <div class="stock-action">
-                        <button class="repor-btn">Repor</button>
-                    </div>
-                </div>
-            </div>
-
+            <div class="no-items-message">Carregando itens de estoque...</div>
         </section>
-
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // --- 1. Atualização do Timestamp ---
-            const timestampElement = document.getElementById('current-timestamp');
-            function updateCurrentTime() {
-                const now = new Date();
-                const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-                const optionsTime = { hour: '2-digit', minute: '2-digit' };
-                const date = now.toLocaleDateString('pt-BR', optionsDate);
-                const time = now.toLocaleTimeString('pt-BR', optionsTime);
-                timestampElement.textContent = `${date} ${time}`;
+    <!-- Modal para Adicionar Item -->
+    <div class="modal-overlay" id="item-modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal-id="item-modal">&times;</span>
+            <h3 id="modal-title">Adicionar Novo Item ao Estoque</h3>
+            <form id="item-form">
+                <div class="form-group">
+                    <label for="item-name">Nome da Categoria/Item</label>
+                    <input type="text" id="item-name" placeholder="Ex: Farinha de Trigo" required>
+                </div>
+                <div class="form-group">
+                    <label for="item-level">Nível Inicial (%)</label>
+                    <input type="number" id="item-level" min="0" max="100" placeholder="Ex: 80" required>
+                </div>
+                <div class="form-group">
+                    <label for="item-repo-date">Próxima Reposição (Opcional)</label>
+                    <input type="text" id="item-repo-date" placeholder="Ex: 31/10/25 ou URGENTE">
+                </div>
+                <button type="submit" class="btn-primary">Salvar Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Reposição -->
+    <div class="modal-overlay reposicao-modal" id="reposicao-modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal-id="reposicao-modal">&times;</span>
+            <div class="reposicao-header">
+                <i class="fa-solid fa-box-circle-check reposicao-icon"></i>
+                <h3>Repor Estoque</h3>
+            </div>
+            <div class="reposicao-info">
+                <p><strong>Item:</strong> <span id="reposicao-item-nome"></span></p>
+                <p><strong>Nível atual:</strong> <span id="reposicao-nivel-atual"></span></p>
+                <p><strong>Status:</strong> <span id="reposicao-status"></span></p>
+            </div>
+            <form id="reposicao-form" class="reposicao-form">
+                <div class="form-group">
+                    <label for="quantidade-repor">Quantidade a Repor</label>
+                    <input type="number" id="quantidade-repor" min="1" max="100" placeholder="Ex: 50" required>
+                </div>
+                <div class="form-group">
+                    <label for="fornecedor-reposicao">Fornecedor</label>
+                    <select id="fornecedor-reposicao" required>
+                        <option value="">Selecione um fornecedor</option>
+                        <option value="fornecedor1">Fornecedor A</option>
+                        <option value="fornecedor2">Fornecedor B</option>
+                        <option value="fornecedor3">Fornecedor C</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="data-entrega">Data Prevista de Entrega</label>
+                    <input type="date" id="data-entrega" required>
+                </div>
+                <div class="reposicao-actions">
+                    <button type="button" class="btn-secondary" id="cancelar-reposicao">Cancelar</button>
+                    <button type="submit" class="btn-primary">Confirmar Reposição</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- 1. IMPORTS DO FIREBASE ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { 
+            getFirestore, collection, getDocs, query, orderBy, addDoc, 
+            deleteDoc, doc, updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        
+        // --- 2. CONFIGURAÇÃO DO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
+
+        // --- 3. INICIALIZAÇÃO ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const estoqueCollectionRef = collection(db, "estoque");
+
+        // --- 4. SELETORES DO DOM ---
+        const timestampElement = document.getElementById('current-timestamp');
+        const stockListContainer = document.getElementById('stock-list');
+        const filterTabs = document.querySelectorAll('.tab-filter');
+        const kpiTotalItems = document.getElementById('kpi-total-items');
+        const kpiLowItems = document.getElementById('kpi-low-items');
+        const kpiLowItemsCard = document.getElementById('kpi-low-items-card');
+        const addItemBtn = document.getElementById('add-item-btn');
+        const itemModal = document.getElementById('item-modal');
+        const reposicaoModal = document.getElementById('reposicao-modal');
+        const itemForm = document.getElementById('item-form');
+        const reposicaoForm = document.getElementById('reposicao-form');
+        const closeModalBtns = document.querySelectorAll('.modal-close');
+        const cancelarReposicaoBtn = document.getElementById('cancelar-reposicao');
+        
+        // Elementos do modal de reposição
+        const reposicaoItemNome = document.getElementById('reposicao-item-nome');
+        const reposicaoNivelAtual = document.getElementById('reposicao-nivel-atual');
+        const reposicaoStatus = document.getElementById('reposicao-status');
+        
+        let localStockItems = [];
+        let currentReposicaoItem = null;
+
+        // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
+        function updateCurrentTime() {
+            const now = new Date();
+            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const date = now.toLocaleDateString('pt-BR', optionsDate);
+            const time = now.toLocaleTimeString('pt-BR', optionsTime);
+            if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
+        }
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        // --- 6. FUNÇÃO PARA RENDERIZAR A LISTA ---
+        function renderStockList(data) {
+            stockListContainer.innerHTML = '';
+            if (data.length === 0) {
+                 stockListContainer.innerHTML = '<div class="no-items-message">Nenhum item encontrado.</div>';
+                 return;
             }
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
 
-            
-            // --- 2. Lógica dos Filtros (Tabs) ---
-            const filterTabs = document.querySelectorAll('.tab-filter');
-            const stockItems = document.querySelectorAll('.stock-item');
+            data.forEach(item => {
+                const nivel = Number(item.nivel) || 0; 
+                let status = 'success';
+                let statusText = 'OK';
+                
+                if (nivel <= 15) {
+                    status = 'danger';
+                    statusText = 'CRÍTICO';
+                } else if (nivel <= 40) {
+                    status = 'warning';
+                    statusText = 'BAIXO';
+                }
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = `stock-item status-${status}`;
+                itemElement.setAttribute('data-status', status); 
 
-            filterTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove 'active' de todas as tabs
-                    filterTabs.forEach(t => t.classList.remove('active'));
-                    // Adiciona 'active' na tab clicada
-                    this.classList.add('active');
+                itemElement.innerHTML = `
+                    <div class="status-visual">
+                        <div class="status-badge">${statusText}</div>
+                        <span class="item-name">${item.nome}</span>
+                    </div>
+                    <div class="stock-info-group">
+                        <div class="stock-level">
+                            <div class="label"><span>Nível</span><span class="percent">${nivel}%</span></div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: ${nivel}%;"></div>
+                            </div>
+                        </div>
+                        <div class="stock-date">
+                            <span class="label">PRÓXIMA REPOSIÇÃO</span>
+                            <span>${item.proxReposicao || 'N/D'}</span>
+                        </div>
+                        <div class="stock-action">
+                            <button class="btn-base repor-btn">Repor</button>
+                            <button class="btn-base delete-btn" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                stockListContainer.appendChild(itemElement);
 
-                    const filter = this.dataset.filter;
-
-                    stockItems.forEach(item => {
-                        const itemStatus = item.dataset.status;
-                        
-                        // Define status de perigo como "warning" para fins de filtro
-                        const category = (itemStatus === 'danger') ? 'warning' : itemStatus;
-
-                        if (filter === 'all' || category === filter) {
-                            item.style.display = 'flex';
-                        } else {
-                            item.style.display = 'none';
-                        }
+                // --- LISTENERS DOS BOTÕES ---
+                const reporBtn = itemElement.querySelector('.repor-btn');
+                if (reporBtn) {
+                    reporBtn.addEventListener('click', () => {
+                        openReposicaoModal(item);
                     });
-                });
+                }
+
+                const deleteBtn = itemElement.querySelector('.delete-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', () => {
+                        deleteItem(item.id, item.nome);
+                    });
+                }
+            });
+        }
+
+        // --- 7. FUNÇÃO PARA ATUALIZAR KPIs ---
+        function updateKPIs(data) {
+            const totalItems = data.length;
+            let lowItemsCount = 0;
+            let dangerItemsCount = 0;
+
+            data.forEach(item => {
+                const nivel = Number(item.nivel) || 0;
+                if (nivel <= 15) {
+                    dangerItemsCount++;
+                } else if (nivel <= 40) {
+                    lowItemsCount++;
+                }
             });
 
+            const totalLow = lowItemsCount + dangerItemsCount;
+            kpiTotalItems.textContent = totalItems;
+            kpiLowItems.textContent = totalLow;
             
-            // --- 3. Cálculo Dinâmico dos KPIs ---
-            function updateKPIs() {
-                const totalItemsElement = document.getElementById('kpi-total-items');
-                const lowItemsElement = document.getElementById('kpi-low-items');
-                const lowItemsCard = document.getElementById('kpi-low-items-card');
-                
-                const allItems = document.querySelectorAll('.stock-item');
-                const lowItems = document.querySelectorAll('.stock-item[data-status="warning"], .stock-item[data-status="danger"]');
-                
-                totalItemsElement.textContent = allItems.length;
-                lowItemsElement.textContent = lowItems.length;
-
-                // Adiciona a classe 'warning' ao card de KPI se houver itens baixos
-                if (lowItems.length > 0) {
-                    lowItemsCard.classList.add('warning');
-                    // Altera o ícone de 'warning' para 'danger' se houver item 'danger'
-                    const dangerItem = document.querySelector('.stock-item[data-status="danger"]');
-                    if(dangerItem) {
-                        lowItemsCard.querySelector('.icon').className = 'fa-solid fa-circle-xmark icon';
-                        lowItemsCard.style.cssText = 'color: var(--color-danger-dark); --color-warning: var(--color-danger-dark)';
-                    }
-                } else {
-                    lowItemsCard.classList.remove('warning');
-                }
+            kpiLowItemsCard.classList.remove('status-warning', 'status-danger');
+            const kpiIcon = kpiLowItemsCard.querySelector('.icon');
+            
+            if (dangerItemsCount > 0) {
+                kpiLowItemsCard.classList.add('status-danger');
+                kpiIcon.className = 'fa-solid fa-circle-exclamation icon danger'; 
+            } else if (lowItemsCount > 0) {
+                kpiLowItemsCard.classList.add('status-warning');
+                kpiIcon.className = 'fa-solid fa-triangle-exclamation icon warning';
+            } else {
+                 kpiIcon.className = 'fa-solid fa-check-circle icon success';
             }
-            updateKPIs();
-
+        }
+        
+        // --- 8. FUNÇÃO PARA APLICAR FILTROS ---
+        function applyFilters() {
+            const activeFilter = document.querySelector('.tab-filter.active').dataset.filter;
+            
+            const filteredData = localStockItems.filter(item => {
+                const nivel = Number(item.nivel) || 0;
+                let status = 'success';
+                if (nivel <= 15) status = 'danger';
+                else if (nivel <= 40) status = 'warning';
+                
+                if (activeFilter === 'all') return true;
+                return status === activeFilter;
+            });
+            
+            renderStockList(filteredData);
+        }
+        
+        // --- 9. LÓGICA DO MODAL ---
+        function openModal() {
+            itemForm.reset();
+            itemModal.classList.add('active');
+        }
+        
+        function closeModal(modal) {
+            modal.classList.remove('active');
+        }
+        
+        function openReposicaoModal(item) {
+            currentReposicaoItem = item;
+            
+            const nivel = Number(item.nivel) || 0;
+            let statusText = 'Estoque OK';
+            if (nivel <= 15) statusText = 'Estoque Crítico';
+            else if (nivel <= 40) statusText = 'Estoque Baixo';
+            
+            reposicaoItemNome.textContent = item.nome;
+            reposicaoNivelAtual.textContent = `${nivel}%`;
+            reposicaoStatus.textContent = statusText;
+            
+            reposicaoForm.reset();
+            reposicaoModal.classList.add('active');
+        }
+        
+        addItemBtn.addEventListener('click', openModal);
+        
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-id');
+                const modal = document.getElementById(modalId);
+                closeModal(modal);
+            });
         });
+        
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal);
+            });
+        });
+        
+        cancelarReposicaoBtn.addEventListener('click', () => {
+            closeModal(reposicaoModal);
+        });
+
+        itemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const saveButton = itemForm.querySelector('.btn-primary');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Salvando...';
+
+            const nome = document.getElementById('item-name').value.trim();
+            const nivel = parseInt(document.getElementById('item-level').value);
+            const proxReposicao = document.getElementById('item-repo-date').value.trim();
+
+            if (!nome || isNaN(nivel) || nivel < 0 || nivel > 100) {
+                alert("Por favor, preencha o nome e um nível válido (0-100).");
+                saveButton.disabled = false;
+                saveButton.textContent = 'Salvar Item';
+                return;
+            }
+
+            const newItem = {
+                nome: nome,
+                nivel: nivel,
+                proxReposicao: proxReposicao || 'N/D'
+            };
+
+            try {
+                await addDoc(estoqueCollectionRef, newItem);
+                alert("Item adicionado ao estoque!");
+                closeModal(itemModal);
+                loadAndRenderStock();
+            } catch (error) {
+                console.error("Erro ao adicionar item: ", error);
+                alert("Falha ao salvar o item. Tente novamente.");
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Salvar Item';
+            }
+        });
+
+        reposicaoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const saveButton = reposicaoForm.querySelector('.btn-primary');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Processando...';
+
+            const quantidade = parseInt(document.getElementById('quantidade-repor').value);
+            const fornecedor = document.getElementById('fornecedor-reposicao').value;
+            const dataEntrega = document.getElementById('data-entrega').value;
+
+            if (!quantidade || !fornecedor || !dataEntrega) {
+                alert("Por favor, preencha todos os campos obrigatórios.");
+                saveButton.disabled = false;
+                saveButton.textContent = 'Confirmar Reposição';
+                return;
+            }
+
+            try {
+                const novoNivel = Math.min(100, currentReposicaoItem.nivel + quantidade);
+                
+                await updateDoc(doc(db, "estoque", currentReposicaoItem.id), {
+                    nivel: novoNivel,
+                    proxReposicao: dataEntrega
+                });
+                
+                const mensagemSucesso = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fa-solid fa-check-circle" style="font-size: 48px; color: #28a745; margin-bottom: 15px;"></i>
+                        <h3 style="color: #28a745; margin-bottom: 10px;">Reposição Confirmada!</h3>
+                        <p>O item <strong>${currentReposicaoItem.nome}</strong> foi reposto com sucesso.</p>
+                        <p>Nível atualizado para: <strong>${novoNivel}%</strong></p>
+                        <p>Entrega prevista para: <strong>${new Date(dataEntrega).toLocaleDateString('pt-BR')}</strong></p>
+                    </div>
+                `;
+                
+                const modalSucesso = document.createElement('div');
+                modalSucesso.className = 'modal-overlay active';
+                modalSucesso.innerHTML = `
+                    <div class="modal-content" style="max-width: 450px;">
+                        ${mensagemSucesso}
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="btn-primary" id="fechar-sucesso">Fechar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modalSucesso);
+                
+                document.getElementById('fechar-sucesso').addEventListener('click', () => {
+                    document.body.removeChild(modalSucesso);
+                    closeModal(reposicaoModal);
+                    loadAndRenderStock();
+                });
+                
+            } catch (error) {
+                console.error("Erro ao processar reposição: ", error);
+                alert("Falha ao processar a reposição. Tente novamente.");
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Confirmar Reposição';
+            }
+        });
+
+        // --- 10. FUNÇÃO DE EXCLUSÃO ---
+        async function deleteItem(id, nome) {
+            if (!confirm(`Tem certeza que deseja excluir o item "${nome}"?\nEsta ação não pode ser desfeita.`)) {
+                return;
+            }
+            
+            try {
+                await deleteDoc(doc(db, "estoque", id));
+                alert(`Item "${nome}" excluído com sucesso!`);
+                loadAndRenderStock();
+            } catch (error) {
+                console.error("Erro ao excluir item: ", error);
+                alert("Falha ao excluir o item. Tente novamente.");
+            }
+        }
+
+        // --- 11. CARREGAMENTO INICIAL DO FIRESTORE ---
+        async function loadAndRenderStock() {
+            try {
+                const q = query(estoqueCollectionRef, orderBy("nivel", "asc"));
+                const querySnapshot = await getDocs(q);
+                
+                localStockItems = [];
+                querySnapshot.forEach((doc) => {
+                    localStockItems.push({ id: doc.id, ...doc.data() });
+                });
+                
+                updateKPIs(localStockItems);
+                applyFilters(); 
+
+            } catch (error) {
+                console.error("Erro ao carregar estoque: ", error);
+                 if (error.code === 'failed-precondition') {
+                    console.warn("Firestore: Índice não encontrado para 'nivel'. Crie o índice no console do Firebase. Carregando sem ordenação.");
+                    const fallbackSnapshot = await getDocs(estoqueCollectionRef);
+                    localStockItems = [];
+                    fallbackSnapshot.forEach((doc) => {
+                        localStockItems.push({ id: doc.id, ...doc.data() });
+                    });
+                    updateKPIs(localStockItems);
+                    applyFilters();
+                 } else {
+                    stockListContainer.innerHTML = '<p class="no-items-message" style="color: red;">Falha ao carregar estoque.</p>';
+                 }
+            }
+        }
+
+        // --- 12. INICIALIZAÇÃO ---
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                applyFilters();
+            });
+        });
+
+        loadAndRenderStock();
     </script>
-
 </body>
-
 </html>
