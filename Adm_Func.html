@@ -38,7 +38,7 @@
             min-height: 100vh;
         }
 
-        /* --- Header (Barra Laranja) --- */
+               /* --- Header (Barra Laranja) --- */
         .top-bar {
             background-color: var(--color-primary);
             color: white;
@@ -54,29 +54,21 @@
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
         
-        /* --- HEADER NAV (CSS COM ESPAÇAMENTO CORRETO) --- */
+        /* --- NAVBAR COM ÍCONES DIRETOS (ESTILO DO PRIMEIRO CÓDIGO) --- */
         .header-nav { 
             display: flex; 
             align-items: center; 
-        }
-        .header-nav a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.8; 
-            padding: 10px 15px; /* Define o espaçamento uniforme */
-            border-radius: 6px; 
-            transition: opacity 0.2s, background-color 0.2s;
-        }
-        .header-nav a:hover {
-            opacity: 1; 
-            background-color: rgba(255, 255, 255, 0.1); /* Efeito de hover */
+            gap: 28px; 
         }
         .header-nav i { 
             font-size: 20px; 
             cursor: pointer; 
-            display: block; 
+            opacity: 0.8; 
+            transition: opacity 0.2s; 
         }
-        /* --- FIM DA CORREÇÃO --- */
+        .header-nav i:hover { 
+            opacity: 1; 
+        }
 
         /* --- Layout Principal --- */
         .page-container {

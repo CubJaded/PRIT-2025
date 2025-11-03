@@ -40,7 +40,6 @@
         }
 
         /* --- Header (Barra Laranja) --- */
-                /* --- Header (Barra Laranja) --- */
         .top-bar {
             background-color: var(--color-primary);
             color: white;
@@ -56,16 +55,17 @@
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
         
+        /* --- NAVBAR COM ESPAÇAMENTO IGUAL AOS OUTROS CÓDIGOS --- */
         .header-nav { 
             display: flex; 
             align-items: center; 
-            gap: 8px; /* ESPAÇAMENTO ORIGINAL */
+            gap: 28px; /* MESMO ESPAÇAMENTO DOS OUTROS CÓDIGOS */
         }
         .header-nav a {
             color: white;
             text-decoration: none;
             opacity: 0.8; 
-            padding: 8px 12px; /* ESPAÇAMENTO ORIGINAL */
+            padding: 10px 15px; /* MESMO ESPAÇAMENTO DOS OUTROS CÓDIGOS */
             border-radius: 6px; 
             transition: opacity 0.2s, background-color 0.2s;
         }
@@ -78,6 +78,7 @@
             cursor: pointer; 
             display: block; 
         }
+
         /* --- Layout Principal --- */
         .page-container {
             max-width: 1100px;
@@ -444,6 +445,7 @@
         </nav>
     </header>
 
+    <!-- O RESTANTE DO CÓDIGO PERMANECE EXATAMENTE IGUAL -->
     <main class="page-container">
         <header class="page-header">
             <h2>CONTROLE DE ESTOQUE</h2>
@@ -580,6 +582,7 @@
         </div>
     </div>
 
+    <!-- O RESTANTE DO SCRIPT JAVASCRIPT PERMANECE EXATAMENTE IGUAL -->
     <script type="module">
         // --- 1. IMPORTS DO FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
