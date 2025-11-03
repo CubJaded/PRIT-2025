@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Itens ao Cardápio</title>
+    <title>Admin - Cardápio</title> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <style>
+        /* (Todo o CSS da sua página de admin vai aqui, exatamente como no molde anterior) */
         /* --- Configurações Globais --- */
         :root {
             --color-primary: #b95c21;
             --color-secondary: #007bff;
-            --color-danger: #dc3545;
+            --color-danger: #d9534f;
+            --color-warning: #f5a623;
+            --color-success: #28a745;
             --color-text-dark: #333;
             --color-text-light: #555;
             --color-text-header: #777;
@@ -24,8 +28,7 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body { /* Estilos do body... */ }
-         body {
+        body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--color-bg-page);
             color: var(--color-text-dark);
@@ -34,16 +37,6 @@
             min-height: 100vh;
         }
 
-        /* --- Header --- */
-        .top-bar { /* Estilos do header... */ }
-        .user-info { /* ... */ }
-        .user-info .user-avatar { /* ... */ }
-        .user-info div { /* ... */ }
-        .user-info .user-name { /* ... */ }
-        .user-info .user-role { /* ... */ }
-        .header-nav { /* ... */ }
-        .header-nav i { /* ... */ }
-        .header-nav i:hover { /* ... */ }
         /* --- Header (Barra Laranja) --- */
         .top-bar {
             background-color: var(--color-primary);
@@ -54,30 +47,73 @@
             align-items: center;
             width: 100%;
         }
-
         .user-info { display: flex; align-items: center; gap: 12px; }
         .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
         .user-info div { display: flex; flex-direction: column; font-size: 14px; }
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
-        .header-nav { display: flex; gap: 28px; }
-        .header-nav i { font-size: 20px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
-        .header-nav i:hover { opacity: 1; }
-
-        /* --- Container Principal --- */
-        .page-container {
-            max-width: 1100px; width: 95%; margin: 32px auto; padding: 24px; flex-grow: 1;
+        
+        .header-nav { 
+            display: flex; 
+            align-items: center; 
         }
-        .page-header { position: relative; text-align: center; margin-bottom: 24px; padding-bottom: 16px; }
-        .page-header h2 { font-size: 20px; font-weight: 400; color: var(--color-text-header); letter-spacing: 0.5px; display: inline-block; padding-bottom: 8px; border-bottom: 1px solid #ccc; }
-        .page-header .timestamp { position: absolute; top: 0; right: 0; font-size: 16px; color: var(--color-text-light); font-weight: 500; }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8; 
+            padding: 10px 15px; 
+            border-radius: 6px; 
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+        .header-nav a:hover {
+            opacity: 1; 
+            background-color: rgba(255, 255, 255, 0.1); 
+        }
+        .header-nav i { 
+            font-size: 20px; 
+            cursor: pointer; 
+            display: block; 
+        }
 
+        /* --- Layout Principal --- */
+        .page-container {
+            max-width: 1100px;
+            width: 95%;
+            margin: 32px auto;
+            padding: 24px;
+            flex-grow: 1;
+        }
+        .page-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+        }
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--color-text-header);
+            letter-spacing: 0.5px;
+            display: inline-block;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+        }
+        .page-header .timestamp {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 16px;
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+        .section-title { font-size: 18px; font-weight: 500; color: var(--color-text-header); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px; }
+        
         /* --- Controles (Busca e Filtros) --- */
         .controls-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px; }
         .search-container { flex-grow: 1; min-width: 250px; }
         .search-input { padding: 10px 15px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 16px; width: 100%; max-width: 350px; }
         .filter-container { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .filter-btn { background: none; border: 1px solid var(--color-border); border-radius: 6px; padding: 8px 14px; font-size: 14px; cursor: pointer; transition: background-color 0.2s, color 0.2s; color: var(--color-text-light); }
+        .filter-btn { background: none; border: 1px solid var(--color-border); border-radius: 6px; padding: 8px 14px; font-size: 14px; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; color: var(--color-text-light); }
         .filter-btn.active, .filter-btn:hover { background-color: var(--color-primary); color: white; border-color: var(--color-primary); }
         .filter-btn i { margin-right: 5px; }
 
@@ -92,7 +128,7 @@
         .item-units { position: absolute; top: 10px; right: 10px; font-size: 13px; font-weight: 600; color: var(--color-text-dark); background-color: rgba(255,255,255,0.4); padding: 2px 6px; border-radius: 4px; }
         .item-price-bg { position: relative; width: 100%; height: 65px; background-color: var(--color-card-price-bg); clip-path: polygon(0 15%, 100% 0, 100% 100%, 0% 100%); margin-top: -15px; display: flex; align-items: center; justify-content: center; z-index: 3; }
         .item-price { color: white; font-size: 24px; font-weight: bold; }
-
+        
         /* Card de Adicionar */
         .add-item-card { display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background-color: #e9ecef; border-style: dashed; min-height: 250px; }
         .add-item-card .plus-icon { font-size: 48px; color: var(--color-text-light); margin-bottom: 8px; }
@@ -106,36 +142,32 @@
         .action-btn { background-color: rgba(0, 0, 0, 0.6); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .action-btn.edit:hover { background-color: var(--color-secondary); }
         .action-btn.delete:hover { background-color: var(--color-danger); }
+        .no-results-message { padding: 20px; text-align: center; color: var(--color-text-light); font-style: italic; }
 
         /* --- Modal --- */
-        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 90%; max-width: 500px; position: relative; }
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease-in-out; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 90%; max-width: 500px; position: relative; transform: scale(0.95); transition: transform 0.2s ease-in-out; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-close { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; }
         .modal-close:hover { color: #333; }
         .modal-content h3 { margin-top: 0; margin-bottom: 20px; font-size: 20px; }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 16px; margin-bottom: 5px; /* Reduzido margin */ }
-        .btn-primary { background-color: var(--color-primary); color: white; border: none; padding: 12px 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; width: 100%; }
-        .btn-primary:hover { background-color: #9d4d1c; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 16px; margin-bottom: 5px; font-family: inherit; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
         
-        /* NOVO: Estilos para Preview da Imagem */
-        .image-preview-container { text-align: center; margin-bottom: 10px; }
-        #image-preview {
-            max-width: 150px;
-            max-height: 150px;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            object-fit: contain; /* Mostra a imagem inteira */
-            display: block; /* Para margin auto funcionar */
-            margin: 0 auto 5px auto;
-        }
-        #image-preview:not([src]) { /* Esconde se não tiver src */
-             display: none;
-        }
-        .form-group input[type="file"] { padding: 5px; /* Menor padding para file input */ }
-
+        .btn-base { border: none; padding: 10px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .btn-primary { background-color: var(--color-primary); color: white; }
+        .btn-primary:hover { background-color: #9d4d1c; }
+        .btn-primary:disabled { background-color: #aaa; cursor: not-allowed; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .btn-danger { background-color: var(--color-danger); color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+        
+        #alert-modal-message, #confirm-modal-message { font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
 
         /* --- Responsividade --- */
         @media (max-width: 768px) {
@@ -152,21 +184,34 @@
             .item-title { font-size: 18px; }
             .item-price { font-size: 20px; }
         }
-
     </style>
 </head>
 <body>
 
     <header class="top-bar">
-        <div class="user-info"> <i class="fa-solid fa-user-circle user-avatar"></i> <div> <span class="user-name">Felipe</span> <span class="user-role">administração da plataforma</span> </div> </div>
-        <nav class="header-nav"> <i class="fa-solid fa-list-check" title="Quadro"></i> <i class="fa-solid fa-truck" title="Entregas"></i> <i class="fa-solid fa-chart-line" title="Vendas"></i> <i class="fa-solid fa-box" title="Estoque"></i> <i class="fa-solid fa-calendar-days" title="Agenda"></i> <i class="fa-solid fa-user" title="Funcionários"></i> <i class="fa-solid fa-download" title="Relatórios"></i> <i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i> </nav>
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle user-avatar"></i>
+            <div>
+                <span class="user-name">Felipe</span>
+                <span class="user-role">administração da plataforma</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
     </header>
 
     <main class="page-container">
 
         <header class="page-header">
-            <h2>ADICIONAR ITENS AO CARDAPIO</h2>
-            <span class="timestamp" id="current-timestamp"></span>
+            <h2>GERENCIAR CARDÁPIO</h2> <span class="timestamp" id="current-timestamp"></span>
         </header>
 
         <section class="controls-container">
@@ -179,9 +224,6 @@
                 <button class="filter-btn" data-filter="Doce">Doces</button>
                 <button class="filter-btn" data-filter="Bebida">Bebidas</button>
                 <button class="filter-btn" data-filter="Combo">Combos</button>
-                <button class="filter-btn" data-filter="last_added" title="Ordenar por adicionados por último (não implementado)">
-                    <i class="fa-solid fa-filter"></i> Adicionados por Último
-                </button>
             </div>
         </section>
 
@@ -202,8 +244,7 @@
             <span class="modal-close" data-modal-id="item-modal">&times;</span>
             <h3 id="modal-title">Adicionar Novo Item</h3>
             <form id="item-form">
-                <input type="hidden" id="item-id">
-                <input type="hidden" id="item-image-source"> <div class="form-group">
+                <input type="hidden" id="item-id"> <div class="form-group">
                     <label for="item-name">Nome do Item</label>
                     <input type="text" id="item-name" required>
                 </div>
@@ -225,14 +266,20 @@
                     <label for="item-units">Unidades (texto)</label>
                     <input type="text" id="item-units" required placeholder="Ex: 1 UNID., 25 UNID.">
                 </div>
-
                 <div class="form-group">
-                     <label for="item-image-file">Imagem do Item</label>
-                     <div class="image-preview-container">
-                         <img id="image-preview" src="" alt="Pré-visualização da imagem">
-                     </div>
-                     <input type="file" id="item-image-file" accept="image/*">
-                     <small>Selecione uma imagem do seu computador.</small>
+                     <label for="item-image-path">Caminho da Imagem</label>
+                     <input type="text" id="item-image-path" placeholder="Ex: imagens_cardapio/coxinha.png">
+                     <small>Adicione a imagem na pasta do projeto e dê 'git push' primeiro.</small>
+                </div>
+                
+                <div class="form-group">
+                     <label for="item-description">Descrição</label>
+                     <textarea id="item-description" placeholder="Descreva o produto..."></textarea>
+                </div>
+                <div class="form-group">
+                     <label for="item-nutrition">Informação Nutricional</label>
+                     <textarea id="item-nutrition" placeholder="Ex: CALORIAS: 180 KCAL, PROTEÍNAS: 5 G..."></textarea>
+                     <small>Dica: Separe os itens com vírgula ou quebra de linha.</small>
                 </div>
 
                 <button type="submit" class="btn-primary" id="save-item-btn">Salvar Item</button>
@@ -240,251 +287,335 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <div class="modal-overlay" id="alert-modal">
+        <div class="modal-content">
+            <h3 id="alert-modal-title">Aviso</h3>
+            <p id="alert-modal-message">Mensagem de alerta aqui.</p>
+            <div class="modal-footer">
+                <button class="btn-base btn-primary" id="alert-modal-ok">OK</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-content">
+            <h3 id="confirm-modal-title">Confirmar Ação</h3>
+            <p id="confirm-modal-message">Tem certeza?</p>
+            <div class="modal-footer">
+                <button class="btn-base btn-secondary" id="confirm-modal-cancel">Cancelar</button>
+                <button class="btn-base btn-danger" id="confirm-modal-ok">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
-            // --- 1. DADOS INICIAIS DO CARDÁPIO (MOCK) ---
-            let menuItems = [
-                 // **** IMPORTANTE: Use caminhos relativos da sua pasta de imagens ****
-                { id: 1, name: 'Morango do Amor', price: 14.99, units: '1 UNID.', category: 'Doce', image: 'imagens usadas/MorangoDoAmor.png' }, // Exemplo: ajuste o caminho
-                { id: 2, name: 'Combo 1', price: 29.99, units: '1 UNID.', category: 'Combo', image: 'imagens usadas/Combo1.png' }, // Exemplo: ajuste o caminho
-                { id: 3, name: 'Brigadeiro', price: 36.99, units: '25 UNID.', category: 'Doce', image: 'imagens usadas/Brigadeiro.png' }, // Exemplo: ajuste o caminho
-                { id: 4, name: 'Bolinho de Bacalhau', price: 3.99, units: '1 UNID.', category: 'Salgado', image: 'imagens usadas/Bolinho Bacalhau.png' }, // Exemplo: ajuste o caminho
-                { id: 5, name: 'Combo 2', price: 25.99, units: '1 UNID.', category: 'Combo', image: 'imagens usadas/Combo2.png' }, // Exemplo: ajuste o caminho
-                { id: 6, name: 'Coca-Cola Lata', price: 5.00, units: '350ml', category: 'Bebida', image: 'imagens usadas/CocaLata.png' }, // Exemplo: ajuste o caminho
-                { id: 7, name: 'Coxinha de Frango', price: 4.50, units: '1 UNID.', category: 'Salgado', image: 'imagens usadas/Coxinha.png' } // Exemplo: ajuste o caminho
-            ];
 
-            // --- 2. SELETORES DO DOM ---
-            const timestampElement = document.getElementById('current-timestamp');
-            const menuGrid = document.getElementById('menu-grid');
-            const searchInput = document.getElementById('search-input');
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            const addItemBtnCard = document.getElementById('add-item-btn');
+    <script type="module">
+        // --- 1. IMPORTS DO FIREBASE ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { 
+            getFirestore, collection, getDocs, doc, getDoc, 
+            addDoc, updateDoc, deleteDoc, query, orderBy
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        
+        // --- 2. CONFIGURAÇÃO DO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
 
-            // Modal
-            const itemModal = document.getElementById('item-modal');
-            const modalCloseButtons = document.querySelectorAll('.modal-close');
-            const itemForm = document.getElementById('item-form');
-            const modalTitle = document.getElementById('modal-title');
-            const itemIdInput = document.getElementById('item-id');
-            const itemNameInput = document.getElementById('item-name');
-            const itemCategoryInput = document.getElementById('item-category');
-            const itemPriceInput = document.getElementById('item-price');
-            const itemUnitsInput = document.getElementById('item-units');
-            const itemImageSourceInput = document.getElementById('item-image-source'); // Input hidden
-            const itemImageFileInput = document.getElementById('item-image-file'); // Input file
-            const imagePreview = document.getElementById('image-preview'); // Imagem de preview
+        // --- 3. INICIALIZAÇÃO ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const produtosCollectionRef = collection(db, "produtos"); // Coleção "produtos"
 
-            // --- 3. ATUALIZAÇÃO DO TIMESTAMP ---
-            function updateCurrentTime() { /* ... código do timestamp ... */ }
-             function updateCurrentTime() {
-                const now = new Date();
-                const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-                const optionsTime = { hour: '2-digit', minute: '2-digit' };
-                const date = now.toLocaleDateString('pt-BR', optionsDate);
-                const time = now.toLocaleTimeString('pt-BR', optionsTime);
-                if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
+        // --- 4. SELETORES DO DOM ---
+        const timestampElement = document.getElementById('current-timestamp');
+        const menuGrid = document.getElementById('menu-grid');
+        const searchInput = document.getElementById('search-input');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const addItemBtnCard = document.getElementById('add-item-btn');
+        
+        // Modais de Formulário
+        const itemModal = document.getElementById('item-modal');
+        const itemForm = document.getElementById('item-form');
+        const modalTitle = document.getElementById('modal-title');
+        const itemIdInput = document.getElementById('item-id');
+        const itemNameInput = document.getElementById('item-name');
+        const itemCategoryInput = document.getElementById('item-category');
+        const itemPriceInput = document.getElementById('item-price');
+        const itemUnitsInput = document.getElementById('item-units');
+        const itemImagePathInput = document.getElementById('item-image-path');
+        const itemDescriptionInput = document.getElementById('item-description');
+        const itemNutritionInput = document.getElementById('item-nutrition');
+        const modalCloseButtons = document.querySelectorAll('.modal-close');
+
+        // Modais de Alerta/Confirmação
+        const alertModal = document.getElementById('alert-modal');
+        const alertModalOkBtn = document.getElementById('alert-modal-ok');
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmModalCancelBtn = document.getElementById('confirm-modal-cancel');
+        let confirmModalOkBtn = document.getElementById('confirm-modal-ok');
+
+        let localMenuItems = []; // Array local para filtros
+
+        // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
+        function updateCurrentTime() {
+            const now = new Date();
+            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const date = now.toLocaleDateString('pt-BR', optionsDate);
+            const time = now.toLocaleTimeString('pt-BR', optionsTime);
+            if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
+        }
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        // --- 6. FUNÇÕES DE MODAL (ALERTAS) ---
+        function showCustomAlert(message, title = "Aviso") {
+            document.getElementById('alert-modal-title').textContent = title;
+            document.getElementById('alert-modal-message').textContent = message;
+            alertModal.classList.add('active');
+        }
+        function showCustomConfirm(message, title, onConfirm) {
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-message').textContent = message;
+            confirmModal.classList.add('active');
+            
+            let newOkBtn = confirmModalOkBtn.cloneNode(true);
+            confirmModalOkBtn.parentNode.replaceChild(newOkBtn, confirmModalOkBtn);
+            confirmModalOkBtn = newOkBtn; 
+            
+            newOkBtn.addEventListener('click', () => {
+                onConfirm(); 
+                confirmModal.classList.remove('active');
+            });
+        }
+        alertModalOkBtn.addEventListener('click', () => alertModal.classList.remove('active'));
+        confirmModalCancelBtn.addEventListener('click', () => confirmModal.classList.remove('active'));
+
+        // --- 7. FUNÇÃO PARA RENDERIZAR A GRADE ---
+        function renderMenuGrid(itemsToRender) {
+            const existingItems = menuGrid.querySelectorAll('.menu-item-card:not(.add-item-card)');
+            existingItems.forEach(item => item.remove());
+            const noResultsMsg = menuGrid.querySelector('.no-results-message');
+            if (noResultsMsg) noResultsMsg.remove();
+
+            if (itemsToRender.length === 0) {
+                 const noResults = document.createElement('p');
+                 noResults.className = 'no-results-message';
+                 noResults.textContent = 'Nenhum item encontrado.';
+                 noResults.style.gridColumn = '1 / -1';
+                 noResults.style.textAlign = 'center';
+                 noResults.style.color = 'var(--color-text-light)';
+                 menuGrid.appendChild(noResults);
             }
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
 
-            // --- 4. FUNÇÃO PARA RENDERIZAR A GRADE ---
-            function renderMenuGrid(itemsToRender) {
-                const existingItems = menuGrid.querySelectorAll('.menu-item-card:not(.add-item-card)');
-                existingItems.forEach(item => item.remove());
+            itemsToRender.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'menu-item-card';
+                card.setAttribute('data-id', item.id);
+                card.setAttribute('data-category', item.categoria);
 
-                // Remove mensagem "nenhum item encontrado" anterior, se houver
-                const noResultsMsg = menuGrid.querySelector('.no-results-message');
-                if (noResultsMsg) noResultsMsg.remove();
+                const placeholder = `https://via.placeholder.com/150/EEEEEE/AAAAAA?text=Erro`;
+                const imageSrc = item.caminhoImagem || placeholder;
 
-                if (itemsToRender.length === 0) {
-                     const noResults = document.createElement('p');
-                     noResults.className = 'no-results-message'; // Adiciona classe para remoção fácil
-                     noResults.textContent = 'Nenhum item encontrado.';
-                     noResults.style.gridColumn = '1 / -1';
-                     noResults.style.textAlign = 'center';
-                     noResults.style.color = 'var(--color-text-light)';
-                     menuGrid.appendChild(noResults);
-                }
-
-                itemsToRender.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'menu-item-card';
-                    card.setAttribute('data-id', item.id);
-                    card.setAttribute('data-category', item.category);
-
-                    // Usa placeholder se a imagem estiver vazia OU se for path e der erro
-                    const placeholder = `https://via.placeholder.com/150/EEEEEE/AAAAAA?text=${encodeURIComponent(item.name.substring(0,10))}`;
-                    const imageSrc = item.image ? item.image : placeholder; // Usa item.image (pode ser path ou data URL)
-
-                    card.innerHTML = `
-                        <img src="${imageSrc}" alt="${item.name}" class="item-image" onerror="this.onerror=null; this.src='${placeholder}';">
-                        <div class="item-info-bg"></div>
-                        <div class="item-details">
-                            <div class="item-title">${item.name}</div>
-                            <div class="item-units">${item.units}</div>
-                        </div>
-                        <div class="item-price-bg">
-                            <span class="item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                        <div class="item-actions">
-                            <button class="action-btn edit" title="Editar Item"><i class="fa-solid fa-pencil"></i></button>
-                            <button class="action-btn delete" title="Excluir Item"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    `;
-                    // Insere ANTES do botão de adicionar
-                    menuGrid.insertBefore(card, addItemBtnCard);
-
-                    card.querySelector('.edit').addEventListener('click', (e) => { e.stopPropagation(); openModal('edit', item.id); });
-                    card.querySelector('.delete').addEventListener('click', (e) => { e.stopPropagation(); deleteItem(item.id, item.name); });
+                card.innerHTML = `
+                    <img src="${imageSrc}" alt="${item.nome}" class="item-image" onerror="this.onerror=null; this.src='${placeholder}';">
+                    <div class="item-info-bg"></div>
+                    <div class="item-details">
+                        <div class="item-title">${item.nome}</div>
+                        <div class="item-units">${item.unidadesTexto}</div>
+                    </div>
+                    <div class="item-price-bg">
+                        <span class="item-price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-btn edit" title="Editar Item" data-id="${item.id}"><i class="fa-solid fa-pencil"></i></button>
+                        <button class="action-btn delete" title="Excluir Item" data-id="${item.id}" data-name="${item.nome}"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                menuGrid.appendChild(card); // Adiciona no final
+            });
+            
+            // Adiciona listeners aos botões
+            menuGrid.querySelectorAll('.edit').forEach(btn => {
+                btn.addEventListener('click', (e) => openModal('edit', e.currentTarget.dataset.id));
+            });
+            menuGrid.querySelectorAll('.delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const name = e.currentTarget.dataset.name;
+                    showCustomConfirm(`Tem certeza que deseja excluir "${name}"?`, "Confirmar Exclusão", () => {
+                        deleteItem(id, name);
+                    });
                 });
-            }
-
-            // --- 5. LÓGICA DO MODAL (ADICIONAR/EDITAR) ---
-            function openModal(mode = 'add', itemId = null) {
-                itemForm.reset();
-                itemIdInput.value = '';
-                itemImageSourceInput.value = ''; // Limpa source anterior
-                imagePreview.removeAttribute('src'); // Limpa preview
-                itemImageFileInput.value = null; // Limpa seleção de arquivo
-
-                if (mode === 'edit' && itemId !== null) {
-                    const item = menuItems.find(i => i.id === itemId);
-                    if (!item) return;
-
-                    modalTitle.textContent = 'Editar Item';
-                    itemIdInput.value = item.id;
-                    itemNameInput.value = item.name;
-                    itemCategoryInput.value = item.category;
-                    itemPriceInput.value = item.price.toFixed(2);
-                    itemUnitsInput.value = item.units;
-                    // Define a source atual (path ou data URL) e mostra no preview
-                    itemImageSourceInput.value = item.image || '';
-                    if (item.image) {
-                         imagePreview.src = item.image;
-                    }
-                } else {
-                    modalTitle.textContent = 'Adicionar Novo Item';
-                    // Define uma imagem padrão ou placeholder para adição, se desejar
-                     // imagePreview.src = 'caminho/para/placeholder_modal.png';
-                }
-                itemModal.classList.add('active');
-            }
-
-            function closeModal() {
-                itemModal.classList.remove('active');
-            }
-
-            addItemBtnCard.addEventListener('click', () => openModal('add'));
-            modalCloseButtons.forEach(btn => btn.addEventListener('click', closeModal));
-            itemModal.addEventListener('click', (e) => {
-                if (e.target === itemModal) closeModal();
             });
-
-            // NOVO: Listener para o Input de Arquivo (Preview)
-            itemImageFileInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                        itemImageSourceInput.value = e.target.result; // Guarda o Data URL no input hidden
-                    }
-                    reader.readAsDataURL(file);
+        }
+        
+        // --- 8. CARREGAMENTO INICIAL DO FIRESTORE ---
+        async function loadAndRenderItems() {
+            try {
+                const q = query(produtosCollectionRef, orderBy("categoria", "asc"), orderBy("nome", "asc"));
+                const querySnapshot = await getDocs(q);
+                localMenuItems = []; 
+                querySnapshot.forEach((doc) => {
+                    localMenuItems.push({ id: doc.id, ...doc.data() });
+                });
+                applyFiltersAndSearch(); 
+            } catch (error) {
+                console.error("Erro ao carregar itens: ", error);
+                if (error.code === 'failed-precondition') {
+                    console.warn("Firestore: Índices não encontrados. Carregando sem ordenação.");
+                    const fallbackSnapshot = await getDocs(produtosCollectionRef);
+                    localMenuItems = [];
+                    fallbackSnapshot.forEach((doc) => {
+                        localMenuItems.push({ id: doc.id, ...doc.data() });
+                    });
+                    applyFiltersAndSearch();
                 } else {
-                    // Se o usuário cancelar a seleção, volta para a imagem original (se houver) ou limpa
-                    const originalSource = itemImageSourceInput.value; // Pega o valor que estava antes da tentativa
-                     if (originalSource && !originalSource.startsWith('data:')) { // Se era um path, mantém
-                        imagePreview.src = originalSource;
-                        // Não precisa resetar o itemImageSourceInput.value aqui, ele já tem o path
-                    } else if (originalSource.startsWith('data:')) { // Se era um dataURL (de edição anterior), mantém
-                         imagePreview.src = originalSource;
-                    }
-                    else { // Se era adição ou não tinha imagem antes
-                        imagePreview.removeAttribute('src');
-                        itemImageSourceInput.value = '';
-                    }
+                    showCustomAlert(`Não foi possível carregar os itens: ${error.message}`, "Erro no Firebase");
                 }
-            });
+            }
+        }
+        
+        // --- 9. LÓGICA DO MODAL (ADICIONAR/EDITAR) ---
+        async function openModal(mode = 'add', itemId = null) {
+            itemForm.reset();
+            itemIdInput.value = '';
 
+            if (mode === 'edit' && itemId !== null) {
+                modalTitle.textContent = 'Editar Item';
+                try {
+                    const docRef = doc(db, "produtos", itemId);
+                    const docSnap = await getDoc(docRef);
+                    if (!docSnap.exists()) {
+                        showCustomAlert("Erro: Item não encontrado.", "Erro");
+                        return;
+                    }
+                    const item = docSnap.data();
+                    
+                    itemIdInput.value = docSnap.id;
+                    itemNameInput.value = item.nome;
+                    itemCategoryInput.value = item.categoria;
+                    itemPriceInput.value = Number(item.preco).toFixed(2);
+                    itemUnitsInput.value = item.unidadesTexto;
+                    itemImagePathInput.value = item.caminhoImagem || '';
+                    itemDescriptionInput.value = item.descricao || ''; // Carrega descrição
+                    itemNutritionInput.value = item.infoNutricional || ''; // Carrega info nutricional
 
-            // Submissão do formulário (Salvar)
-            itemForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                const id = itemIdInput.value ? parseInt(itemIdInput.value) : null;
-                const name = itemNameInput.value.trim();
-                const category = itemCategoryInput.value;
-                const price = parseFloat(itemPriceInput.value);
-                const units = itemUnitsInput.value.trim();
-                // Pega a imagem do input hidden (pode ser path original ou novo data URL)
-                const imageSource = itemImageSourceInput.value;
-
-                if (!name || !category || isNaN(price) || price < 0 || !units) {
-                    alert("Por favor, preencha todos os campos obrigatórios corretamente.");
+                } catch (error) {
+                    console.error("Erro ao buscar item para edição: ", error);
+                    showCustomAlert("Não foi possível carregar os dados do item.", "Erro");
                     return;
                 }
-
-                if (id !== null) { // Edição
-                    const index = menuItems.findIndex(item => item.id === id);
-                    if (index !== -1) {
-                        menuItems[index] = { ...menuItems[index], name, category, price, units, image: imageSource };
-                    }
-                } else { // Adição
-                    const newItem = {
-                        id: Date.now(),
-                        name, category, price, units, image: imageSource
-                    };
-                    menuItems.push(newItem);
-                }
-
-                applyFiltersAndRender();
-                closeModal();
-            });
-
-            // --- 6. LÓGICA DE EXCLUSÃO ---
-            function deleteItem(itemId, itemName) {
-                if (confirm(`Tem certeza que deseja excluir o item "${itemName}"?`)) {
-                    menuItems = menuItems.filter(item => item.id !== itemId);
-                    applyFiltersAndRender();
-                }
+            } else {
+                modalTitle.textContent = 'Adicionar Novo Item';
             }
+            itemModal.classList.add('active');
+        }
 
-            // --- 7. LÓGICA DE BUSCA E FILTROS ---
-            function applyFiltersAndRender() { /* ... código de filtro ... */ }
-             function applyFiltersAndRender() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                const activeFilterBtn = document.querySelector('.filter-btn.active');
-                const activeCategory = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
-
-                let filteredItems = menuItems;
-
-                if (activeCategory !== 'all' && activeCategory !== 'last_added') {
-                    filteredItems = filteredItems.filter(item => item.category === activeCategory);
-                }
-
-                if (searchTerm) {
-                    filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(searchTerm));
-                }
-
-                renderMenuGrid(filteredItems);
+        function closeModal() { itemModal.classList.remove('active'); }
+        addItemBtnCard.addEventListener('click', () => openModal('add'));
+        modalCloseButtons.forEach(btn => {
+            if (btn.dataset.modalId) {
+                btn.addEventListener('click', () => closeModal(btn.dataset.modalId));
             }
-
-            searchInput.addEventListener('input', applyFiltersAndRender);
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    applyFiltersAndRender();
-                });
-            });
-
-            // --- 8. INICIALIZAÇÃO ---
-            renderMenuGrid(menuItems);
-
         });
-    </script>
+        itemModal.addEventListener('click', (e) => { if (e.target === itemModal) closeModal(); });
 
+        // Salvar (Form Submit)
+        itemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const saveButton = document.getElementById('save-item-btn');
+            saveButton.disabled = true;
+            saveButton.textContent = "Salvando...";
+
+            const id = itemIdInput.value ? itemIdInput.value : null;
+            
+            // Coleta TODOS os dados do formulário
+            const itemData = {
+                nome: itemNameInput.value.trim(),
+                categoria: itemCategoryInput.value,
+                preco: parseFloat(itemPriceInput.value),
+                unidadesTexto: itemUnitsInput.value.trim(),
+                caminhoImagem: itemImagePathInput.value.trim(),
+                descricao: itemDescriptionInput.value.trim(),
+                infoNutricional: itemNutritionInput.value.trim()
+            };
+
+            if (!itemData.nome || !itemData.categoria || isNaN(itemData.preco)) {
+                showCustomAlert("Nome, Categoria e Preço são obrigatórios.", "Erro de Validação");
+                saveButton.disabled = false;
+                saveButton.textContent = "Salvar Item";
+                return;
+            }
+
+            try {
+                if (id) { // Edição
+                    const docRef = doc(db, "produtos", id);
+                    await updateDoc(docRef, itemData);
+                    showCustomAlert("Item atualizado com sucesso!", "Sucesso");
+                } else { // Adição
+                    await addDoc(produtosCollectionRef, itemData);
+                    showCustomAlert("Item adicionado com sucesso!", "Sucesso");
+                }
+                closeModal();
+                loadAndRenderItems(); // Recarrega a lista
+            } catch (error) {
+                console.error("Erro ao salvar item: ", error);
+                showCustomAlert(`Falha ao salvar: ${error.message}`, "Erro no Firebase");
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = "Salvar Item";
+            }
+        });
+
+        // --- 10. FUNÇÃO DE EXCLUSÃO ---
+        async function deleteItem(id, nome) {
+            try {
+                await deleteDoc(doc(db, "produtos", id));
+                showCustomAlert(`Item "${nome}" excluído com sucesso!`, "Item Excluído");
+                loadAndRenderItems();
+            } catch (error) {
+                console.error("Erro ao excluir item: ", error);
+                showCustomAlert(`Falha ao excluir: ${error.message}`, "Erro no Firebase");
+            }
+        }
+        
+        // --- 11. LÓGICA DE FILTROS E BUSCA ---
+        function applyFiltersAndSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const activeFilterBtn = document.querySelector('.filter-btn.active');
+            const activeCategory = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
+
+            let filteredItems = localMenuItems;
+
+            if (activeCategory !== 'all') {
+                filteredItems = filteredItems.filter(item => item.categoria === activeCategory);
+            }
+            if (searchTerm) {
+                filteredItems = filteredItems.filter(item => item.nome.toLowerCase().includes(searchTerm));
+            }
+            
+            renderMenuGrid(filteredItems);
+        }
+        searchInput.addEventListener('input', applyFiltersAndSearch);
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                applyFiltersAndSearch();
+            });
+        });
+
+        // --- 12. INICIALIZAÇÃO ---
+        loadAndRenderItems(); // Carrega os dados do Firebase ao iniciar
+
+    });
+    </script>
 </body>
 </html>
