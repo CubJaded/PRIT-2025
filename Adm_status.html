@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Status das Operações</title> 
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <style>
         /* --- Configurações Globais --- */
         :root {
@@ -23,8 +25,6 @@
             --color-bg-light: #f9f9f9;
             --color-bg-table-header: #f1f1f1;
             --color-success-bg: #e9f7ec;
-            --color-card-title-bg: rgba(255, 255, 255, 0.6);
-            --color-card-price-bg: #8c4a28;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +38,7 @@
             min-height: 100vh;
         }
 
-      /* --- Header (Barra Laranja) --- */
+        /* --- Header (Barra Laranja) --- */
         .top-bar {
             background-color: var(--color-primary);
             color: white;
@@ -54,39 +54,29 @@
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
         
-        /* --- CSS DA NAVBAR ATUALIZADO --- */
+        /* --- HEADER NAV (CSS COM ESPAÇAMENTO CORRETO) --- */
         .header-nav { 
             display: flex; 
             align-items: center; 
-            /* Removemos o 'gap' para controle total */
         }
         .header-nav a {
             color: white;
             text-decoration: none;
             opacity: 0.8; 
-            
-            /* A MÁGICA ESTÁ AQUI:
-            Adicionamos padding (espaçamento interno) a CADA link.
-            10px em cima/baixo e 15px nos lados.
-            Isso cria uma "caixa" de clique igual para cada ícone.
-            O espaço entre os ícones será de 15px + 15px = 30px.
-            */
-            padding: 10px 15px; 
-            border-radius: 6px; /* Deixa o hover mais bonito */
+            padding: 10px 15px; /* Define o espaçamento uniforme */
+            border-radius: 6px; 
             transition: opacity 0.2s, background-color 0.2s;
         }
         .header-nav a:hover {
-            opacity: 1; /* Ícone fica 100% visível */
-            background-color: rgba(255, 255, 255, 0.1); /* Efeito de fundo sutil */
+            opacity: 1; 
+            background-color: rgba(255, 255, 255, 0.1); /* Efeito de hover */
         }
         .header-nav i { 
             font-size: 20px; 
             cursor: pointer; 
-            display: block; /* Garante que o ícone se alinhe bem */
+            display: block; 
         }
-        /* --- FIM DA ATUALIZAÇÃO --- */
-      
-
+        /* --- FIM DA CORREÇÃO --- */
 
         /* --- Layout Principal --- */
         .page-container {
@@ -202,15 +192,15 @@
             </div>
         </div>
         <nav class="header-nav">
-        <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
-        <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
-        <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
-        <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
-        <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
-        <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
-        <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a> 
-        <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
-      </nav>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
     </header>
 
     <main class="page-container">
@@ -264,8 +254,8 @@
         <section class="metrics-grid">
             <div class="metric-card">
                 <h4><i class="fa-solid fa-truck"></i> Pedidos</h4>
-                <div class="metric-item"><span class="label">Pendentes:</span><span class="value">3</span></div>
-                <div class="metric-item"><span class="label">Tempo Médio Process.:</span><span class="value">5 min</span></div>
+                <div class="metric-item"><span class="label">Pendentes:</span><span class="value" id="metric-pedidos-pendentes">...</span></div>
+                <div class="metric-item"><span class="label">Atrasados:</span><span class="value" id="metric-pedidos-atrasados">...</span></div>
             </div>
              <div class="metric-card">
                 <h4><i class="fa-solid fa-chart-line"></i> Vendas</h4>
@@ -274,21 +264,23 @@
             </div>
              <div class="metric-card">
                 <h4><i class="fa-solid fa-box"></i> Estoque</h4>
-                 <div class="metric-item"><span class="label">Itens Baixos:</span><span class="value">15%</span></div>
+                 <div class="metric-item"><span class="label">Itens Baixos:</span><span class="value" id="metric-estoque-baixos">...</span></div>
                  <div class="metric-item"><span class="label">Valor Estimado:</span><span class="value">R$ 4.850</span></div>
             </div>
         </section>
 
         <h3 class="section-title">Log de Eventos Recentes</h3>
-        <section class="event-log">
-             <div class="log-entry"><span class="log-time">19:35</span> <span class="log-level-WARN">[Estoque]</span> Nível baixo detectado para 'Recheios'.</div>
-            <div class="log-entry"><span class="log-time">19:30</span> <span class="log-level-INFO">[Pedidos]</span> Sistema de pedidos reiniciado após atualização.</div>
+        <section class="event-log" id="event-log">
+             <div class="log-entry"><span class="log-level-INFO">Carregando logs...</span></div>
         </section>
     </main>
 
     <script type="module">
         // --- 1. IMPORTS DO FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { 
+            getFirestore, collection, getDocs, query, where, limit, orderBy
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
         // --- 2. CONFIGURAÇÃO DO FIREBASE ---
         const firebaseConfig = {
@@ -300,17 +292,10 @@
             appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
             measurementId: "G-1QSMWQ65ZZ"
         };
+        
+        // --- 3. INICIALIZAÇÃO ---
         const app = initializeApp(firebaseConfig);
-
-        // --- 3. DADOS ESTÁTICOS DOS SERVIÇOS ---
-        const servicesData = [
-            { id: 'pedidos', name: 'PEDIDOS', icon: 'fa-truck', status: 'success', message: '- FUNCIONANDO NORMALMENTE' },
-            { id: 'vendas', name: 'VENDAS', icon: 'fa-chart-line', status: 'success', message: '- FUNCIONANDO NORMALMENTE' },
-            { id: 'estoque', name: 'ESTOQUE', icon: 'fa-box', status: 'warning', message: '- ALGUNS PRODUTOS ESTÃO COM POUCO ESTOQUE' },
-            { id: 'agenda', name: 'AGENDA', icon: 'fa-calendar-days', status: 'success', message: '- FUNCIONANDO NORMALMENTE' },
-            { id: 'funcionarios', name: 'FUNCIONÁRIOS', icon: 'fa-user', status: 'success', message: '- FUNCIONANDO NORMALMENTE' },
-            { id: 'database', name: 'BANCO DE DADOS', icon: 'fa-database', status: 'success', message: '- CONEXÃO ESTÁVEL' },
-        ];
+        const db = getFirestore(app);
 
         // --- 4. SELETORES DO DOM ---
         const timestampElement = document.getElementById('current-timestamp');
@@ -319,6 +304,12 @@
         const kpiServicesWarn = document.getElementById('kpi-services-warn');
         const kpiServicesTotal = document.getElementById('kpi-services-total');
         const statusBanner = document.getElementById('status-banner');
+        const logContainer = document.getElementById('event-log');
+        
+        const metricPedidosPendentes = document.getElementById('metric-pedidos-pendentes');
+        const metricPedidosAtrasados = document.getElementById('metric-pedidos-atrasados');
+        const metricEstoqueBaixos = document.getElementById('metric-estoque-baixos');
+
 
         // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
         function updateCurrentTime() {
@@ -330,57 +321,164 @@
             if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
         }
         updateCurrentTime();
-        setInterval(updateCurrentTime, 1000); // Atualiza a cada segundo
+        setInterval(updateCurrentTime, 1000); 
 
-        // --- 6. RENDERIZA LISTA E KPIs ---
-        function renderStatusPage() {
+        // --- 6. FUNÇÕES DE BUSCA DE DADOS (FIREBASE) ---
+
+        async function getPedidosStatus() {
+            const q = query(collection(db, "pedidos"), where("status", "==", "danger"), limit(1));
+            const querySnapshot = await getDocs(q);
+            
+            // Atualiza métrica (busca todos)
+            const allDanger = await getDocs(query(collection(db, "pedidos"), where("status", "==", "danger")));
+            metricPedidosAtrasados.textContent = allDanger.size; 
+            
+            return querySnapshot.empty; // true se OK, false se houver perigo
+        }
+        
+        async function getPedidosPendentes() {
+             const q = query(collection(db, "pedidos"), where("status", "==", "transit"));
+             const querySnapshot = await getDocs(q);
+             metricPedidosPendentes.textContent = querySnapshot.size;
+        }
+
+        async function getEstoqueStatus() {
+            const q = query(collection(db, "estoque"), where("nivel", "<=", 40), limit(1));
+            const querySnapshot = await getDocs(q);
+            
+            const allLowStock = await getDocs(query(collection(db, "estoque"), where("nivel", "<=", 40)));
+            metricEstoqueBaixos.textContent = `${allLowStock.size} itens`;
+            
+            return querySnapshot.empty; // true se OK, false se houver aviso
+        }
+        
+        // FUNÇÃO ATUALIZADA PARA BUSCAR LOGS REAIS
+        async function renderLogs() {
+            logContainer.innerHTML = ''; // Limpa
+            
+            try {
+                // Busca os 10 logs mais recentes ordenados por timestamp
+                const q = query(collection(db, "logs"), orderBy("timestamp", "desc"), limit(10));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    logContainer.innerHTML = '<div class="log-entry"><span class="log-level-INFO">Nenhum log encontrado.</span></div>';
+                    return;
+                }
+
+                querySnapshot.forEach(doc => {
+                    const log = doc.data();
+                    // Converte o Timestamp do Firebase para um objeto Date e depois formata
+                    const logTime = log.timestamp.toDate().toLocaleTimeString('pt-BR', {
+                        hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    });
+
+                    logContainer.innerHTML += `
+                        <div class="log-entry">
+                            <span class="log-time">${logTime}</span>
+                            <span class="log-level-${log.level}">[${log.system}]</span>
+                            ${log.message}
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                 console.error("Erro ao buscar logs: ", error);
+                 // Se der erro de índice, o Firestore avisará no console
+                 if (error.code === 'failed-precondition') {
+                    logContainer.innerHTML = '<div class="log-entry"><span class="log-level-ERROR">Erro: Crie o índice para a coleção "logs" no Firebase (ordenar por "timestamp" descendente).</span></div>';
+                 } else {
+                    logContainer.innerHTML = '<div class="log-entry"><span class="log-level-ERROR">Falha ao carregar logs.</span></div>';
+                 }
+            }
+        }
+
+        // --- 7. RENDERIZA LISTA E KPIs (DINÂMICO) ---
+        async function renderStatusPage() {
             serviceListContainer.innerHTML = ''; 
             let servicesOkCount = 0;
             let servicesWarnCount = 0;
             let hasIssues = false;
             let hasDanger = false;
 
-            servicesData.forEach(service => {
+            // Define os serviços e suas checagens
+            const servicesToCheck = [
+                { id: 'pedidos', name: 'PEDIDOS', icon: 'fa-truck', check: getPedidosStatus, data: { status: 'success', message: '- FUNCIONANDO NORMALMENTE' } },
+                { id: 'vendas', name: 'VENDAS', icon: 'fa-chart-line', check: async () => true, data: { status: 'success', message: '- FUNCIONANDO NORMALMENTE' } }, 
+                { id: 'estoque', name: 'ESTOQUE', icon: 'fa-box', check: getEstoqueStatus, data: { status: 'success', message: '- FUNCIONANDO NORMALMENTE' } },
+                { id: 'agenda', name: 'AGENDA', icon: 'fa-calendar-days', check: async () => true, data: { status: 'success', message: '- FUNCIONANDO NORMALMENTE' } },
+                { id: 'funcionarios', name: 'FUNCIONÁRIOS', icon: 'fa-user', check: async () => true, data: { status: 'success', message: '- FUNCIONANDO NORMALMENTE' } },
+                { id: 'database', name: 'BANCO DE DADOS', icon: 'fa-database', check: async () => true, data: { status: 'success', message: '- CONEXÃO ESTÁVEL' } }
+            ];
+            
+            // Atualiza as métricas que não dependem do loop
+            getPedidosPendentes();
+
+            // Executa todas as checagens em paralelo
+            for (const service of servicesToCheck) {
+                try {
+                    const isOk = await service.check();
+                    
+                    if (!isOk) { // Se a checagem falhou (retornou false)
+                        if(service.id === 'pedidos') {
+                            service.data.status = 'danger'; // Pedidos é crítico
+                            service.data.message = '- HÁ PEDIDOS COM ATRASO!';
+                        }
+                        if(service.id === 'estoque') {
+                            service.data.status = 'warning'; // Estoque é aviso
+                            service.data.message = '- ALGUNS PRODUTOS ESTÃO COM POUCO ESTOQUE';
+                        }
+                    }
+                } catch (e) {
+                    console.error(`Falha ao checar serviço ${service.name}:`, e);
+                    service.data.status = 'danger';
+                    service.data.message = '- ERRO AO VERIFICAR SERVIÇO';
+                }
+
+                // Renderiza o item de serviço
                 const item = document.createElement('div');
-                item.className = `service-item status-${service.status}`; 
+                item.className = `service-item status-${service.data.status}`; 
                 let statusIconClass = 'fa-check-circle';
-                if (service.status === 'warning') {
+                
+                if (service.data.status === 'warning') {
                     statusIconClass = 'fa-exclamation-circle';
                     servicesWarnCount++;
                     hasIssues = true;
-                } else if (service.status === 'danger') {
-                    statusIconClass = 'fa-times-circle';
+                } else if (service.data.status === 'danger') {
+                    statusIconClass = 'fa-exclamation-circle'; // Ícone de alerta
                     servicesWarnCount++;
                     hasIssues = true;
                     hasDanger = true;
                 } else {
                     servicesOkCount++;
                 }
+                
                 item.innerHTML = `
                     <i class="fa-solid ${statusIconClass} status-icon"></i>
                     <i class="fa-solid ${service.icon} service-icon"></i>
                     <div class="service-details">
                         <span class="service-name">${service.name}</span>
-                        <span class="service-status">${service.message}</span>
+                        <span class="service-status">${service.data.message}</span>
                     </div>
                 `;
                 serviceListContainer.appendChild(item);
-            });
+            }
 
+            // Atualiza KPIs
             kpiServicesOk.textContent = servicesOkCount;
             kpiServicesWarn.textContent = servicesWarnCount;
             kpiServicesTotal.textContent = servicesData.length;
 
+            // Mostra/Esconde o Banner
             if (hasIssues) {
                 statusBanner.classList.remove('hidden');
                 if (hasDanger) {
-                    statusBanner.querySelector('i').className = 'fa-solid fa-times-circle';
+                    statusBanner.querySelector('i').className = 'fa-solid fa-exclamation-circle'; 
                     statusBanner.querySelector('span').textContent = 'ERRO CRÍTICO EM UM OU MAIS SERVIÇOS!';
-                    statusBanner.style.backgroundColor = '#f8d7da';
+                    statusBanner.style.backgroundColor = '#f8d7da'; // Fundo vermelho
                     statusBanner.style.color = '#721c24';
                     statusBanner.querySelector('i').style.color = 'var(--color-danger)';
                 } else {
-                    statusBanner.querySelector('i').className = 'fa-solid fa-exclamation-circle';
+                    statusBanner.querySelector('i').className = 'fa-solid fa-exclamation-circle'; 
                     statusBanner.querySelector('span').textContent = 'ALGUNS SERVIÇOS NECESSITAM ATENÇÃO';
                     statusBanner.style.backgroundColor = 'var(--color-banner-bg)';
                     statusBanner.style.color = 'var(--color-text-dark)';
@@ -391,8 +489,9 @@
             }
         }
 
-        // --- 7. INICIALIZAÇÃO ---
+        // --- 8. INICIALIZAÇÃO ---
         renderStatusPage();
+        renderLogs(); // Renderiza os logs dinamicamente
     </script>
 </body>
 </html>
