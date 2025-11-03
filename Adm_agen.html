@@ -1,16 +1,18 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda da Salgaderia</title>
+    <title>Admin - Agenda</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <style>
         /* --- Configurações Globais --- */
         :root {
             --color-primary: #b95c21;
             --color-secondary: #007bff; /* Azul para seleção */
+            --color-danger: #d9534f; /* Vermelho para lixeira */
             --color-text-dark: #333;
             --color-text-light: #555;
             --color-text-header: #777;
@@ -21,11 +23,7 @@
             --color-bg-other-month: #f0f0f0; 
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -46,17 +44,37 @@
             align-items: center;
             width: 100%;
         }
-
         .user-info { display: flex; align-items: center; gap: 12px; }
         .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
         .user-info div { display: flex; flex-direction: column; font-size: 14px; }
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
-        .header-nav { display: flex; gap: 28px; }
-        .header-nav i { font-size: 20px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
-        .header-nav i:hover { opacity: 1; }
         
-        /* --- Container Principal da Página --- */
+        /* --- HEADER NAV (CSS COM ESPAÇAMENTO CORRETO) --- */
+        .header-nav { 
+            display: flex; 
+            align-items: center; 
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8; 
+            padding: 10px 15px; /* Define o espaçamento uniforme */
+            border-radius: 6px; 
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+        .header-nav a:hover {
+            opacity: 1; 
+            background-color: rgba(255, 255, 255, 0.1); /* Efeito de hover */
+        }
+        .header-nav i { 
+            font-size: 20px; 
+            cursor: pointer; 
+            display: block; 
+        }
+        /* --- FIM DA CORREÇÃO --- */
+
+        /* --- Layout Principal --- */
         .page-container {
             max-width: 1000px;
             width: 95%;
@@ -64,15 +82,12 @@
             padding: 24px;
             flex-grow: 1;
         }
-
-        /* Cabeçalho da Página (Título e Data) */
         .page-header {
             position: relative;
             text-align: center;
             margin-bottom: 40px; 
             padding-bottom: 16px;
         }
-
         .page-header h2 {
             font-size: 20px;
             font-weight: 400;
@@ -82,7 +97,6 @@
             padding-bottom: 8px;
             border-bottom: 1px solid #ccc;
         }
-
         .page-header .timestamp {
             position: absolute;
             top: 0;
@@ -92,7 +106,7 @@
             font-weight: 500;
         }
 
-        /* --- Layout da Agenda (MELHORADO) --- */
+        /* --- Layout da Agenda --- */
         .agenda-layout {
             display: grid;
             grid-template-columns: 1.5fr 1fr; /* 60% calendário, 40% eventos */
@@ -213,7 +227,7 @@
             border: 1px solid var(--color-border);
             border-radius: 8px;
             padding: 20px;
-            align-self: flex-start; /* Impede que estique */
+            align-self: flex-start; 
         }
         
         .events-wrapper h2 {
@@ -235,729 +249,13 @@
             list-style: none;
             max-height: 400px;
             overflow-y: auto;
-        }
-        
-        .event-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            background-color: var(--color-bg-light);
-            border-radius: 6px;
-            margin-bottom: 10px;
-        }
-        
-        .event-time {
-            font-weight: 600;
-            color: var(--color-primary);
-            flex-shrink: 0;
-        }
-        
-        .event-title {
-            font-weight: 500;
-            line-height: 1.4;
-        }
-        
-        .no-events {
-            color: var(--color-text-light);
-            font-style: italic;
-        }
-
-        .add-event-btn {
-            background-color: var(--color-primary);
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-            margin-top: 20px;
-        }
-        .add-event-btn:hover { background-color: #9d4d1c; }
-
-        /* --- NOVO: Estilos do Modal --- */
-        .modal-overlay {
-            display: none; /* Escondido por padrão */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.active {
-            display: flex; /* Mostra o modal */
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-        }
-        .modal-close:hover {
-            color: #333;
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--color-border);
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        
-        .btn-primary {
-            background-color: var(--color-primary);
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-        }
-        .btn-primary:hover { background-color: #9d4d1c; }
-
-        /* --- Responsividade --- */
-        @media (max-width: 900px) {
-            .agenda-layout {
-                grid-template-columns: 1fr; /* Empilha as colunas */
-            }
-            .events-wrapper {
-                margin-top: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .top-bar { flex-direction: column; gap: 16px; padding: 16px; }
-            .header-nav { gap: 20px; flex-wrap: wrap; justify-content: center; }
-            .page-header { text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-            .page-header h2 { font-size: 18px; }
-            .page-header .timestamp { position: static; font-size: 14px; }
-            .page-container { margin-top: 24px; padding: 16px; }
-            .calendar-cell { min-height: 50px; }
-            .day-number { width: 26px; height: 26px; font-size: 13px; }
-            .day-name { font-size: 12px; padding: 8px 4px; }
-        }
-
-    </style>
-</head>
-<body>
-
-    <header class="top-bar">
-        <div class="user-info">
-            <i class="fa-solid fa-user-circle user-avatar"></i>
-            <div>
-                <span class="user-name">Felipe</span>
-                <span class="user-role">administração da plataforma</span>
-            </div>
-        </div>
-        <nav class="header-nav">
-            <i class="fa-solid fa-list-check" title="Quadro"></i>
-            <i class="fa-solid fa-truck" title="Entregas"></i>
-            <i class="fa-solid fa-chart-line" title="Vendas"></i>
-            <i class="fa-solid fa-box" title="Estoque"></i>
-            <i class="fa-solid fa-calendar-days" title="Agenda"></i>
-            <i class="fa-solid fa-user" title="Funcionários"></i>
-            <i class="fa-solid fa-download" title="Relatórios"></i>
-            <i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i>
-        </nav>
-    </header>
-
-    <main class="page-container">
-
-        <header class="page-header">
-            <h2>AGENDA SALGADERIA MESTRE</h2>
-            <span class="timestamp" id="current-timestamp"></span>
-        </header>
-
-        <div class="agenda-layout">
-            
-            <div class="calendar-wrapper">
-                <div class="calendar-header">
-                    <h3 id="month-year-header">Outubro 2025</h3>
-                    <div class="calendar-nav">
-                        <button id="prev-month" title="Mês Anterior"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button id="next-month" title="Próximo Mês"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                </div>
-                <div class="calendar-grid">
-                    </div>
-            </div>
-            
-            <div class="events-wrapper">
-                <h2>Agenda do Dia</h2>
-                <div class="events-date" id="events-date-header">Selecione um dia</div>
-                <ul class="events-list" id="events-list">
-                    <li class="no-events">Nenhum evento agendado.</li>
-                </ul>
-                <button class="add-event-btn" id="add-event-btn"><i class="fa-solid fa-plus"></i> Adicionar Evento</button>
-            </div>
-
-        </div>
-
-    </main>
-    
-    <div class="modal-overlay" id="event-modal">
-        <div class="modal-content">
-            <span class="modal-close" id="modal-close-btn">&times;</span>
-            <h3>Adicionar Evento</h3>
-            <form id="event-form">
-                <input type="hidden" id="event-date">
-                
-                <div class="form-group">
-                    <label for="event-time">Hora</label>
-                    <input type="time" id="event-time" required>
-                </div>
-                <div class="form-group">
-                    <label for="event-title">Título</label>
-                    <input type="text" id="event-title" placeholder="Ex: Receber fornecedor" required>
-                </div>
-                <button type="submit" class="btn-primary">Salvar Evento</button>
-            </form>
-        </div>
-    </div>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // --- 1. DADOS DE EXEMPLO (MOCK) ---
-            const events = {
-                [new Date().toISOString().split('T')[0]]: [
-                    { time: '09:00', title: 'Receber fornecedor de farinha' },
-                    { time: '14:00', title: 'Produção de coxinhas (Lote 102)' }
-                ],
-                '2025-10-27': [
-                    { time: '10:00', title: 'Entrega grande - Pedido #4512' },
-                    { time: '15:00', title: 'Manutenção da fritadeira' }
-                ],
-                '2025-10-31': [
-                    { time: '11:00', title: 'Produção especial Halloween' },
-                    { time: '16:00', title: 'Pagamento de funcionários' }
-                ],
-                '2025-11-05': [
-                    { time: '08:00', title: 'Compra de ingredientes (Doces)' }
-                ]
-            };
-
-            // --- 2. SELETORES DO DOM ---
-            const timestampElement = document.getElementById('current-timestamp');
-            const monthYearHeader = document.getElementById('month-year-header');
-            const calendarGrid = document.querySelector('.calendar-grid');
-            const prevMonthBtn = document.getElementById('prev-month');
-            const nextMonthBtn = document.getElementById('next-month');
-            const eventsDateHeader = document.getElementById('events-date-header');
-            const eventsList = document.getElementById('events-list');
-            
-            // Seletores do Modal
-            const addEventBtn = document.getElementById('add-event-btn');
-            const eventModal = document.getElementById('event-modal');
-            const closeModalBtn = document.getElementById('modal-close-btn');
-            const eventForm = document.getElementById('event-form');
-            const eventDateInput = document.getElementById('event-date');
-            const eventTimeInput = document.getElementById('event-time');
-            const eventTitleInput = document.getElementById('event-title');
-
-            // --- 3. ESTADO DA APLICAÇÃO ---
-            const today = new Date();
-            let currentMonth = today.getMonth();
-            let currentYear = today.getFullYear();
-            let selectedDateString = null; // Guarda a data selecionada (ex: '2025-10-24')
-            
-            const monthNames = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-
-            // --- 4. ATUALIZAÇÃO DO TIMESTAMP ---
-            function updateCurrentTime() {
-                const now = new Date();
-                const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-                const optionsTime = { hour: '2-digit', minute: '2-digit' };
-                const date = now.toLocaleDateString('pt-BR', optionsDate);
-                const time = now.toLocaleTimeString('pt-BR', optionsTime);
-                if (timestampElement) {
-                    timestampElement.textContent = `${date} ${time}`;
-                }
-            }
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
-
-            // --- 5. GERAÇÃO DO CALENDÁRIO ---
-            function generateCalendar(month, year) {
-                calendarGrid.innerHTML = `
-                    <div class="calendar-cell day-name">dom</div>
-                    <div class="calendar-cell day-name">seg</div>
-                    <div class="calendar-cell day-name">ter</div>
-                    <div class="calendar-cell day-name">qua</div>
-                    <div class="calendar-cell day-name">qui</div>
-                    <div class="calendar-cell day-name">sex</div>
-                    <div class="calendar-cell day-name">sab</div>
-                `;
-                
-                monthYearHeader.textContent = `${monthNames[month]} ${year}`;
-                
-                const firstDayOfMonth = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-                for (let i = 0; i < firstDayOfMonth; i++) {
-                    const day = daysInPrevMonth - firstDayOfMonth + 1 + i;
-                    calendarGrid.innerHTML += `
-                        <div class="calendar-cell other-month">
-                            <div class="day-number">${day}</div>
-                        </div>
-                    `;
-                }
-
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    
-                    let classes = 'calendar-cell';
-                    if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                        classes += ' today';
-                    }
-                    if (events[dateString]) {
-                        classes += ' has-event';
-                    }
-
-                    calendarGrid.innerHTML += `
-                        <div class="${classes}" data-date="${dateString}">
-                            <div class="day-number">${day}</div>
-                        </div>
-                    `;
-                }
-                
-                const totalCells = firstDayOfMonth + daysInMonth;
-                const remainingCells = 42 - totalCells; 
-                
-                for (let day = 1; day <= remainingCells; day++) {
-                    calendarGrid.innerHTML += `
-                        <div class="calendar-cell other-month">
-                            <div class="day-number">${day}</div>
-                        </div>
-                    `;
-                }
-                
-                addDayClickListeners();
-            }
-
-            // --- 6. LÓGICA DE EVENTOS ---
-            function addDayClickListeners() {
-                const dayCells = document.querySelectorAll('.calendar-cell:not(.other-month)');
-                dayCells.forEach(cell => {
-                    cell.addEventListener('click', () => {
-                        showEventsForDay(cell);
-                    });
-                });
-            }
-            
-            function showEventsForDay(selectedCell) {
-                // Guarda a data selecionada
-                selectedDateString = selectedCell.dataset.date;
-
-                document.querySelectorAll('.calendar-cell.selected').forEach(c => c.classList.remove('selected'));
-                selectedCell.classList.add('selected');
-                
-                const [y, m, d] = selectedDateString.split('-').map(Number);
-                const selectedDate = new Date(y, m - 1, d);
-                
-                eventsDateHeader.textContent = selectedDate.toLocaleDateString('pt-BR', {
-                    day: 'numeric', month: 'long', year: 'numeric'
-                });
-                
-                const dayEvents = events[selectedDateString] || [];
-                eventsList.innerHTML = ''; 
-                
-                if (dayEvents.length === 0) {
-                    eventsList.innerHTML = '<li class="no-events">Nenhum evento agendado.</li>';
-                } else {
-                    // Os eventos já devem estar ordenados
-                    dayEvents.forEach(event => {
-                        eventsList.innerHTML += `
-                            <li class="event-item">
-                                <span class="event-time">${event.time}</span>
-                                <span class="event-title">${event.title}</span>
-                            </li>
-                        `;
-                    });
-                }
-            }
-
-            // --- 7. NAVEGAÇÃO DO CALENDÁRIO ---
-            prevMonthBtn.addEventListener('click', () => {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                generateCalendar(currentMonth, currentYear);
-            });
-            
-            nextMonthBtn.addEventListener('click', () => {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
-                generateCalendar(currentMonth, currentYear);
-            });
-            
-            // --- 8. LÓGICA DO MODAL (NOVO) ---
-            
-            // Abrir o modal
-            addEventBtn.addEventListener('click', () => {
-                if (!selectedDateString) {
-                    alert("Por favor, selecione um dia no calendário primeiro.");
-                    return;
-                }
-                eventDateInput.value = selectedDateString; // Define a data no formulário
-                eventModal.classList.add('active');
-                eventTimeInput.focus();
-            });
-            
-            // Fechar o modal
-            function closeModal() {
-                eventModal.classList.remove('active');
-                eventForm.reset();
-            }
-            closeModalBtn.addEventListener('click', closeModal);
-            eventModal.addEventListener('click', (e) => {
-                // Fecha se clicar no overlay (fundo)
-                if (e.target === eventModal) {
-                    closeModal();
-                }
-            });
-
-            // Submeter o formulário
-            eventForm.addEventListener('submit', (e) => {
-                e.preventDefault(); // Impede o recarregamento da página
-                
-                const date = eventDateInput.value;
-                const time = eventTimeInput.value;
-                const title = eventTitleInput.value;
-                
-                if (!date || !time || !title) {
-                    alert("Por favor, preencha todos os campos.");
-                    return;
-                }
-                
-                // Cria a entrada de evento
-                const newEvent = { time, title };
-                
-                // Adiciona ao objeto de dados
-                if (!events[date]) {
-                    events[date] = [];
-                }
-                events[date].push(newEvent);
-                
-                // Ordena os eventos do dia por hora
-                events[date].sort((a, b) => a.time.localeCompare(b.time));
-                
-                // Atualiza a UI
-                const selectedCell = document.querySelector(`.calendar-cell[data-date="${date}"]`);
-                selectedCell.classList.add('has-event');
-                showEventsForDay(selectedCell); // Re-renderiza a lista de eventos
-                
-                // Fecha e reseta o modal
-                closeModal();
-            });
-
-            // --- 9. INICIALIZAÇÃO ---
-            generateCalendar(currentMonth, currentYear);
-            
-            // Ao carregar, seleciona o dia de hoje
-            const todayCell = document.querySelector('.calendar-cell.today');
-            if (todayCell) {
-                showEventsForDay(todayCell);
-            } else {
-                // Se hoje não estiver visível (ex: outro mês), seleciona o dia 1
-                const firstDay = document.querySelector('.calendar-cell:not(.other-month)');
-                if (firstDay) {
-                    showEventsForDay(firstDay);
-                }
-            }
-        });
-    </script>
-
-</body>
-=======
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda da Salgaderia</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        /* --- Configurações Globais --- */
-        :root {
-            --color-primary: #b95c21;
-            --color-secondary: #007bff; /* Azul para seleção */
-            --color-text-dark: #333;
-            --color-text-light: #555;
-            --color-text-header: #777;
-            --color-text-inactive: #aaa;
-            --color-border: #e9e9e9;
-            --color-bg-page: #ffffff;
-            --color-bg-light: #f9f9f9;
-            --color-bg-other-month: #f0f0f0; 
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
             padding: 0;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--color-bg-page);
-            color: var(--color-text-dark);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* --- Header (Barra Laranja) --- */
-        .top-bar {
-            background-color: var(--color-primary);
-            color: white;
-            padding: 10px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
-        .user-info div { display: flex; flex-direction: column; font-size: 14px; }
-        .user-info .user-name { font-weight: 600; }
-        .user-info .user-role { font-size: 12px; opacity: 0.8; }
-        .header-nav { display: flex; gap: 28px; }
-        .header-nav i { font-size: 20px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
-        .header-nav i:hover { opacity: 1; }
-        
-        /* --- Container Principal da Página --- */
-        .page-container {
-            max-width: 1000px;
-            width: 95%;
-            margin: 32px auto;
-            padding: 24px;
-            flex-grow: 1;
-        }
-
-        /* Cabeçalho da Página (Título e Data) */
-        .page-header {
-            position: relative;
-            text-align: center;
-            margin-bottom: 40px; 
-            padding-bottom: 16px;
-        }
-
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 400;
-            color: var(--color-text-header);
-            letter-spacing: 0.5px;
-            display: inline-block;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ccc;
-        }
-
-        .page-header .timestamp {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 16px;
-            color: var(--color-text-light);
-            font-weight: 500;
-        }
-
-        /* --- Layout da Agenda (MELHORADO) --- */
-        .agenda-layout {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr; /* 60% calendário, 40% eventos */
-            gap: 32px;
-        }
-        
-        /* Coluna do Calendário */
-        .calendar-wrapper {
-            background-color: var(--color-bg-light);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .calendar-header h3 {
-            font-size: 22px;
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-
-        .calendar-nav button {
-            background-color: transparent;
-            border: 1px solid var(--color-border);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .calendar-nav button:hover {
-            background-color: var(--color-border);
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background-color: var(--color-border);
-            border: 1px solid var(--color-border);
-        }
-
-        .calendar-cell {
-            background-color: white;
-            padding: 12px 8px;
-            font-size: 15px;
-            font-weight: 500;
-            text-align: center;
-            min-height: 70px;
-            position: relative;
-        }
-
-        .day-name {
-            background-color: var(--color-bg-light);
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--color-text-light);
-            padding: 10px 8px;
-            min-height: auto;
-            text-transform: uppercase;
-        }
-
-        .day-number {
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background-color 0.2s, border 0.2s;
-            margin: 0 auto;
-        }
-        
-        .calendar-cell:not(.other-month):hover .day-number {
-            background-color: #f0f0f0;
-        }
-
-        .other-month {
-            background-color: var(--color-bg-other-month);
-            color: var(--color-text-inactive);
-        }
-        .other-month .day-number { cursor: default; }
-
-        .today .day-number {
-            background-color: var(--color-primary);
-            color: white;
-            font-weight: 700;
-        }
-        
-        .selected .day-number {
-            background-color: #e6f2ff;
-            border: 2px solid var(--color-secondary);
-        }
-        
-        .has-event::after {
-            content: '';
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--color-secondary);
-        }
-
-        /* Coluna da Lista de Eventos */
-        .events-wrapper {
-            background-color: #fff;
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 20px;
-            align-self: flex-start; /* Impede que estique */
-        }
-        
-        .events-wrapper h2 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .events-date {
-            font-size: 16px;
-            color: var(--color-text-light);
-            font-weight: 500;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--color-border);
-            padding-bottom: 12px;
-        }
-        
-        .events-list {
-            list-style: none;
-            max-height: 400px;
-            overflow-y: auto;
-        }
         
         .event-item {
             display: flex;
             gap: 12px;
+            align-items: center; 
             padding: 12px;
             background-color: var(--color-bg-light);
             border-radius: 6px;
@@ -973,11 +271,24 @@
         .event-title {
             font-weight: 500;
             line-height: 1.4;
+            flex-grow: 1; 
+        }
+        
+        .event-delete-btn {
+            color: var(--color-danger);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+        .event-delete-btn:hover {
+            color: #a02020;
         }
         
         .no-events {
             color: var(--color-text-light);
             font-style: italic;
+            padding: 10px 0;
         }
 
         .add-event-btn {
@@ -994,10 +305,12 @@
             margin-top: 20px;
         }
         .add-event-btn:hover { background-color: #9d4d1c; }
+        .add-event-btn:disabled { background-color: #aaa; cursor: not-allowed; }
 
-        /* --- NOVO: Estilos do Modal --- */
+
+        /* --- Estilos do Modal --- */
         .modal-overlay {
-            display: none; /* Escondido por padrão */
+            display: none; 
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -1007,10 +320,13 @@
             background-color: rgba(0,0,0,0.5);
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
         }
 
         .modal-overlay.active {
-            display: flex; /* Mostra o modal */
+            display: flex; 
+            opacity: 1;
         }
 
         .modal-content {
@@ -1021,6 +337,11 @@
             width: 90%;
             max-width: 400px;
             position: relative;
+            transform: scale(0.95);
+            transition: transform 0.2s ease-in-out;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
         }
 
         .modal-close {
@@ -1072,11 +393,12 @@
             width: 100%;
         }
         .btn-primary:hover { background-color: #9d4d1c; }
+        .btn-primary:disabled { background-color: #aaa; cursor: not-allowed; }
 
         /* --- Responsividade --- */
         @media (max-width: 900px) {
             .agenda-layout {
-                grid-template-columns: 1fr; /* Empilha as colunas */
+                grid-template-columns: 1fr;
             }
             .events-wrapper {
                 margin-top: 20px;
@@ -1094,7 +416,6 @@
             .day-number { width: 26px; height: 26px; font-size: 13px; }
             .day-name { font-size: 12px; padding: 8px 4px; }
         }
-
     </style>
 </head>
 <body>
@@ -1108,19 +429,18 @@
             </div>
         </div>
         <nav class="header-nav">
-            <i class="fa-solid fa-list-check" title="Quadro"></i>
-            <i class="fa-solid fa-truck" title="Entregas"></i>
-            <i class="fa-solid fa-chart-line" title="Vendas"></i>
-            <i class="fa-solid fa-box" title="Estoque"></i>
-            <i class="fa-solid fa-calendar-days" title="Agenda"></i>
-            <i class="fa-solid fa-user" title="Funcionários"></i>
-            <i class="fa-solid fa-download" title="Relatórios"></i>
-            <i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i>
-        </nav>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
     </header>
 
     <main class="page-container">
-
         <header class="page-header">
             <h2>AGENDA SALGADERIA MESTRE</h2>
             <span class="timestamp" id="current-timestamp"></span>
@@ -1130,7 +450,7 @@
             
             <div class="calendar-wrapper">
                 <div class="calendar-header">
-                    <h3 id="month-year-header">Outubro 2025</h3>
+                    <h3 id="month-year-header">Novembro 2025</h3>
                     <div class="calendar-nav">
                         <button id="prev-month" title="Mês Anterior"><i class="fa-solid fa-chevron-left"></i></button>
                         <button id="next-month" title="Próximo Mês"><i class="fa-solid fa-chevron-right"></i></button>
@@ -1144,22 +464,20 @@
                 <h2>Agenda do Dia</h2>
                 <div class="events-date" id="events-date-header">Selecione um dia</div>
                 <ul class="events-list" id="events-list">
-                    <li class="no-events">Nenhum evento agendado.</li>
+                    <li class="no-events">Carregando eventos...</li>
                 </ul>
                 <button class="add-event-btn" id="add-event-btn"><i class="fa-solid fa-plus"></i> Adicionar Evento</button>
             </div>
 
         </div>
-
     </main>
     
     <div class="modal-overlay" id="event-modal">
         <div class="modal-content">
             <span class="modal-close" id="modal-close-btn">&times;</span>
-            <h3>Adicionar Evento</h3>
+            <h3 id="modal-title">Adicionar Evento</h3>
             <form id="event-form">
                 <input type="hidden" id="event-date">
-                
                 <div class="form-group">
                     <label for="event-time">Hora</label>
                     <input type="time" id="event-time" required>
@@ -1168,271 +486,342 @@
                     <label for="event-title">Título</label>
                     <input type="text" id="event-title" placeholder="Ex: Receber fornecedor" required>
                 </div>
-                <button type="submit" class="btn-primary">Salvar Evento</button>
+                <button type="submit" class="btn-primary" id="save-event-btn">Salvar Evento</button>
             </form>
         </div>
     </div>
 
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // --- 1. DADOS DE EXEMPLO (MOCK) ---
-            const events = {
-                [new Date().toISOString().split('T')[0]]: [
-                    { time: '09:00', title: 'Receber fornecedor de farinha' },
-                    { time: '14:00', title: 'Produção de coxinhas (Lote 102)' }
-                ],
-                '2025-10-27': [
-                    { time: '10:00', title: 'Entrega grande - Pedido #4512' },
-                    { time: '15:00', title: 'Manutenção da fritadeira' }
-                ],
-                '2025-10-31': [
-                    { time: '11:00', title: 'Produção especial Halloween' },
-                    { time: '16:00', title: 'Pagamento de funcionários' }
-                ],
-                '2025-11-05': [
-                    { time: '08:00', title: 'Compra de ingredientes (Doces)' }
-                ]
-            };
+    <script type="module">
+        // --- 1. IMPORTS DO FIREBASE ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { 
+            getFirestore, collection, getDocs, 
+            addDoc, query, where, orderBy, doc, deleteDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        
+        // --- 2. CONFIGURAÇÃO DO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
 
-            // --- 2. SELETORES DO DOM ---
-            const timestampElement = document.getElementById('current-timestamp');
-            const monthYearHeader = document.getElementById('month-year-header');
-            const calendarGrid = document.querySelector('.calendar-grid');
-            const prevMonthBtn = document.getElementById('prev-month');
-            const nextMonthBtn = document.getElementById('next-month');
-            const eventsDateHeader = document.getElementById('events-date-header');
-            const eventsList = document.getElementById('events-list');
-            
-            // Seletores do Modal
-            const addEventBtn = document.getElementById('add-event-btn');
-            const eventModal = document.getElementById('event-modal');
-            const closeModalBtn = document.getElementById('modal-close-btn');
-            const eventForm = document.getElementById('event-form');
-            const eventDateInput = document.getElementById('event-date');
-            const eventTimeInput = document.getElementById('event-time');
-            const eventTitleInput = document.getElementById('event-title');
+        // --- 3. INICIALIZAÇÃO ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const agendaCollectionRef = collection(db, "agenda_eventos");
 
-            // --- 3. ESTADO DA APLICAÇÃO ---
-            const today = new Date();
-            let currentMonth = today.getMonth();
-            let currentYear = today.getFullYear();
-            let selectedDateString = null; // Guarda a data selecionada (ex: '2025-10-24')
-            
-            const monthNames = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+        // --- 4. SELETORES DO DOM ---
+        const timestampElement = document.getElementById('current-timestamp');
+        const monthYearHeader = document.getElementById('month-year-header');
+        const calendarGrid = document.querySelector('.calendar-grid');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+        const eventsDateHeader = document.getElementById('events-date-header');
+        const eventsList = document.getElementById('events-list');
+        const addEventBtn = document.getElementById('add-event-btn');
+        const eventModal = document.getElementById('event-modal');
+        const closeModalBtn = document.getElementById('modal-close-btn');
+        const eventForm = document.getElementById('event-form');
+        const eventDateInput = document.getElementById('event-date');
+        const eventTimeInput = document.getElementById('event-time');
+        const eventTitleInput = document.getElementById('event-title');
 
-            // --- 4. ATUALIZAÇÃO DO TIMESTAMP ---
-            function updateCurrentTime() {
-                const now = new Date();
-                const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-                const optionsTime = { hour: '2-digit', minute: '2-digit' };
-                const date = now.toLocaleDateString('pt-BR', optionsDate);
-                const time = now.toLocaleTimeString('pt-BR', optionsTime);
-                if (timestampElement) {
-                    timestampElement.textContent = `${date} ${time}`;
-                }
+        // --- 5. ESTADO DA APLICAÇÃO ---
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        
+        let currentMonth = today.getMonth(); // Mês atual
+        let currentYear = today.getFullYear(); // Ano atual
+        
+        let selectedDateString = null;
+        let localEvents = []; // NOVO: Armazena TODOS os eventos carregados
+        
+        const monthNames = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+        // --- 6. ATUALIZAÇÃO DO TIMESTAMP (COM SEGUNDOS) ---
+        function updateCurrentTime() {
+            const now = new Date();
+            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' }; 
+            const date = now.toLocaleDateString('pt-BR', optionsDate);
+            const time = now.toLocaleTimeString('pt-BR', optionsTime);
+            if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
+        }
+        // Inicia o relógio
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000); 
+
+        // --- 7. GERAÇÃO DO CALENDÁRIO (SIMPLIFICADO) ---
+        // Esta função agora APENAS desenha o calendário
+        function generateCalendar(month, year) {
+            calendarGrid.innerHTML = `
+                <div class="calendar-cell day-name">dom</div> <div class="calendar-cell day-name">seg</div> <div class="calendar-cell day-name">ter</div>
+                <div class="calendar-cell day-name">qua</div> <div class="calendar-cell day-name">qui</div> <div class="calendar-cell day-name">sex</div>
+                <div class="calendar-cell day-name">sab</div>
+            `;
+            
+            monthYearHeader.textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const day = daysInPrevMonth - firstDayOfMonth + 1 + i;
+                calendarGrid.innerHTML += `<div class="calendar-cell other-month"><div class="day-number">${day}</div></div>`;
             }
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
 
-            // --- 5. GERAÇÃO DO CALENDÁRIO ---
-            function generateCalendar(month, year) {
-                calendarGrid.innerHTML = `
-                    <div class="calendar-cell day-name">dom</div>
-                    <div class="calendar-cell day-name">seg</div>
-                    <div class="calendar-cell day-name">ter</div>
-                    <div class="calendar-cell day-name">qua</div>
-                    <div class="calendar-cell day-name">qui</div>
-                    <div class="calendar-cell day-name">sex</div>
-                    <div class="calendar-cell day-name">sab</div>
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                let classes = 'calendar-cell';
+                
+                const loopDate = new Date(year, month, day);
+                if (loopDate.getTime() === today.getTime()) {
+                    classes += ' today';
+                }
+                // Verifica se a data existe no array local de eventos
+                if (localEvents.some(event => event.data === dateString)) {
+                    classes += ' has-event';
+                }
+                calendarGrid.innerHTML += `
+                    <div class="${classes}" data-date="${dateString}">
+                        <div class="day-number">${day}</div>
+                    </div>
                 `;
-                
-                monthYearHeader.textContent = `${monthNames[month]} ${year}`;
-                
-                const firstDayOfMonth = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-                for (let i = 0; i < firstDayOfMonth; i++) {
-                    const day = daysInPrevMonth - firstDayOfMonth + 1 + i;
-                    calendarGrid.innerHTML += `
-                        <div class="calendar-cell other-month">
-                            <div class="day-number">${day}</div>
-                        </div>
-                    `;
-                }
-
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    
-                    let classes = 'calendar-cell';
-                    if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                        classes += ' today';
-                    }
-                    if (events[dateString]) {
-                        classes += ' has-event';
-                    }
-
-                    calendarGrid.innerHTML += `
-                        <div class="${classes}" data-date="${dateString}">
-                            <div class="day-number">${day}</div>
-                        </div>
-                    `;
-                }
-                
-                const totalCells = firstDayOfMonth + daysInMonth;
-                const remainingCells = 42 - totalCells; 
-                
-                for (let day = 1; day <= remainingCells; day++) {
-                    calendarGrid.innerHTML += `
-                        <div class="calendar-cell other-month">
-                            <div class="day-number">${day}</div>
-                        </div>
-                    `;
-                }
-                
-                addDayClickListeners();
-            }
-
-            // --- 6. LÓGICA DE EVENTOS ---
-            function addDayClickListeners() {
-                const dayCells = document.querySelectorAll('.calendar-cell:not(.other-month)');
-                dayCells.forEach(cell => {
-                    cell.addEventListener('click', () => {
-                        showEventsForDay(cell);
-                    });
-                });
             }
             
-            function showEventsForDay(selectedCell) {
-                // Guarda a data selecionada
-                selectedDateString = selectedCell.dataset.date;
+            const totalCells = firstDayOfMonth + daysInMonth;
+            const remainingCells = 42 - totalCells; 
+            for (let day = 1; day <= remainingCells; day++) {
+                calendarGrid.innerHTML += `<div class="calendar-cell other-month"><div class="day-number">${day}</div></div>`;
+            }
+            
+            addDayClickListeners();
+            
+            // Re-seleciona o dia que estava ativo (se ele ainda estiver visível)
+            if (selectedDateString) {
+                const selectedCell = document.querySelector(`.calendar-cell[data-date="${selectedDateString}"]`);
+                if (selectedCell) {
+                    selectedCell.classList.add('selected');
+                }
+            }
+        }
 
-                document.querySelectorAll('.calendar-cell.selected').forEach(c => c.classList.remove('selected'));
+        // --- 8. LÓGICA DE EVENTOS (FIREBASE) ---
+        
+        // Carrega TODOS os eventos do Firestore UMA VEZ
+        async function fetchAllEvents() {
+            try {
+                // SCRIPT CORRIGIDO: Removida a ordenação que causa o erro de índice
+                const querySnapshot = await getDocs(agendaCollectionRef);
+                
+                localEvents = []; // Limpa o cache local
+                querySnapshot.forEach(doc => {
+                    localEvents.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Faz a ordenação no JavaScript, que não precisa de índice
+                localEvents.sort((a, b) => a.data.localeCompare(b.data)); 
+                
+                console.log("Eventos carregados do Firebase:", localEvents.length);
+            } catch (e) {
+                console.error("Erro ao carregar todos os eventos: ", e);
+                alert("Falha fatal ao carregar dados da agenda. Verifique o console (F12).");
+            }
+        }
+
+        // Adiciona os listeners de clique aos dias
+        function addDayClickListeners() {
+            const dayCells = document.querySelectorAll('.calendar-cell:not(.other-month)');
+            dayCells.forEach(cell => {
+                cell.addEventListener('click', () => {
+                    showEventsForDay(cell.dataset.date);
+                });
+            });
+        }
+        
+        // Mostra os eventos para o dia clicado (AGORA USANDO O ARRAY LOCAL)
+        function showEventsForDay(dateString) {
+            if (!dateString) return; 
+            
+            selectedDateString = dateString; 
+            
+            // Atualiza o visual do calendário
+            document.querySelectorAll('.calendar-cell.selected').forEach(c => c.classList.remove('selected'));
+            const selectedCell = document.querySelector(`.calendar-cell[data-date="${selectedDateString}"]`);
+            if (selectedCell) {
                 selectedCell.classList.add('selected');
+            }
+            
+            const [y, m, d] = selectedDateString.split('-').map(Number);
+            const selectedDate = new Date(y, m - 1, d);
+            eventsDateHeader.textContent = selectedDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            // Filtra o array local
+            const dayEvents = localEvents
+                .filter(event => event.data === selectedDateString)
+                .sort((a, b) => a.hora.localeCompare(b.hora)); // Ordena por hora
                 
-                const [y, m, d] = selectedDateString.split('-').map(Number);
-                const selectedDate = new Date(y, m - 1, d);
-                
-                eventsDateHeader.textContent = selectedDate.toLocaleDateString('pt-BR', {
-                    day: 'numeric', month: 'long', year: 'numeric'
+            eventsList.innerHTML = ''; 
+            if (dayEvents.length === 0) {
+                eventsList.innerHTML = '<li class="no-events">Nenhum evento agendado.</li>';
+            } else {
+                dayEvents.forEach(event => {
+                    const item = document.createElement('li');
+                    item.className = 'event-item';
+                    item.innerHTML = `
+                        <span class="event-time">${event.hora}</span>
+                        <span class="event-title">${event.titulo}</span>
+                        <i class="fa-solid fa-trash event-delete-btn" data-id="${event.id}" data-title="${event.titulo}" title="Excluir Evento"></i>
+                    `;
+                    eventsList.appendChild(item);
                 });
                 
-                const dayEvents = events[selectedDateString] || [];
-                eventsList.innerHTML = ''; 
-                
-                if (dayEvents.length === 0) {
-                    eventsList.innerHTML = '<li class="no-events">Nenhum evento agendado.</li>';
-                } else {
-                    // Os eventos já devem estar ordenados
-                    dayEvents.forEach(event => {
-                        eventsList.innerHTML += `
-                            <li class="event-item">
-                                <span class="event-time">${event.time}</span>
-                                <span class="event-title">${event.title}</span>
-                            </li>
-                        `;
+                // Adiciona listeners para os botões de lixeira
+                eventsList.querySelectorAll('.event-delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.dataset.id;
+                        const title = e.target.dataset.title;
+                        deleteEvent(id, title);
                     });
-                }
+                });
             }
+        }
 
-            // --- 7. NAVEGAÇÃO DO CALENDÁRIO ---
-            prevMonthBtn.addEventListener('click', () => {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                generateCalendar(currentMonth, currentYear);
-            });
-            
-            nextMonthBtn.addEventListener('click', () => {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
-                generateCalendar(currentMonth, currentYear);
-            });
-            
-            // --- 8. LÓGICA DO MODAL (NOVO) ---
-            
-            // Abrir o modal
-            addEventBtn.addEventListener('click', () => {
-                if (!selectedDateString) {
-                    alert("Por favor, selecione um dia no calendário primeiro.");
-                    return;
-                }
-                eventDateInput.value = selectedDateString; // Define a data no formulário
-                eventModal.classList.add('active');
-                eventTimeInput.focus();
-            });
-            
-            // Fechar o modal
-            function closeModal() {
-                eventModal.classList.remove('active');
-                eventForm.reset();
+        // --- 9. NAVEGAÇÃO DO CALENDÁRIO ---
+        prevMonthBtn.addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            generateCalendar(currentMonth, currentYear); // Apenas redesenha, não busca no DB
+        });
+        nextMonthBtn.addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            generateCalendar(currentMonth, currentYear); // Apenas redesenha, não busca no DB
+        });
+        
+        // --- 10. LÓGICA DO MODAL (ADICIONAR EVENTO) ---
+        addEventBtn.addEventListener('click', () => {
+            if (!selectedDateString) {
+                alert("Por favor, selecione um dia no calendário primeiro.");
+                return;
             }
-            closeModalBtn.addEventListener('click', closeModal);
-            eventModal.addEventListener('click', (e) => {
-                // Fecha se clicar no overlay (fundo)
-                if (e.target === eventModal) {
-                    closeModal();
-                }
-            });
+            eventDateInput.value = selectedDateString;
+            eventModal.classList.add('active');
+            eventTimeInput.focus();
+        });
+        
+        function closeModal() { eventModal.classList.remove('active'); eventForm.reset(); }
+        closeModalBtn.addEventListener('click', closeModal);
+        eventModal.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
 
-            // Submeter o formulário
-            eventForm.addEventListener('submit', (e) => {
-                e.preventDefault(); // Impede o recarregamento da página
+        eventForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const saveButton = eventForm.querySelector('.btn-primary');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Salvando...';
+
+            const newEventData = {
+                data: eventDateInput.value,
+                hora: eventTimeInput.value,
+                titulo: eventTitleInput.value.trim()
+            };
+            if (!newEventData.data || !newEventData.hora || !newEventData.titulo) {
+                alert("Por favor, preencha todos os campos.");
+                saveButton.disabled = false;
+                saveButton.textContent = 'Salvar Evento';
+                return;
+            }
+            
+            try {
+                // Adiciona ao Firebase
+                const docRef = await addDoc(agendaCollectionRef, newEventData);
                 
-                const date = eventDateInput.value;
-                const time = eventTimeInput.value;
-                const title = eventTitleInput.value;
+                // Adiciona ao array local (com o novo ID)
+                localEvents.push({ id: docRef.id, ...newEventData });
                 
-                if (!date || !time || !title) {
-                    alert("Por favor, preencha todos os campos.");
-                    return;
-                }
-                
-                // Cria a entrada de evento
-                const newEvent = { time, title };
-                
-                // Adiciona ao objeto de dados
-                if (!events[date]) {
-                    events[date] = [];
-                }
-                events[date].push(newEvent);
-                
-                // Ordena os eventos do dia por hora
-                events[date].sort((a, b) => a.time.localeCompare(b.time));
-                
-                // Atualiza a UI
-                const selectedCell = document.querySelector(`.calendar-cell[data-date="${date}"]`);
-                selectedCell.classList.add('has-event');
-                showEventsForDay(selectedCell); // Re-renderiza a lista de eventos
-                
-                // Fecha e reseta o modal
                 closeModal();
-            });
-
-            // --- 9. INICIALIZAÇÃO ---
-            generateCalendar(currentMonth, currentYear);
-            
-            // Ao carregar, seleciona o dia de hoje
-            const todayCell = document.querySelector('.calendar-cell.today');
-            if (todayCell) {
-                showEventsForDay(todayCell);
-            } else {
-                // Se hoje não estiver visível (ex: outro mês), seleciona o dia 1
-                const firstDay = document.querySelector('.calendar-cell:not(.other-month)');
-                if (firstDay) {
-                    showEventsForDay(firstDay);
+                
+                // Atualiza o pontinho no calendário
+                const selectedCell = document.querySelector(`.calendar-cell[data-date="${newEventData.data}"]`);
+                if (selectedCell) {
+                    selectedCell.classList.add('has-event');
                 }
+                
+                // Recarrega SÓ a lista de eventos
+                showEventsForDay(newEventData.data); 
+                
+            } catch (error) {
+                console.error("Erro ao salvar evento: ", error);
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Salvar Evento';
             }
         });
+        
+        // --- 11. FUNÇÃO DE EXCLUSÃO (CORRIGIDA) ---
+        async function deleteEvent(id, title) {
+            if (confirm(`Tem certeza que deseja excluir o evento "${title}"?`)) {
+                try {
+                    // 1. Remove do Firebase
+                    await deleteDoc(doc(db, "agenda_eventos", id));
+                    
+                    // 2. Remove do array local
+                    const eventIndex = localEvents.findIndex(event => event.id === id);
+                    let eventData = null;
+                    if (eventIndex > -1) {
+                        eventData = localEvents.splice(eventIndex, 1)[0];
+                    }
+                    
+                    // 3. Atualiza a lista de eventos (para o dia atual)
+                    showEventsForDay(selectedDateString);
+                    
+                    // 4. Verifica se há MAIS eventos nesse dia
+                    if (eventData) {
+                        const remainingEvents = localEvents.some(event => event.data === eventData.data);
+                        
+                        // 5. Se não houver mais, remove o pontinho
+                        if (!remainingEvents) {
+                            const cell = document.querySelector(`.calendar-cell[data-date="${eventData.data}"]`);
+                            if(cell) {
+                                cell.classList.remove('has-event');
+                            }
+                        }
+                    }
+                } catch(error) {
+                    console.error("Erro ao excluir evento: ", error);
+                    alert("Falha ao excluir evento.");
+                }
+            }
+        }
+
+              // --- 12. INICIALIZAÇÃO ---
+        (async () => {
+            // 1. Busca todos os eventos do Firebase primeiro
+            await fetchAllEvents();
+            
+            // 2. Desenha o calendário do mês atual (usando os dados locais)
+            generateCalendar(currentMonth, currentYear);
+            
+            // 3. Seleciona o dia de hoje
+            const todayStr = today.toISOString().split('T')[0];
+            const todayCell = document.querySelector(`.calendar-cell[data-date="${todayStr}"]`);
+            
+            if (todayCell) {
+                showEventsForDay(todayStr); // Seleciona o dia de hoje
+            } else {
+                // Se hoje não estiver visível, seleciona o dia 1 do mês atual
+                const firstDayStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+                showEventsForDay(firstDayStr); // Seleciona o dia 1
+            }
+        })(); // <-- CORRETO: apenas um fechamento aqui
     </script>
 
 </body>
->>>>>>> f8f523d0b5f7ea16c840bd1dcf1d7fd706b6d3af
 </html>

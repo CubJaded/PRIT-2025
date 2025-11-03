@@ -1,31 +1,30 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status de Pedidos</title>
+    <title>Admin - Status de Pedidos</title> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         /* --- Configurações Globais --- */
         :root {
-            --color-primary: #b95c21; /* Tom de laranja/marrom da barra superior */
+            --color-primary: #b95c21;
+            --color-secondary: #007bff;
+            --color-danger: #d9534f;
+            --color-warning: #f5a623;
+            --color-success: #28a745;
             --color-text-dark: #333;
             --color-text-light: #555;
             --color-text-header: #777;
             --color-text-timestamp: #888;
-            --color-success: #28a745;
-            --color-warning: #f5a623; /* Laranja/Amarelo para trânsito */
-            --color-danger: #d9534f;  /* Vermelho para atraso */
             --color-border: #e9e9e9;
             --color-bg-page: #ffffff;
+            --color-bg-light: #f9f9f9;
+            --color-bg-table-header: #f1f1f1;
+            --color-success-bg: #e9f7ec;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -36,7 +35,7 @@
             min-height: 100vh;
         }
 
-        /* --- Header (Barra Laranja) - Reutilizado da imagem anterior --- */
+        /* --- Header (Barra Laranja) --- */
         .top-bar {
             background-color: var(--color-primary);
             color: white;
@@ -46,84 +45,59 @@
             align-items: center;
             width: 100%;
         }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
+        .user-info div { display: flex; flex-direction: column; font-size: 14px; }
+        .user-info .user-name { font-weight: 600; }
+        .user-info .user-role { font-size: 12px; opacity: 0.8; }
+        
+        /* --- HEADER NAV (CSS CORRIGIDO PARA ESPAÇAMENTO) --- */
+        .header-nav { 
+            display: flex; 
+            align-items: center; 
         }
-
-        .user-info .user-avatar {
-            font-size: 36px;
-            opacity: 0.9;
-        }
-
-        .user-info div {
-            display: flex;
-            flex-direction: column;
-            font-size: 14px;
-        }
-
-        .user-info .user-name {
-            font-weight: 600;
-        }
-
-        .user-info .user-role {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .header-nav {
-            display: flex;
-            gap: 28px;
-        }
-
         .header-nav a {
             color: white;
             text-decoration: none;
+            opacity: 0.8; 
+            padding: 10px 15px; /* Define o espaçamento uniforme */
+            border-radius: 6px; 
+            transition: opacity 0.2s, background-color 0.2s;
         }
-
         .header-nav a:hover {
-            opacity: 0.8;
+            opacity: 1; 
+            background-color: rgba(255, 255, 255, 0.1); /* Efeito de hover */
         }
+        .header-nav i { 
+            font-size: 20px; 
+            cursor: pointer; 
+            display: block; 
+        }
+        /* --- FIM DA CORREÇÃO --- */
 
-        .header-nav i {
-            font-size: 20px;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        .header-nav i:hover {
-            opacity: 1;
-        }
-        
-        /* --- Container Principal da Página --- */
+        /* --- Layout Principal --- */
         .page-container {
-            max-width: 1000px;
+            max-width: 1100px;
             width: 95%;
             margin: 32px auto;
             padding: 24px;
+            flex-grow: 1;
         }
-
-        /* Cabeçalho da Página (Título e Data) */
         .page-header {
             position: relative;
             text-align: center;
             margin-bottom: 32px;
             padding-bottom: 16px;
         }
-
         .page-header h2 {
             font-size: 20px;
-            font-weight: 400; /* Fonte fina como na imagem */
+            font-weight: 400;
             color: var(--color-text-header);
             letter-spacing: 0.5px;
-            display: inline-block; /* Para a borda se ajustar ao texto */
+            display: inline-block;
             padding-bottom: 8px;
             border-bottom: 1px solid #ccc;
         }
-
         .page-header .timestamp {
             position: absolute;
             top: 0;
@@ -132,129 +106,73 @@
             color: var(--color-text-light);
             font-weight: 500;
         }
+        .section-title { font-size: 18px; font-weight: 500; color: var(--color-text-header); margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 8px; }
 
-        /* Lista de Pedidos */
-        .order-list {
-            display: flex;
-            flex-direction: column;
-        }
+        /* --- KPIs (Cards de Resumo) --- */
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+        .kpi-card { background-color: var(--color-bg-light); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .kpi-card .icon { font-size: 28px; width: 40px; text-align: center; }
+        .kpi-card .icon.success { color: var(--color-success); }
+        .kpi-card .icon.warning, .kpi-card .icon.pending { color: var(--color-warning); }
+        .kpi-card .icon.danger { color: var(--color-danger); }
+        .kpi-card .icon.info, .kpi-card .icon.total { color: var(--color-primary); }
+        .kpi-card-info .kpi-value { font-size: 24px; font-weight: 600; color: var(--color-text-dark); display: block; margin-bottom: 4px; }
+        .kpi-card-info .kpi-title { font-size: 13px; color: var(--color-text-light); font-weight: 500; text-transform: uppercase; }
 
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap; /* Para responsividade */
-            gap: 16px;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--color-border);
-        }
-
-        .order-item:last-child {
-            border-bottom: none;
-        }
-
-        .order-details {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 16px;
-            color: var(--color-text-light);
-        }
-
-        .order-details .status-icon {
-            font-size: 22px;
-            width: 24px;
-            text-align: center;
-        }
-
-        .order-timestamp {
-            display: flex;
-            gap: 16px;
-            font-size: 15px;
-            color: var(--color-text-timestamp);
-            font-weight: 500;
-        }
-
-        /* Modificadores de Cor de Status */
-        .order-item.status-danger .status-icon {
-            color: var(--color-danger);
-        }
-        .order-item.status-danger .status-text {
-            color: var(--color-danger);
-            font-weight: 600;
-        }
-
-        .order-item.status-transit .status-icon {
-            color: var(--color-warning);
-        }
-        /* O texto de "Em Trânsito" não é colorido na imagem */
-
-        .order-item.status-success .status-icon {
-            color: var(--color-success);
-        }
-        .order-item.status-success .status-text {
-            color: var(--color-success);
-            font-weight: 600;
-        }
+        /* --- Controles (Busca e Filtros) --- */
+        .controls-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); }
+        .filter-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .filter-btn { background: none; border: 1px solid var(--color-border); border-radius: 6px; padding: 8px 14px; font-size: 14px; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; color: var(--color-text-light); }
+        .filter-btn.active, .filter-btn:hover { background-color: var(--color-primary); color: white; border-color: var(--color-primary); }
+        .search-container { min-width: 250px; }
+        .search-input { padding: 9px 15px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 15px; width: 100%; }
+        
+        /* --- Listas (Status, Pedidos, Estoque) --- */
+        .order-list { display: flex; flex-direction: column; background-color: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
+        .order-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-bottom: 1px solid var(--color-border); transition: background-color 0.1s; flex-wrap: wrap; }
+        .order-item:last-child { border-bottom: none; }
+        .order-item:hover { background-color: var(--color-bg-light); }
+        
+        .status-icon { font-size: 24px; width: 28px; text-align: center; }
+        
+        .order-details { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--color-text-light); flex-grow: 1; min-width: 250px; }
+        .order-info span { margin-right: 5px; }
+        .order-timestamp { display: flex; gap: 10px; font-size: 14px; color: var(--color-text-timestamp); font-weight: 500; white-space: nowrap; }
+        .order-actions { min-width: 100px; text-align: right; }
+        .action-btn { background: none; border: 1px solid var(--color-border); border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 13px; transition: background-color 0.2s; color: var(--color-text-light); }
+        .action-btn:hover { background-color: #eee; color: var(--color-text-dark); }
+        .action-btn i { margin-right: 4px; }
+        
+        /* Cores de Status */
+        .status-success .status-icon { color: var(--color-success); }
+        .status-warning .status-icon, .status-transit .status-icon { color: var(--color-warning); }
+        .status-danger .status-icon { color: var(--color-danger); }
+        .status-danger .status-text { color: var(--color-danger); font-weight: 600; }
+        .status-success .status-text { color: var(--color-success); font-weight: 600; }
+        
+        .no-orders-message { padding: 20px; text-align: center; color: var(--color-text-light); font-style: italic; }
 
         /* --- Responsividade --- */
         @media (max-width: 768px) {
-            .top-bar {
-                flex-direction: column;
-                gap: 16px;
-                padding: 16px;
-            }
-
-            .header-nav {
-                gap: 20px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .page-header {
-                text-align: left;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .page-header h2 {
-                font-size: 18px;
-            }
-
-            .page-header .timestamp {
-                position: static;
-                font-size: 14px;
-            }
-
-            .page-container {
-                margin-top: 24px;
-                padding: 16px;
-            }
-            
-            .order-item {
-                gap: 8px; /* Reduz o gap no mobile */
-            }
-
-            .order-details {
-                font-size: 14px;
-                gap: 8px;
-            }
-
-            .order-timestamp {
-                width: 100%;
-                justify-content: space-between;
-                font-size: 13px;
-                color: #999;
-                padding-left: 32px; /* Alinha com o texto, pulando o ícone */
-            }
+            .top-bar { flex-direction: column; gap: 16px; padding: 16px; }
+            .header-nav { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            .page-header { text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+            .page-header h2 { font-size: 18px; }
+            .page-header .timestamp { position: static; font-size: 14px; }
+            .page-container { margin-top: 24px; padding: 16px; }
+            .kpi-card-info .kpi-value { font-size: 20px; }
+            .controls-container { flex-direction: column; align-items: stretch; }
+            .search-input { max-width: none; }
+            .filter-buttons { justify-content: center; }
+            .order-item { padding: 12px; }
+            .order-details { font-size: 14px; gap: 8px; min-width: 200px; }
+            .order-timestamp { font-size: 13px; }
+            .order-actions { text-align: left; margin-top: 5px; }
         }
-
     </style>
 </head>
-<body>
-
+<body> 
+    
     <header class="top-bar">
         <div class="user-info">
             <i class="fa-solid fa-user-circle user-avatar"></i>
@@ -264,603 +182,242 @@
             </div>
         </div>
         <nav class="header-nav">
-            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
-            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
-            <a href="vendas.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
-            <a href="estoque.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
-            <a href="agenda.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
-            <a href="funcionarios.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
-            <a href="relatorios.html"><i class="fa-solid fa-download" title="Relatórios"></i></a>
-            <a href="javascript:void(0)" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
-        </nav>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>        <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
     </header>
 
     <main class="page-container">
-
         <header class="page-header">
             <h2>STATUS DE PEDIDOS</h2>
-            <span class="timestamp">24/07/25 19:37</span>
+            <span class="timestamp" id="current-timestamp">--/--/-- --:--:--</span>
         </header>
 
-        <section class="order-list">
-
-            <div class="order-item status-danger">
-                <div class="order-details">
-                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
-                    <span>PEDIDO 93628 - STATUS: </span>
-                    <span class="status-text">COM ATRASO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:37</span>
-                </div>
-            </div>
-
-            <div class="order-item status-danger">
-                <div class="order-details">
-                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
-                    <span>PEDIDO 34629 - STATUS: </span>
-                    <span class="status-text">COM ATRASO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:37</span>
-                </div>
-            </div>
-
-            <div class="order-item status-transit">
-                <div class="order-details">
-                    <i class="fa-solid fa-shipping-fast status-icon"></i>
-                    <span>PEDIDO 4002 - STATUS: EM TRANSITO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:11</span>
-                </div>
-            </div>
-
-            <div class="order-item status-transit">
-                <div class="order-details">
-                    <i class="fa-solid fa-shipping-fast status-icon"></i>
-                    <span>PEDIDO 8922 - STATUS: EM TRANSITO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:22</span>
-                </div>
-            </div>
-            <div class="order-item status-transit">
-                <div class="order-details">
-                    <i class="fa-solid fa-shipping-fast status-icon"></i>
-                    <span>PEDIDO 17250 - STATUS: EM TRANSITO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:06</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 36834 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>18:22</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 34654 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>18:54</span>
-                </div>
-            </div>
-            
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 45639 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>18:37</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 21097 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>17:49</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 52076 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>16:51</span>
-                </div>
-            </div>
-
+        <section class="kpi-container">
+             <div class="kpi-card">
+                 <i class="fa-solid fa-receipt icon total"></i>
+                 <div class="kpi-card-info">
+                     <span class="kpi-value" id="kpi-total">0</span>
+                     <span class="kpi-title">Total Pedidos</span>
+                 </div>
+             </div>
+             <div class="kpi-card">
+                 <i class="fa-solid fa-hourglass-half icon pending"></i>
+                 <div class="kpi-card-info">
+                     <span class="kpi-value" id="kpi-pending">0</span>
+                     <span class="kpi-title">Pendentes / Trânsito</span>
+                 </div>
+             </div>
+             <div class="kpi-card">
+                 <i class="fa-solid fa-triangle-exclamation icon danger"></i>
+                 <div class="kpi-card-info">
+                     <span class="kpi-value" id="kpi-danger">0</span>
+                     <span class="kpi-title">Atrasados</span>
+                 </div>
+             </div>
+              <div class="kpi-card">
+                 <i class="fa-solid fa-check-double icon success"></i>
+                 <div class="kpi-card-info">
+                     <span class="kpi-value" id="kpi-success">0</span>
+                     <span class="kpi-title">Concluídos (Hoje)</span>
+                 </div>
+             </div>
         </section>
 
+        <section class="controls-container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="danger">Atrasado</button>
+                <button class="filter-btn" data-filter="transit">Em Trânsito</button>
+                <button class="filter-btn" data-filter="success">Concluído</button>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search-input" class="search-input" placeholder="Buscar por ID do pedido...">
+            </div>
+        </section>
+
+        <h3 class="section-title">Pedidos Recentes</h3>
+        <section class="order-list" id="order-list">
+            <div class="no-orders-message">Carregando pedidos...</div>
+        </section>
     </main>
 
-    <script>
-function logout() {
-    if (confirm('Deseja realmente sair?')) {
-        // Aqui você pode adicionar a lógica de logout
-        window.location.href = 'login.html'; // Redireciona para a página de login
-    }
-}
-
-function atualizarDataHora() {
-    const agora = new Date();
-    
-    const dia = String(agora.getDate()).padStart(2, '0');
-    const mes = String(agora.getMonth() + 1).padStart(2, '0');
-    const ano = String(agora.getFullYear()).slice(-2);
-    const hora = String(agora.getHours()).padStart(2, '0');
-    const minutos = String(agora.getMinutes()).padStart(2, '0');
-    
-    const dataHoraFormatada = `${dia}/${mes}/${ano} ${hora}:${minutos}`;
-    document.querySelector('.timestamp').textContent = dataHoraFormatada;
-}
-
-// Atualiza imediatamente e a cada minuto
-atualizarDataHora();
-setInterval(atualizarDataHora, 60000);
-</script>
-</body>
-=======
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status de Pedidos</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        /* --- Configurações Globais --- */
-        :root {
-            --color-primary: #b95c21; /* Tom de laranja/marrom da barra superior */
-            --color-text-dark: #333;
-            --color-text-light: #555;
-            --color-text-header: #777;
-            --color-text-timestamp: #888;
-            --color-success: #28a745;
-            --color-warning: #f5a623; /* Laranja/Amarelo para trânsito */
-            --color-danger: #d9534f;  /* Vermelho para atraso */
-            --color-border: #e9e9e9;
-            --color-bg-page: #ffffff;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--color-bg-page);
-            color: var(--color-text-dark);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* --- Header (Barra Laranja) - Reutilizado da imagem anterior --- */
-        .top-bar {
-            background-color: var(--color-primary);
-            color: white;
-            padding: 10px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-info .user-avatar {
-            font-size: 36px;
-            opacity: 0.9;
-        }
-
-        .user-info div {
-            display: flex;
-            flex-direction: column;
-            font-size: 14px;
-        }
-
-        .user-info .user-name {
-            font-weight: 600;
-        }
-
-        .user-info .user-role {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .header-nav {
-            display: flex;
-            gap: 28px;
-        }
-
-        .header-nav a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .header-nav a:hover {
-            opacity: 0.8;
-        }
-
-        .header-nav i {
-            font-size: 20px;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        .header-nav i:hover {
-            opacity: 1;
-        }
+    <script type="module">
+        // --- 1. IMPORTS DO FIREBASE ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { 
+            getFirestore, collection, getDocs, query, orderBy
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
         
-        /* --- Container Principal da Página --- */
-        .page-container {
-            max-width: 1000px;
-            width: 95%;
-            margin: 32px auto;
-            padding: 24px;
-        }
+        // --- 2. CONFIGURAÇÃO DO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
 
-        /* Cabeçalho da Página (Título e Data) */
-        .page-header {
-            position: relative;
-            text-align: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-        }
+        // --- 3. INICIALIZAÇÃO ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const pedidosCollectionRef = collection(db, "pedidos"); // Coleção "pedidos"
 
-        .page-header h2 {
-            font-size: 20px;
-            font-weight: 400; /* Fonte fina como na imagem */
-            color: var(--color-text-header);
-            letter-spacing: 0.5px;
-            display: inline-block; /* Para a borda se ajustar ao texto */
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ccc;
-        }
+        // --- 4. SELETORES DO DOM ---
+        const timestampElement = document.getElementById('current-timestamp');
+        const orderListContainer = document.getElementById('order-list');
+        const searchInput = document.getElementById('search-input');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const kpiTotal = document.getElementById('kpi-total');
+        const kpiPending = document.getElementById('kpi-pending');
+        const kpiDanger = document.getElementById('kpi-danger');
+        const kpiSuccess = document.getElementById('kpi-success');
 
-        .page-header .timestamp {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 16px;
-            color: var(--color-text-light);
-            font-weight: 500;
-        }
+        let localOrders = []; // Array local para filtros
 
-        /* Lista de Pedidos */
-        .order-list {
-            display: flex;
-            flex-direction: column;
+        // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
+        function updateCurrentTime() {
+            const now = new Date();
+            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const date = now.toLocaleDateString('pt-BR', optionsDate);
+            const time = now.toLocaleTimeString('pt-BR', optionsTime);
+            if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
         }
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
 
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap; /* Para responsividade */
-            gap: 16px;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--color-border);
-        }
+        // --- 6. FUNÇÃO PARA RENDERIZAR A LISTA ---
+        function renderOrderList(data) {
+            orderListContainer.innerHTML = ''; 
 
-        .order-item:last-child {
-            border-bottom: none;
-        }
-
-        .order-details {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 16px;
-            color: var(--color-text-light);
-        }
-
-        .order-details .status-icon {
-            font-size: 22px;
-            width: 24px;
-            text-align: center;
-        }
-
-        .order-timestamp {
-            display: flex;
-            gap: 16px;
-            font-size: 15px;
-            color: var(--color-text-timestamp);
-            font-weight: 500;
-        }
-
-        /* Modificadores de Cor de Status */
-        .order-item.status-danger .status-icon {
-            color: var(--color-danger);
-        }
-        .order-item.status-danger .status-text {
-            color: var(--color-danger);
-            font-weight: 600;
-        }
-
-        .order-item.status-transit .status-icon {
-            color: var(--color-warning);
-        }
-        /* O texto de "Em Trânsito" não é colorido na imagem */
-
-        .order-item.status-success .status-icon {
-            color: var(--color-success);
-        }
-        .order-item.status-success .status-text {
-            color: var(--color-success);
-            font-weight: 600;
-        }
-
-        /* --- Responsividade --- */
-        @media (max-width: 768px) {
-            .top-bar {
-                flex-direction: column;
-                gap: 16px;
-                padding: 16px;
+            if (data.length === 0) {
+                orderListContainer.innerHTML = '<div class="no-orders-message">Nenhum pedido encontrado.</div>';
+                return;
             }
 
-            .header-nav {
-                gap: 20px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+            data.forEach(order => {
+                const item = document.createElement('div');
+                item.className = `order-item status-${order.status}`; 
+
+                let iconClass = 'fa-check-circle';
+                if (order.status === 'danger') iconClass = 'fa-exclamation-circle';
+                if (order.status === 'transit') iconClass = 'fa-shipping-fast';
+
+                let formattedDate = order.date;
+                if (order.date && order.date.includes('-')) {
+                    const dateParts = order.date.split('-');
+                    formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0].slice(-2)}`;
+                }
+
+                item.innerHTML = `
+                    <div class="order-details">
+                        <i class="fa-solid ${iconClass} status-icon"></i>
+                        <div class="order-info">
+                            <span>PEDIDO ${order.id_num || order.id.substring(0, 5).toUpperCase()} - STATUS:</span> 
+                            <span class="status-text">${order.statusText}</span>
+                        </div>
+                    </div>
+                    <div class="order-timestamp">
+                        <span>${formattedDate}</span>
+                        <span>${order.time}</span>
+                    </div>
+                    <div class="order-actions">
+                        <button class="action-btn" title="Ver Detalhes" data-id="${order.id}"><i class="fa-solid fa-eye"></i> Detalhes</button>
+                    </div>
+                `;
+                orderListContainer.appendChild(item);
+            });
             
-            .page-header {
-                text-align: left;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
+            orderListContainer.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                     alert(`Visualizando detalhes do pedido ${btn.dataset.id} (simulado).`);
+                });
+            });
+        }
+
+        // --- 7. FUNÇÃO PARA ATUALIZAR KPIs ---
+        function updateKPIs(data) {
+            const today = new Date();
+            const todayDateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            kpiTotal.textContent = data.length;
+            kpiPending.textContent = data.filter(o => o.status === 'transit').length;
+            kpiDanger.textContent = data.filter(o => o.status === 'danger').length;
+            kpiSuccess.textContent = data.filter(o => o.status === 'success' && o.date === todayDateString).length;
+        }
+
+        // --- 8. FUNÇÃO PARA APLICAR FILTROS E BUSCA ---
+        function applyFiltersAndSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const activeFilterBtn = document.querySelector('.filter-btn.active');
+            const activeStatus = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
+
+            let filteredData = localOrders;
+
+            if (activeStatus !== 'all') {
+                filteredData = filteredData.filter(order => order.status === activeStatus);
             }
 
-            .page-header h2 {
-                font-size: 18px;
+            if (searchTerm) {
+                filteredData = filteredData.filter(order => 
+                    order.id.toLowerCase().includes(searchTerm) ||
+                    (order.id_num && String(order.id_num).includes(searchTerm))
+                );
             }
 
-            .page-header .timestamp {
-                position: static;
-                font-size: 14px;
-            }
+            renderOrderList(filteredData);
+        }
 
-            .page-container {
-                margin-top: 24px;
-                padding: 16px;
-            }
-            
-            .order-item {
-                gap: 8px; /* Reduz o gap no mobile */
-            }
-
-            .order-details {
-                font-size: 14px;
-                gap: 8px;
-            }
-
-            .order-timestamp {
-                width: 100%;
-                justify-content: space-between;
-                font-size: 13px;
-                color: #999;
-                padding-left: 32px; /* Alinha com o texto, pulando o ícone */
+        // --- 9. CARREGAMENTO INICIAL DO FIRESTORE ---
+        async function loadAndRenderOrders() {
+            try {
+                const q = query(pedidosCollectionRef, orderBy("date", "desc"), orderBy("time", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                localOrders = [];
+                querySnapshot.forEach((doc) => {
+                    localOrders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                renderOrderList(localOrders);
+                updateKPIs(localOrders);
+            } catch (error) {
+                console.error("Erro ao carregar pedidos: ", error);
+                 if (error.code === 'failed-precondition') {
+                    console.warn("Firestore: Índice não encontrado. Carregando sem ordenação.");
+                    const fallbackSnapshot = await getDocs(pedidosCollectionRef);
+                    localOrders = [];
+                    fallbackSnapshot.forEach((doc) => {
+                        localOrders.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderOrderList(localOrders);
+                    updateKPIs(localOrders);
+                 } else {
+                     orderListContainer.innerHTML = '<div class="no-orders-message" style="color:red;">Falha ao carregar pedidos.</div>';
+                 }
             }
         }
 
-    </style>
-</head>
-<body>
+        // --- 10. INICIALIZAÇÃO ---
+        searchInput.addEventListener('input', applyFiltersAndSearch);
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                applyFiltersAndSearch();
+            });
+        });
 
-    <header class="top-bar">
-        <div class="user-info">
-            <i class="fa-solid fa-user-circle user-avatar"></i>
-            <div>
-                <span class="user-name">Felipe</span>
-                <span class="user-role">administração da plataforma</span>
-            </div>
-        </div>
-        <nav class="header-nav">
-            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
-            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
-            <a href="vendas.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
-            <a href="estoque.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
-            <a href="agenda.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
-            <a href="funcionarios.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
-            <a href="relatorios.html"><i class="fa-solid fa-download" title="Relatórios"></i></a>
-            <a href="javascript:void(0)" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
-        </nav>
-    </header>
+        loadAndRenderOrders(); // Carrega os dados ao iniciar
 
-    <main class="page-container">
-
-        <header class="page-header">
-            <h2>STATUS DE PEDIDOS</h2>
-            <span class="timestamp">24/07/25 19:37</span>
-        </header>
-
-        <section class="order-list">
-
-            <div class="order-item status-danger">
-                <div class="order-details">
-                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
-                    <span>PEDIDO 93628 - STATUS: </span>
-                    <span class="status-text">COM ATRASO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:37</span>
-                </div>
-            </div>
-
-            <div class="order-item status-danger">
-                <div class="order-details">
-                    <i class="fa-solid fa-exclamation-circle status-icon"></i>
-                    <span>PEDIDO 34629 - STATUS: </span>
-                    <span class="status-text">COM ATRASO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:37</span>
-                </div>
-            </div>
-
-            <div class="order-item status-transit">
-                <div class="order-details">
-                    <i class="fa-solid fa-shipping-fast status-icon"></i>
-                    <span>PEDIDO 4002 - STATUS: EM TRANSITO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:11</span>
-                </div>
-            </div>
-
-            <div class="order-item status-transit">
-                <div class="order-details">
-                    <i class="fa-solid fa-shipping-fast status-icon"></i>
-                    <span>PEDIDO 8922 - STATUS: EM TRANSITO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:22</span>
-                </div>
-            </div>
-            <div class="order-item status-transit">
-                <div class="order-details">
-                    <i class="fa-solid fa-shipping-fast status-icon"></i>
-                    <span>PEDIDO 17250 - STATUS: EM TRANSITO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>19:06</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 36834 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>18:22</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 34654 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>18:54</span>
-                </div>
-            </div>
-            
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 45639 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>18:37</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 21097 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>17:49</span>
-                </div>
-            </div>
-
-            <div class="order-item status-success">
-                <div class="order-details">
-                    <i class="fa-solid fa-check-circle status-icon"></i>
-                    <span>PEDIDO 52076 - STATUS: </span>
-                    <span class="status-text">CONCLUÍDO</span>
-                </div>
-                <div class="order-timestamp">
-                    <span>24/07/25</span>
-                    <span>16:51</span>
-                </div>
-            </div>
-
-        </section>
-
-    </main>
-
-    <script>
-function logout() {
-    if (confirm('Deseja realmente sair?')) {
-        // Aqui você pode adicionar a lógica de logout
-        window.location.href = 'login.html'; // Redireciona para a página de login
-    }
-}
-
-function atualizarDataHora() {
-    const agora = new Date();
-    
-    const dia = String(agora.getDate()).padStart(2, '0');
-    const mes = String(agora.getMonth() + 1).padStart(2, '0');
-    const ano = String(agora.getFullYear()).slice(-2);
-    const hora = String(agora.getHours()).padStart(2, '0');
-    const minutos = String(agora.getMinutes()).padStart(2, '0');
-    
-    const dataHoraFormatada = `${dia}/${mes}/${ano} ${hora}:${minutos}`;
-    document.querySelector('.timestamp').textContent = dataHoraFormatada;
-}
-
-// Atualiza imediatamente e a cada minuto
-atualizarDataHora();
-setInterval(atualizarDataHora, 60000);
-</script>
+    </script>
 </body>
->>>>>>> f8f523d0b5f7ea16c840bd1dcf1d7fd706b6d3af
 </html>
