@@ -5,21 +5,21 @@
     --light-bg: #F4EAE3;
     --gold-star: #FFD700;
 }
-
+ 
 * {
     box-sizing: border-box;
     margin: 0px;
     padding: 0px;
     font-family: 'Montserrat', sans-serif;
 }
-
+ 
 body {
     background-color: var(--light-bg);
     color: var(--text-color);
     height: 100vh;
-
+   
 }
-
+ 
 header {
     background-color: var(--primary-color);
     color: white;
@@ -28,52 +28,49 @@ header {
     align-items: center;
     padding: 15px 30px;
 }
-
-.header-left,
-.header-right {
+ 
+.header-left, .header-right {
     display: flex;
     align-items: center;
     gap: 15px;
 }
-
+ 
 .header-left span:first-of-type {
     font-weight: 700;
 }
-
+ 
 .header-right i {
     font-size: 20px;
     cursor: pointer;
 }
-
+ 
 main {
     text-align: center;
     padding: 30px 20px;
 }
-
+ 
 h1 {
     font-size: 2.5em;
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 30px;
 }
-
+ 
 .content-container {
     display: flex;
     justify-content: center;
     gap: 20px;
     flex-wrap: wrap;
-    margin: auto;
 }
-
-.product-info-card,
-.description-card {
+ 
+.product-info-card, .description-card {
     background-color: white;
     border-radius: 15px;
     padding: 30px;
     width: 450px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
+ 
 .product-info-card {
     flex: 1;
     max-width: 450px;
@@ -84,73 +81,73 @@ h1 {
     flex-direction: column;
     align-items: center;
 }
-
+ 
 .product-image {
     width: 100%;
     max-width: 250px;
     border-radius: 10px;
     margin-bottom: 20px;
 }
-
+ 
 .product-details {
     width: 100%;
 }
-
+ 
 .product-details p {
     font-size: 1.1em;
     margin-bottom: 5px;
 }
-
+ 
 .product-details p strong {
     font-weight: 700;
     color: white;
 }
-
+ 
 .price {
     font-size: 2em;
     font-weight: 700;
     color: var(--text-color);
 }
-
+ 
 .unit {
     font-size: 0.5em;
     font-weight: 400;
     vertical-align: top;
 }
-
+ 
 .rating {
     display: flex;
     align-items: center;
     gap: 5px;
     margin-bottom: 10px;
 }
-
+ 
 .rating-value {
     font-size: 1.1em;
     font-weight: 700;
 }
-
+ 
 .stars .fa-star {
     color: var(--gold-star);
 }
-
+ 
 .rate-product {
     display: flex;
     gap: 5px;
     margin-bottom: 20px;
 }
-
+ 
 .rate-product .fa-star {
     font-size: 1.5em;
     color: white;
     cursor: pointer;
 }
-
+ 
 .rate-product .fa-star.active,
 .rate-product .fa-star:hover {
     color: var(--gold-star);
 }
-
+ 
 .add-to-cart-btn {
     background-color: var(--primary-color);
     color: white;
@@ -163,11 +160,11 @@ h1 {
     width: 100%;
     transition: background-color 0.3s;
 }
-
+ 
 .add-to-cart-btn:hover {
     background-color: #8c5b3b;
 }
-
+ 
 .description-card {
     flex: 1;
     max-width: 450px;
@@ -175,26 +172,26 @@ h1 {
     padding: 50px;
     background-color: white;
 }
-
+ 
 .description-card h2 {
     font-size: 1.5em;
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 20px;
 }
-
+ 
 .description-text {
     font-size: 1.2em;
     line-height: 1.5;
     margin-bottom: 30px;
 }
-
+ 
 .divider {
     border-top: 1px solid var(--primary-color);
     width: 80%;
     margin: 0 auto 30px;
 }
-
+ 
 .nutrition-list {
     list-style-type: none;
     text-align: left;
@@ -202,7 +199,7 @@ h1 {
     line-height: 1.8;
     font-size: 1.1em;
 }
-
+ 
 .nutrition-list li::before {
     content: "•";
     color: var(--primary-color);
@@ -211,43 +208,41 @@ h1 {
     width: 1em;
     margin-left: -1em;
 }
-
+ 
 footer {
     background-color: var(--primary-color);
     color: white;
     text-align: center;
     padding: 15px 0;
-    position: relative;
-    /* Trocar absolute por relative */
+    position: absolute; /* Trocar absolute por relative */
     width: 100%;
     bottom: 0;
 }
-
-
+ 
+ 
 @media (max-width: 768px) {
     .content-container {
         flex-direction: column;
     }
-
-    footer {
+ 
+    footer{
         background-color: var(--primary-color);
         color: white;
         text-align: center;
         padding: 15px 0;
-        position: fixed;
+       position: fixed;
         bottom: 0;
         width: 100%;
         height: 20px;
         align-items: center;
     }
-
-    footer>p {
+ 
+    footer>p{
         font-size: 0.5em;
         align-items: center;
     }
-
-    .product-info-card,
-    .description-card {
+ 
+    .product-info-card, .description-card {
         max-width: 100%;
         margin-bottom: 20px;
     }
