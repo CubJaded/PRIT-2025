@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Cardápio</title> 
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <style>
-        /* (Todo o CSS da sua página de admin vai aqui, exatamente como no molde anterior) */
         /* --- Configurações Globais --- */
         :root {
             --color-primary: #b95c21;
@@ -24,6 +24,8 @@
             --color-bg-light: #f9f9f9;
             --color-card-title-bg: rgba(255, 255, 255, 0.6);
             --color-card-price-bg: #8c4a28;
+            --color-bg-table-header: #f1f1f1;
+            --color-success-bg: #e9f7ec;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,6 +55,7 @@
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
         
+        /* --- HEADER NAV --- */
         .header-nav { 
             display: flex; 
             align-items: center; 
@@ -61,13 +64,13 @@
             color: white;
             text-decoration: none;
             opacity: 0.8; 
-            padding: 10px 15px; 
+            padding: 10px 15px;
             border-radius: 6px; 
             transition: opacity 0.2s, background-color 0.2s;
         }
         .header-nav a:hover {
             opacity: 1; 
-            background-color: rgba(255, 255, 255, 0.1); 
+            background-color: rgba(255, 255, 255, 0.1);
         }
         .header-nav i { 
             font-size: 20px; 
@@ -197,21 +200,22 @@
             </div>
         </div>
         <nav class="header-nav">
-            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
-            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
-            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
-            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
-            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
-            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
-            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
-            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
-        </nav>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
     </header>
 
     <main class="page-container">
 
         <header class="page-header">
-            <h2>GERENCIAR CARDÁPIO</h2> <span class="timestamp" id="current-timestamp"></span>
+            <h2>GERENCIAR CARDÁPIO</h2>
+            <span class="timestamp" id="current-timestamp"></span>
         </header>
 
         <section class="controls-container">
@@ -220,10 +224,12 @@
             </div>
             <div class="filter-container">
                 <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="Salgado">Salgados</button>
-                <button class="filter-btn" data-filter="Doce">Doces</button>
-                <button class="filter-btn" data-filter="Bebida">Bebidas</button>
-                <button class="filter-btn" data-filter="Combo">Combos</button>
+                <button class="filter-btn" data-filter="Fritos">Fritos</button>
+                <button class="filter-btn" data-filter="Mini Salgados">Mini Salgados</button>
+                <button class="filter-btn" data-filter="Assados">Assados</button>
+                <button class="filter-btn" data-filter="Bebidas">Bebidas</button>
+                <button class="filter-btn" data-filter="Doces">Doces</button>
+                <button class="filter-btn" data-filter="Combos">Combos</button>
             </div>
         </section>
 
@@ -235,7 +241,7 @@
                     <span class="item-price">R$</span>
                  </div>
             </div>
-            </section>
+        </section>
 
     </main>
 
@@ -244,7 +250,8 @@
             <span class="modal-close" data-modal-id="item-modal">&times;</span>
             <h3 id="modal-title">Adicionar Novo Item</h3>
             <form id="item-form">
-                <input type="hidden" id="item-id"> <div class="form-group">
+                <input type="hidden" id="item-id">
+                <div class="form-group">
                     <label for="item-name">Nome do Item</label>
                     <input type="text" id="item-name" required>
                 </div>
@@ -252,10 +259,12 @@
                     <label for="item-category">Categoria</label>
                     <select id="item-category" required>
                         <option value="">Selecione...</option>
-                        <option value="Salgado">Salgado</option>
-                        <option value="Doce">Doce</option>
-                        <option value="Bebida">Bebida</option>
-                        <option value="Combo">Combo</option>
+                        <option value="Fritos">Fritos</option>
+                        <option value="Mini Salgados">Mini Salgados</option>
+                        <option value="Assados">Assados</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Doces">Doces</option>
+                        <option value="Combos">Combos</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -307,13 +316,12 @@
         </div>
     </div>
 
-
     <script type="module">
         // --- 1. IMPORTS DO FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
         import { 
             getFirestore, collection, getDocs, doc, getDoc, 
-            addDoc, updateDoc, deleteDoc, query, orderBy
+            addDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
         
         // --- 2. CONFIGURAÇÃO DO FIREBASE ---
@@ -330,7 +338,8 @@
         // --- 3. INICIALIZAÇÃO ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const produtosCollectionRef = collection(db, "produtos"); // Coleção "produtos"
+        const produtosCollectionRef = collection(db, "produtos");
+        const logsCollectionRef = collection(db, "logs");
 
         // --- 4. SELETORES DO DOM ---
         const timestampElement = document.getElementById('current-timestamp');
@@ -360,7 +369,7 @@
         const confirmModalCancelBtn = document.getElementById('confirm-modal-cancel');
         let confirmModalOkBtn = document.getElementById('confirm-modal-ok');
 
-        let localMenuItems = []; // Array local para filtros
+        let localMenuItems = [];
 
         // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
         function updateCurrentTime() {
@@ -380,6 +389,7 @@
             document.getElementById('alert-modal-message').textContent = message;
             alertModal.classList.add('active');
         }
+        
         function showCustomConfirm(message, title, onConfirm) {
             document.getElementById('confirm-modal-title').textContent = title;
             document.getElementById('confirm-modal-message').textContent = message;
@@ -394,17 +404,34 @@
                 confirmModal.classList.remove('active');
             });
         }
+        
         alertModalOkBtn.addEventListener('click', () => alertModal.classList.remove('active'));
         confirmModalCancelBtn.addEventListener('click', () => confirmModal.classList.remove('active'));
 
-        // --- 7. FUNÇÃO PARA RENDERIZAR A GRADE ---
+        // --- 7. FUNÇÃO DE LOG ---
+        async function logAdminAction(level, system, message) {
+            try {
+                await addDoc(logsCollectionRef, {
+                    level: level,
+                    system: system,
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Falha ao salvar log: ", e);
+            }
+        }
+
+        // --- 8. FUNÇÃO PARA RENDERIZAR A GRADE ---
         function renderMenuGrid(itemsToRender) {
             const existingItems = menuGrid.querySelectorAll('.menu-item-card:not(.add-item-card)');
             existingItems.forEach(item => item.remove());
             const noResultsMsg = menuGrid.querySelector('.no-results-message');
             if (noResultsMsg) noResultsMsg.remove();
 
-            if (itemsToRender.length === 0) {
+            if (itemsToRender.length === 0 && !searchInput.value && document.querySelector('.filter-btn.active[data-filter="all"]')) {
+                // Não mostra mensagem se não há itens mas também não há filtro/busca ativa
+            } else if (itemsToRender.length === 0) {
                  const noResults = document.createElement('p');
                  noResults.className = 'no-results-message';
                  noResults.textContent = 'Nenhum item encontrado.';
@@ -420,7 +447,7 @@
                 card.setAttribute('data-id', item.id);
                 card.setAttribute('data-category', item.categoria);
 
-                const placeholder = `https://via.placeholder.com/150/EEEEEE/AAAAAA?text=Erro`;
+                const placeholder = `https://via.placeholder.com/150/EEEEEE/AAAAAA?text=SemFoto`;
                 const imageSrc = item.caminhoImagem || placeholder;
 
                 card.innerHTML = `
@@ -438,7 +465,7 @@
                         <button class="action-btn delete" title="Excluir Item" data-id="${item.id}" data-name="${item.nome}"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
-                menuGrid.appendChild(card); // Adiciona no final
+                menuGrid.insertBefore(card, addItemBtnCard); 
             });
             
             // Adiciona listeners aos botões
@@ -456,7 +483,7 @@
             });
         }
         
-        // --- 8. CARREGAMENTO INICIAL DO FIRESTORE ---
+        // --- 9. CARREGAMENTO INICIAL DO FIRESTORE ---
         async function loadAndRenderItems() {
             try {
                 const q = query(produtosCollectionRef, orderBy("categoria", "asc"), orderBy("nome", "asc"));
@@ -482,7 +509,7 @@
             }
         }
         
-        // --- 9. LÓGICA DO MODAL (ADICIONAR/EDITAR) ---
+        // --- 10. LÓGICA DO MODAL (ADICIONAR/EDITAR) ---
         async function openModal(mode = 'add', itemId = null) {
             itemForm.reset();
             itemIdInput.value = '';
@@ -504,8 +531,8 @@
                     itemPriceInput.value = Number(item.preco).toFixed(2);
                     itemUnitsInput.value = item.unidadesTexto;
                     itemImagePathInput.value = item.caminhoImagem || '';
-                    itemDescriptionInput.value = item.descricao || ''; // Carrega descrição
-                    itemNutritionInput.value = item.infoNutricional || ''; // Carrega info nutricional
+                    itemDescriptionInput.value = item.descricao || '';
+                    itemNutritionInput.value = item.infoNutricional || '';
 
                 } catch (error) {
                     console.error("Erro ao buscar item para edição: ", error);
@@ -518,68 +545,67 @@
             itemModal.classList.add('active');
         }
 
-        function closeModal() { itemModal.classList.remove('active'); }
-        addItemBtnCard.addEventListener('click', () => openModal('add'));
+        function closeModal() { 
+            itemModal.classList.remove('active'); 
+        }
+
+        // Event listeners para fechar modal
         modalCloseButtons.forEach(btn => {
             if (btn.dataset.modalId) {
-                btn.addEventListener('click', () => closeModal(btn.dataset.modalId));
+                btn.addEventListener('click', () => {
+                    const modalId = btn.dataset.modalId;
+                    document.getElementById(modalId).classList.remove('active');
+                });
             }
         });
-        itemModal.addEventListener('click', (e) => { if (e.target === itemModal) closeModal(); });
 
-        // Salvar (Form Submit)
+        // Adicionar item
+        addItemBtnCard.addEventListener('click', () => openModal('add'));
+
+        // Salvar/editar item
         itemForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const saveButton = document.getElementById('save-item-btn');
-            saveButton.disabled = true;
-            saveButton.textContent = "Salvando...";
-
-            const id = itemIdInput.value ? itemIdInput.value : null;
             
-            // Coleta TODOS os dados do formulário
             const itemData = {
                 nome: itemNameInput.value.trim(),
                 categoria: itemCategoryInput.value,
                 preco: parseFloat(itemPriceInput.value),
                 unidadesTexto: itemUnitsInput.value.trim(),
-                caminhoImagem: itemImagePathInput.value.trim(),
-                descricao: itemDescriptionInput.value.trim(),
-                infoNutricional: itemNutritionInput.value.trim()
+                caminhoImagem: itemImagePathInput.value.trim() || null,
+                descricao: itemDescriptionInput.value.trim() || null,
+                infoNutricional: itemNutritionInput.value.trim() || null
             };
 
-            if (!itemData.nome || !itemData.categoria || isNaN(itemData.preco)) {
-                showCustomAlert("Nome, Categoria e Preço são obrigatórios.", "Erro de Validação");
-                saveButton.disabled = false;
-                saveButton.textContent = "Salvar Item";
-                return;
-            }
-
             try {
-                if (id) { // Edição
-                    const docRef = doc(db, "produtos", id);
+                if (itemIdInput.value) {
+                    // Editar item existente
+                    const docRef = doc(db, "produtos", itemIdInput.value);
                     await updateDoc(docRef, itemData);
                     showCustomAlert("Item atualizado com sucesso!", "Sucesso");
-                } else { // Adição
+                    await logAdminAction("INFO", "CARDAPIO", `Item editado: ${itemData.nome}`);
+                } else {
+                    // Adicionar novo item
                     await addDoc(produtosCollectionRef, itemData);
                     showCustomAlert("Item adicionado com sucesso!", "Sucesso");
+                    await logAdminAction("INFO", "CARDAPIO", `Item adicionado: ${itemData.nome}`);
                 }
+                
                 closeModal();
-                loadAndRenderItems(); // Recarrega a lista
+                await loadAndRenderItems();
             } catch (error) {
                 console.error("Erro ao salvar item: ", error);
                 showCustomAlert(`Falha ao salvar: ${error.message}`, "Erro no Firebase");
-            } finally {
-                saveButton.disabled = false;
-                saveButton.textContent = "Salvar Item";
             }
         });
 
-        // --- 10. FUNÇÃO DE EXCLUSÃO ---
-        async function deleteItem(id, nome) {
+        // Excluir item
+        async function deleteItem(itemId, itemName) {
             try {
-                await deleteDoc(doc(db, "produtos", id));
-                showCustomAlert(`Item "${nome}" excluído com sucesso!`, "Item Excluído");
-                loadAndRenderItems();
+                const docRef = doc(db, "produtos", itemId);
+                await deleteDoc(docRef);
+                showCustomAlert(`"${itemName}" excluído com sucesso!`, "Sucesso");
+                await logAdminAction("WARNING", "CARDAPIO", `Item excluído: ${itemName}`);
+                await loadAndRenderItems();
             } catch (error) {
                 console.error("Erro ao excluir item: ", error);
                 showCustomAlert(`Falha ao excluir: ${error.message}`, "Erro no Firebase");
@@ -603,6 +629,7 @@
             
             renderMenuGrid(filteredItems);
         }
+        
         searchInput.addEventListener('input', applyFiltersAndSearch);
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -613,9 +640,8 @@
         });
 
         // --- 12. INICIALIZAÇÃO ---
-        loadAndRenderItems(); // Carrega os dados do Firebase ao iniciar
+        loadAndRenderItems();
 
-    });
     </script>
 </body>
 </html>
