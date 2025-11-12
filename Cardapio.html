@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio - Salgaderia Mestre</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --color-primary: #d96d24;
+            --color-secondary: #b95c21;
+            --color-text-dark: #333;
+            --color-text-light: #555;
+            --color-text-price: #ffffff;
+            --color-card-title: #d9534f;
+            --color-card-price-bg: #8c4a28;
+            --color-card-title-bg: rgba(255, 255, 255, 0.6);
+            --color-footer-bg: #f5eadd;
+            --color-border: #e9e9e9;
+            --color-bg-page: #ffffff;
+            --color-bg-light: #f9f9f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background-color: var(--color-primary); 
+            color: white; 
+            padding: 12px 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            width: 100%;
+        }
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        .user-info .user-avatar { 
+            font-size: 36px; 
+            opacity: 0.9; 
+        }
+        .user-info div { 
+            display: flex; 
+            flex-direction: column; 
+            font-size: 14px; 
+        }
+        .user-info .user-name { 
+            font-weight: 600; 
+        }
+        .user-info .user-type { 
+            font-size: 12px; 
+            opacity: 0.9; 
+        }
+        .header-nav { 
+            display: flex; 
+            gap: 24px; 
+        }
+        .header-nav a { 
+            color: white; 
+            text-decoration: none; 
+            font-size: 24px; 
+            transition: transform 0.2s; 
+        }
+        .header-nav a:hover { 
+            transform: scale(1.1); 
+        }
+
+        .page-container {
+            max-width: 1100px; 
+            width: 95%; 
+            margin: 0 auto; 
+            padding: 24px 0; 
+            flex-grow: 1;
+        }
+
+        .category-nav-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .nav-arrow {
+            background: none; 
+            border: none; 
+            font-size: 28px; 
+            color: var(--color-secondary); 
+            cursor: pointer; 
+            padding: 0 15px; 
+            z-index: 10;
+        }
+        .nav-arrow:disabled { 
+            color: #ccc; 
+            cursor: default; 
+        }
+
+        .category-list-container {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .category-list {
+            display: flex;
+            gap: 30px;
+            padding: 10px 0;
+            white-space: nowrap;
+            scroll-behavior: smooth;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            justify-content: center;
+        }
+        .category-list::-webkit-scrollbar { 
+            display: none;
+        }
+
+        .category-item {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text-light);
+            cursor: pointer;
+            transition: color 0.2s, font-size 0.2s, font-weight 0.2s;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+        .category-item:hover {
+            color: var(--color-secondary);
+            background-color: rgba(185, 92, 33, 0.1);
+        }
+        .category-item.active {
+            color: white;
+            background-color: var(--color-secondary);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .menu-item-card { 
+            border: 1px solid var(--color-border); 
+            border-radius: 8px; 
+            overflow: hidden; 
+            position: relative; 
+            background-color: var(--color-bg-light); 
+            min-height: 250px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            transition: box-shadow 0.2s, transform 0.2s; 
+            cursor: pointer;
+        }
+        .menu-item-card:hover { 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            transform: translateY(-5px);
+        }
+        .item-image { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -65%); 
+            max-width: 70%; 
+            max-height: 55%; 
+            object-fit: contain; 
+            z-index: 1; 
+        }
+        .item-info-bg { 
+            position: absolute; 
+            top: 0; 
+            left: -10%; 
+            width: 120%; 
+            height: 90px; 
+            background-color: var(--color-card-title-bg); 
+            transform: skewY(-5deg); 
+            transform-origin: top left; 
+            z-index: 2; 
+        }
+        .item-details { 
+            position: absolute; 
+            top: 15px; 
+            left: 15px; 
+            right: 15px; 
+            z-index: 3; 
+        }
+        .item-title { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: var(--color-card-title); 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+        .item-units { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: var(--color-text-dark); 
+            background-color: rgba(255,255,255,0.8); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+        }
+        .item-price-bg { 
+            position: relative; 
+            width: 100%; 
+            height: 65px; 
+            background-color: var(--color-card-price-bg); 
+            clip-path: polygon(0 15%, 100% 0, 100% 100%, 0% 100%); 
+            margin-top: -15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 3; 
+        }
+        .item-price { 
+            color: white; 
+            font-size: 22px; 
+            font-weight: bold; 
+        }
+
+        .site-footer {
+            background-color: var(--color-footer-bg);
+            color: var(--color-text-dark);
+            padding: 40px 24px 20px 24px;
+            margin-top: 40px;
+        }
+        .footer-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            align-items: flex-start;
+        }
+        .footer-about h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-secondary);
+        }
+        .footer-about p {
+            line-height: 1.6;
+            margin-bottom: 16px;
+            color: var(--color-text-light);
+        }
+        .footer-contact-info { 
+            margin-bottom: 16px; 
+        }
+        .footer-contact-info div { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            margin-bottom: 8px; 
+            color: var(--color-text-light); 
+            font-weight: 500; 
+        }
+        .footer-contact-info i { 
+            color: var(--color-primary); 
+            width: 16px; 
+            text-align: center; 
+        }
+        .footer-payment h4 { 
+            font-size: 14px; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: var(--color-text-dark); 
+        }
+        .payment-icons { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+            margin-bottom: 16px; 
+        }
+        .payment-icons img { 
+            height: 25px; 
+        }
+        .feedback-link { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            color: var(--color-secondary); 
+            text-decoration: none; 
+            font-weight: 600; 
+        }
+        .feedback-link:hover { 
+            text-decoration: underline; 
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .top-bar { padding: 12px 16px; }
+            .header-nav { gap: 16px; }
+            .header-nav a { font-size: 22px; }
+            .category-item { font-size: 16px; padding: 6px 12px; }
+            .category-item.active { font-size: 18px; }
+            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+            .item-title { font-size: 16px; }
+            .item-price { font-size: 20px; }
+            .footer-content { grid-template-columns: 1fr; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle user-avatar"></i>
+            <div>
+                <span class="user-name">Bruno</span>
+                <span class="user-type">cliente</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <a href="cardapio.html"><i class="fa-solid fa-utensils"></i></a>
+            <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="#"><i class="fa-solid fa-book-open"></i></a>
+            <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+        </nav>
+    </header>
+
+    <main class="page-container">
+        <nav class="category-nav-wrapper">
+            <button class="nav-arrow" id="prev-cat" disabled>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="category-list-container">
+                <div class="category-list">
+                    <span class="category-item active" data-category="all">Todos</span>
+                    <span class="category-item" data-category="Mini Salgados">Mini Salgados</span>
+                    <span class="category-item" data-category="Doces">Doces</span>
+                    <span class="category-item" data-category="Combos">Combos</span>
+                    <span class="category-item" data-category="Bebidas">Bebidas</span>
+                    <span class="category-item" data-category="Assados">Assados</span>
+                    <span class="category-item" data-category="Fritos">Fritos</span>
+                </div>
+            </div>
+            
+            <button class="nav-arrow" id="next-cat">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </nav>
+
+        <section class="menu-grid" id="menu-grid">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Carregando cardápio...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-about">
+                <h3>Sobre nós</h3>
+                <p>Fundada por apaixonados pela culinária brasileira, a Mestre dos Salgados é referência em qualidade e sabor.</p>
+                <div class="footer-contact-info">
+                    <div><i class="fab fa-facebook-f"></i> SalgaderiaMestreOficial</div>
+                    <div><i class="fab fa-instagram"></i> @SalgaderiaMestreOficial</div>
+                    <div><i class="fab fa-whatsapp"></i> Whatsapp: 11 99999-9999</div>
+                    <div><i class="fas fa-map-marker-alt"></i> Endereço: Rua dos sabores, 120 - Barueri/SP</div>
+                </div>
+                <div class="footer-payment">
+                    <h4>Meios de pagamento</h4>
+                    <div class="payment-icons">
+                        <img src="https://img.icons8.com/color/48/visa.png" alt="Visa">
+                        <img src="https://img.icons8.com/color/48/mastercard-logo.png" alt="Mastercard">
+                        <img src="imagens usadas/cartao-elo.png" alt="Elo">
+                        <img src="imagens usadas/pix.png" alt="Pix">
+                    </div>
+                </div>
+                <a href="#" class="feedback-link">
+                    <i class="fas fa-comment-dots"></i> FEEDBACK
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuGrid = document.getElementById('menu-grid');
+            const categoryItems = document.querySelectorAll('.category-item');
+            let allMenuItems = [];
+
+            // Carregar itens do Firebase
+            async function loadMenuItems() {
+                try {
+                    console.log("Carregando itens do Firebase...");
+                    
+                    const querySnapshot = await db.collection("produtos").get();
+                    allMenuItems = [];
+                    
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        console.log("Item carregado:", data.nome, "Categoria:", data.categoria);
+                        
+                        allMenuItems.push({
+                            id: doc.id,
+                            nome: data.nome || 'Sem nome',
+                            categoria: data.categoria || 'Sem categoria',
+                            preco: data.preco || 0,
+                            unidadesTexto: data.unidadesTexto || '',
+                            imagemUrl: data.imagemUrl || '',
+                            descricao: data.descricao || '',
+                            infoNutricional: data.infoNutricional || ''
+                        });
+                    });
+                    
+                    console.log(`Total de ${allMenuItems.length} itens carregados`);
+                    
+                    // Ordenar por categoria para debug
+                    allMenuItems.sort((a, b) => a.categoria.localeCompare(b.categoria));
+                    
+                    renderMenuItems(allMenuItems);
+                    setupCategoryNavigation();
+                    
+                } catch (error) {
+                    console.error("Erro ao carregar itens:", error);
+                    renderError();
+                }
+            }
+
+            function renderMenuItems(items) {
+                menuGrid.innerHTML = '';
+                
+                if (items.length === 0) {
+                    renderNoItems();
+                    return;
+                }
+                
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-item-card';
+                    card.onclick = () => openProductPage(item.id);
+                    
+                    const placeholder = `https://via.placeholder.com/200/EEEEEE/666666?text=${encodeURIComponent(item.nome.substring(0, 15))}`;
+                    const imageSrc = item.imagemUrl || placeholder;
+
+                    card.innerHTML = `
+                        <img src="${imageSrc}" alt="${item.nome}" class="item-image" onerror="this.onerror=null; this.src='${placeholder}';">
+                        <div class="item-info-bg"></div>
+                        <div class="item-details">
+                            <div class="item-title">${item.nome}</div>
+                            <div class="item-units">${item.unidadesTexto}</div>
+                        </div>
+                        <div class="item-price-bg">
+                            <span class="item-price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    `;
+                    
+                    menuGrid.appendChild(card);
+                });
+            }
+
+            function renderNoItems() {
+                menuGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--color-text-light);">
+                        <i class="fas fa-utensils" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                        <h3>Nenhum produto encontrado</h3>
+                        <p>O cardápio está vazio no momento.</p>
+                    </div>
+                `;
+            }
+
+            function renderError() {
+                menuGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #d9534f;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <h3>Erro ao carregar cardápio</h3>
+                        <p>Verifique sua conexão com a internet.</p>
+                    </div>
+                `;
+            }
+
+            function openProductPage(productId) {
+                console.log("Abrindo produto:", productId);
+                window.location.href = `produto.html?id=${productId}`;
+            }
+
+            function setupCategoryNavigation() {
+                categoryItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        categoryItems.forEach(i => i.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const category = this.dataset.category;
+                        console.log("Filtrando por categoria:", category);
+                        filterByCategory(category);
+                    });
+                });
+            }
+
+            function filterByCategory(category) {
+                console.log("Aplicando filtro para categoria:", category);
+                console.log("Total de itens:", allMenuItems.length);
+                
+                if (category === 'all') {
+                    console.log("Mostrando todos os itens");
+                    renderMenuItems(allMenuItems);
+                } else {
+                    const filteredItems = allMenuItems.filter(item => {
+                        const matches = item.categoria === category;
+                        console.log(`Item: ${item.nome}, Categoria: ${item.categoria}, Match: ${matches}`);
+                        return matches;
+                    });
+                    console.log(`Filtrados ${filteredItems.length} itens para categoria ${category}`);
+                    renderMenuItems(filteredItems);
+                }
+            }
+
+            // Inicializar
+            loadMenuItems();
+        });
+    </script>
+</body>
+</html>

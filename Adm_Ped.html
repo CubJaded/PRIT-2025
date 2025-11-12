@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Status de Pedidos</title> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Firebase v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <style>
         /* --- Configurações Globais --- */
         :root {
@@ -51,7 +56,6 @@
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
         
-        /* --- HEADER NAV (CSS CORRIGIDO PARA ESPAÇAMENTO) --- */
         .header-nav { 
             display: flex; 
             align-items: center; 
@@ -60,20 +64,19 @@
             color: white;
             text-decoration: none;
             opacity: 0.8; 
-            padding: 10px 15px; /* Define o espaçamento uniforme */
+            padding: 10px 15px;
             border-radius: 6px; 
             transition: opacity 0.2s, background-color 0.2s;
         }
         .header-nav a:hover {
             opacity: 1; 
-            background-color: rgba(255, 255, 255, 0.1); /* Efeito de hover */
+            background-color: rgba(255, 255, 255, 0.1);
         }
         .header-nav i { 
             font-size: 20px; 
             cursor: pointer; 
             display: block; 
         }
-        /* --- FIM DA CORREÇÃO --- */
 
         /* --- Layout Principal --- */
         .page-container {
@@ -127,7 +130,7 @@
         .search-container { min-width: 250px; }
         .search-input { padding: 9px 15px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 15px; width: 100%; }
         
-        /* --- Listas (Status, Pedidos, Estoque) --- */
+        /* --- Listas de Pedidos --- */
         .order-list { display: flex; flex-direction: column; background-color: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
         .order-item { display: flex; align-items: center; gap: 16px; padding: 16px; border-bottom: 1px solid var(--color-border); transition: background-color 0.1s; flex-wrap: wrap; }
         .order-item:last-child { border-bottom: none; }
@@ -144,13 +147,108 @@
         .action-btn i { margin-right: 4px; }
         
         /* Cores de Status */
-        .status-success .status-icon { color: var(--color-success); }
-        .status-warning .status-icon, .status-transit .status-icon { color: var(--color-warning); }
-        .status-danger .status-icon { color: var(--color-danger); }
-        .status-danger .status-text { color: var(--color-danger); font-weight: 600; }
-        .status-success .status-text { color: var(--color-success); font-weight: 600; }
+        .status-confirmando .status-icon { color: var(--color-warning); }
+        .status-preparando .status-icon { color: var(--color-warning); }
+        .status-entrega .status-icon { color: var(--color-secondary); }
+        .status-entregue .status-icon { color: var(--color-success); }
+        .status-cancelado .status-icon { color: var(--color-danger); }
+        
+        .status-confirmando .status-text { color: var(--color-warning); font-weight: 600; }
+        .status-preparando .status-text { color: var(--color-warning); font-weight: 600; }
+        .status-entrega .status-text { color: var(--color-secondary); font-weight: 600; }
+        .status-entregue .status-text { color: var(--color-success); font-weight: 600; }
+        .status-cancelado .status-text { color: var(--color-danger); font-weight: 600; }
         
         .no-orders-message { padding: 20px; text-align: center; color: var(--color-text-light); font-style: italic; }
+
+        /* --- Modal de Detalhes --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+        }
+
+        .order-detail-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .order-detail-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text-dark);
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--color-warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--color-danger);
+            color: white;
+        }
 
         /* --- Responsividade --- */
         @media (max-width: 768px) {
@@ -182,14 +280,15 @@
             </div>
         </div>
         <nav class="header-nav">
-            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
-            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
-            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
-            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
-            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
-            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
-            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>        <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
-        </nav>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html" style="background-color: rgba(255,255,255,0.2);"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
     </header>
 
     <main class="page-container">
@@ -210,14 +309,14 @@
                  <i class="fa-solid fa-hourglass-half icon pending"></i>
                  <div class="kpi-card-info">
                      <span class="kpi-value" id="kpi-pending">0</span>
-                     <span class="kpi-title">Pendentes / Trânsito</span>
+                     <span class="kpi-title">Pendentes</span>
                  </div>
              </div>
              <div class="kpi-card">
-                 <i class="fa-solid fa-triangle-exclamation icon danger"></i>
+                 <i class="fa-solid fa-truck icon warning"></i>
                  <div class="kpi-card-info">
-                     <span class="kpi-value" id="kpi-danger">0</span>
-                     <span class="kpi-title">Atrasados</span>
+                     <span class="kpi-value" id="kpi-delivery">0</span>
+                     <span class="kpi-title">Em Entrega</span>
                  </div>
              </div>
               <div class="kpi-card">
@@ -232,9 +331,10 @@
         <section class="controls-container">
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="danger">Atrasado</button>
-                <button class="filter-btn" data-filter="transit">Em Trânsito</button>
-                <button class="filter-btn" data-filter="success">Concluído</button>
+                <button class="filter-btn" data-filter="confirmando">Confirmando</button>
+                <button class="filter-btn" data-filter="preparando">Preparando</button>
+                <button class="filter-btn" data-filter="entrega">Entrega</button>
+                <button class="filter-btn" data-filter="entregue">Entregue</button>
             </div>
             <div class="search-container">
                 <input type="text" id="search-input" class="search-input" placeholder="Buscar por ID do pedido...">
@@ -247,14 +347,24 @@
         </section>
     </main>
 
-    <script type="module">
-        // --- 1. IMPORTS DO FIREBASE ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-        import { 
-            getFirestore, collection, getDocs, query, orderBy
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-        
-        // --- 2. CONFIGURAÇÃO DO FIREBASE ---
+    <!-- Modal de Detalhes -->
+    <div class="modal-overlay" id="order-modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="modal-order-id">Detalhes do Pedido</h3>
+            <div id="modal-content">
+                <!-- Conteúdo dinâmico -->
+            </div>
+            <div class="status-actions" id="status-actions">
+                <!-- Ações dinâmicas -->
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-secondary" id="close-modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
             authDomain: "salgaderia-mestre.firebaseapp.com",
@@ -265,159 +375,320 @@
             measurementId: "G-1QSMWQ65ZZ"
         };
 
-        // --- 3. INICIALIZAÇÃO ---
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const pedidosCollectionRef = collection(db, "pedidos"); // Coleção "pedidos"
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // --- 4. SELETORES DO DOM ---
-        const timestampElement = document.getElementById('current-timestamp');
-        const orderListContainer = document.getElementById('order-list');
-        const searchInput = document.getElementById('search-input');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const kpiTotal = document.getElementById('kpi-total');
-        const kpiPending = document.getElementById('kpi-pending');
-        const kpiDanger = document.getElementById('kpi-danger');
-        const kpiSuccess = document.getElementById('kpi-success');
+        let localOrders = [];
+        let currentOrders = [];
 
-        let localOrders = []; // Array local para filtros
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+            
+            loadOrders();
+            setupEventListeners();
+        });
 
-        // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
-        function updateCurrentTime() {
+        function updateTimestamp() {
             const now = new Date();
-            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            const date = now.toLocaleDateString('pt-BR', optionsDate);
-            const time = now.toLocaleTimeString('pt-BR', optionsTime);
-            if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
+            const date = now.toLocaleDateString('pt-BR');
+            const time = now.toLocaleTimeString('pt-BR');
+            document.getElementById('current-timestamp').textContent = `${date} ${time}`;
         }
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
 
-        // --- 6. FUNÇÃO PARA RENDERIZAR A LISTA ---
-        function renderOrderList(data) {
-            orderListContainer.innerHTML = ''; 
+        function loadOrders() {
+            db.collection("pedidos").orderBy("timestamp", "desc").get().then((querySnapshot) => {
+                localOrders = [];
+                currentOrders = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const orderData = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    localOrders.push(orderData);
+                    currentOrders.push(orderData);
+                });
+                
+                updateKPIs();
+                renderOrders();
+            }).catch((error) => {
+                console.error("Erro ao carregar pedidos:", error);
+                document.getElementById('order-list').innerHTML = '<div class="no-orders-message" style="color:red;">Erro ao carregar pedidos.</div>';
+            });
+        }
 
-            if (data.length === 0) {
-                orderListContainer.innerHTML = '<div class="no-orders-message">Nenhum pedido encontrado.</div>';
+        function updateKPIs() {
+            const today = new Date().toLocaleDateString('pt-BR');
+            
+            const total = localOrders.length;
+            const pending = localOrders.filter(order => 
+                order.status === 'confirmando' || order.status === 'preparando'
+            ).length;
+            const delivery = localOrders.filter(order => order.status === 'entrega').length;
+            const success = localOrders.filter(order => 
+                order.status === 'entregue' && order.data === today
+            ).length;
+
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-pending').textContent = pending;
+            document.getElementById('kpi-delivery').textContent = delivery;
+            document.getElementById('kpi-success').textContent = success;
+        }
+
+        function renderOrders() {
+            const orderList = document.getElementById('order-list');
+            
+            if (currentOrders.length === 0) {
+                orderList.innerHTML = '<div class="no-orders-message">Nenhum pedido encontrado.</div>';
                 return;
             }
 
-            data.forEach(order => {
-                const item = document.createElement('div');
-                item.className = `order-item status-${order.status}`; 
-
-                let iconClass = 'fa-check-circle';
-                if (order.status === 'danger') iconClass = 'fa-exclamation-circle';
-                if (order.status === 'transit') iconClass = 'fa-shipping-fast';
-
-                let formattedDate = order.date;
-                if (order.date && order.date.includes('-')) {
-                    const dateParts = order.date.split('-');
-                    formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0].slice(-2)}`;
+            orderList.innerHTML = currentOrders.map(order => {
+                let statusText = '';
+                let iconClass = '';
+                
+                switch(order.status) {
+                    case 'confirmando':
+                        statusText = 'Confirmando Pagamento';
+                        iconClass = 'fa-clock';
+                        break;
+                    case 'preparando':
+                        statusText = 'Sendo Preparado';
+                        iconClass = 'fa-utensils';
+                        break;
+                    case 'entrega':
+                        statusText = 'Em Entrega';
+                        iconClass = 'fa-truck';
+                        break;
+                    case 'entregue':
+                        statusText = 'Entregue';
+                        iconClass = 'fa-check-circle';
+                        break;
+                    case 'cancelado':
+                        statusText = 'Cancelado';
+                        iconClass = 'fa-times-circle';
+                        break;
+                    default:
+                        statusText = order.status;
+                        iconClass = 'fa-question-circle';
                 }
 
-                item.innerHTML = `
-                    <div class="order-details">
+                const orderDate = order.data || '--/--/--';
+                const orderTime = order.hora || '--:--';
+
+                return `
+                    <div class="order-item status-${order.status}" data-id="${order.id}">
                         <i class="fa-solid ${iconClass} status-icon"></i>
-                        <div class="order-info">
-                            <span>PEDIDO ${order.id_num || order.id.substring(0, 5).toUpperCase()} - STATUS:</span> 
-                            <span class="status-text">${order.statusText}</span>
+                        <div class="order-details">
+                            <div class="order-info">
+                                <span>PEDIDO ${order.id_num || order.id.substring(0, 8).toUpperCase()} -</span>
+                                <span class="status-text">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="order-timestamp">
+                            <span>${orderDate}</span>
+                            <span>${orderTime}</span>
+                        </div>
+                        <div class="order-actions">
+                            <button class="action-btn view-details" data-id="${order.id}">
+                                <i class="fa-solid fa-eye"></i> Detalhes
+                            </button>
                         </div>
                     </div>
-                    <div class="order-timestamp">
-                        <span>${formattedDate}</span>
-                        <span>${order.time}</span>
-                    </div>
-                    <div class="order-actions">
-                        <button class="action-btn" title="Ver Detalhes" data-id="${order.id}"><i class="fa-solid fa-eye"></i> Detalhes</button>
-                    </div>
                 `;
-                orderListContainer.appendChild(item);
+            }).join('');
+
+            // Adicionar event listeners para os botões de detalhes
+            document.querySelectorAll('.view-details').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const orderId = btn.dataset.id;
+                    showOrderDetails(orderId);
+                });
             });
-            
-            orderListContainer.querySelectorAll('.action-btn').forEach(btn => {
+        }
+
+        function showOrderDetails(orderId) {
+            const order = localOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const modal = document.getElementById('order-modal');
+            const modalContent = document.getElementById('modal-content');
+            const statusActions = document.getElementById('status-actions');
+            const modalOrderId = document.getElementById('modal-order-id');
+
+            modalOrderId.textContent = `Pedido #${order.id_num || order.id.substring(0, 8).toUpperCase()}`;
+
+            // Construir conteúdo do modal
+            let content = `
+                <div class="order-detail-section">
+                    <h4>Informações do Cliente</h4>
+                    <p><strong>Nome:</strong> ${order.cliente?.nome || 'Não informado'}</p>
+                    <p><strong>Telefone:</strong> ${order.cliente?.telefone || 'Não informado'}</p>
+                </div>
+
+                <div class="order-detail-section">
+                    <h4>Endereço de Entrega</h4>
+                    <p>${order.endereco?.rua || ''}, ${order.endereco?.numero || ''}</p>
+                    <p>${order.endereco?.bairro || ''} - ${order.endereco?.cidade || ''}</p>
+                    ${order.endereco?.complemento ? `<p>Complemento: ${order.endereco.complemento}</p>` : ''}
+                </div>
+
+                <div class="order-detail-section">
+                    <h4>Itens do Pedido</h4>
+            `;
+
+            if (order.itens && order.itens.length > 0) {
+                order.itens.forEach(item => {
+                    content += `
+                        <div class="product-item">
+                            <span>${item.nome} x ${item.quantidade}</span>
+                            <span>R$ ${(item.preco * item.quantidade).toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                content += '<p>Nenhum item encontrado</p>';
+            }
+
+            content += `
+                </div>
+
+                <div class="order-detail-section">
+                    <h4>Pagamento</h4>
+                    <p><strong>Método:</strong> ${getPaymentMethodText(order.pagamento?.metodo)}</p>
+                    <p><strong>Total:</strong> R$ ${order.total?.toFixed(2) || '0,00'}</p>
+                </div>
+
+                <div class="order-detail-section">
+                    <h4>Status Atual</h4>
+                    <p><strong>Status:</strong> ${getStatusText(order.status)}</p>
+                    <p><strong>Data/Hora:</strong> ${order.data} ${order.hora}</p>
+                </div>
+            `;
+
+            modalContent.innerHTML = content;
+
+            // Ações de status
+            let actionsHTML = '';
+            switch(order.status) {
+                case 'confirmando':
+                    actionsHTML = `
+                        <button class="btn btn-success" onclick="updateOrderStatus('${order.id}', 'preparando')">
+                            <i class="fa-solid fa-utensils"></i> Iniciar Preparo
+                        </button>
+                        <button class="btn btn-danger" onclick="updateOrderStatus('${order.id}', 'cancelado')">
+                            <i class="fa-solid fa-times"></i> Cancelar
+                        </button>
+                    `;
+                    break;
+                case 'preparando':
+                    actionsHTML = `
+                        <button class="btn btn-warning" onclick="updateOrderStatus('${order.id}', 'entrega')">
+                            <i class="fa-solid fa-truck"></i> Enviar para Entrega
+                        </button>
+                    `;
+                    break;
+                case 'entrega':
+                    actionsHTML = `
+                        <button class="btn btn-success" onclick="updateOrderStatus('${order.id}', 'entregue')">
+                            <i class="fa-solid fa-check"></i> Marcar como Entregue
+                        </button>
+                    `;
+                    break;
+            }
+
+            statusActions.innerHTML = actionsHTML;
+            modal.classList.add('active');
+        }
+
+        function getPaymentMethodText(method) {
+            switch(method) {
+                case 'pix': return 'Pix';
+                case 'cartao': return 'Cartão';
+                case 'dinheiro': return 'Dinheiro';
+                case 'cartao_entrega': return 'Cartão na Entrega';
+                default: return method || 'Não informado';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'confirmando': return 'Confirmando Pagamento';
+                case 'preparando': return 'Sendo Preparado';
+                case 'entrega': return 'Em Entrega';
+                case 'entregue': return 'Entregue';
+                case 'cancelado': return 'Cancelado';
+                default: return status || 'Desconhecido';
+            }
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            if (!confirm(`Tem certeza que deseja alterar o status para "${getStatusText(newStatus)}"?`)) {
+                return;
+            }
+
+            db.collection("pedidos").doc(orderId).update({
+                status: newStatus,
+                ultimaAtualizacao: new Date().toISOString()
+            }).then(() => {
+                alert('Status atualizado com sucesso!');
+                document.getElementById('order-modal').classList.remove('active');
+                loadOrders(); // Recarregar a lista
+            }).catch((error) => {
+                console.error("Erro ao atualizar status:", error);
+                alert('Erro ao atualizar status do pedido.');
+            });
+        }
+
+        function setupEventListeners() {
+            // Filtros
+            document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                     alert(`Visualizando detalhes do pedido ${btn.dataset.id} (simulado).`);
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const filter = btn.dataset.filter;
+                    if (filter === 'all') {
+                        currentOrders = [...localOrders];
+                    } else {
+                        currentOrders = localOrders.filter(order => order.status === filter);
+                    }
+                    
+                    renderOrders();
                 });
+            });
+
+            // Busca
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                if (searchTerm) {
+                    currentOrders = localOrders.filter(order => 
+                        order.id.toLowerCase().includes(searchTerm) ||
+                        (order.id_num && String(order.id_num).includes(searchTerm)) ||
+                        (order.cliente?.nome && order.cliente.nome.toLowerCase().includes(searchTerm))
+                    );
+                } else {
+                    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+                    if (activeFilter === 'all') {
+                        currentOrders = [...localOrders];
+                    } else {
+                        currentOrders = localOrders.filter(order => order.status === activeFilter);
+                    }
+                }
+                renderOrders();
+            });
+
+            // Fechar modal
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.getElementById('order-modal').classList.remove('active');
             });
         }
 
-        // --- 7. FUNÇÃO PARA ATUALIZAR KPIs ---
-        function updateKPIs(data) {
-            const today = new Date();
-            const todayDateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-            kpiTotal.textContent = data.length;
-            kpiPending.textContent = data.filter(o => o.status === 'transit').length;
-            kpiDanger.textContent = data.filter(o => o.status === 'danger').length;
-            kpiSuccess.textContent = data.filter(o => o.status === 'success' && o.date === todayDateString).length;
-        }
-
-        // --- 8. FUNÇÃO PARA APLICAR FILTROS E BUSCA ---
-        function applyFiltersAndSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const activeFilterBtn = document.querySelector('.filter-btn.active');
-            const activeStatus = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
-
-            let filteredData = localOrders;
-
-            if (activeStatus !== 'all') {
-                filteredData = filteredData.filter(order => order.status === activeStatus);
-            }
-
-            if (searchTerm) {
-                filteredData = filteredData.filter(order => 
-                    order.id.toLowerCase().includes(searchTerm) ||
-                    (order.id_num && String(order.id_num).includes(searchTerm))
-                );
-            }
-
-            renderOrderList(filteredData);
-        }
-
-        // --- 9. CARREGAMENTO INICIAL DO FIRESTORE ---
-        async function loadAndRenderOrders() {
-            try {
-                const q = query(pedidosCollectionRef, orderBy("date", "desc"), orderBy("time", "desc"));
-                const querySnapshot = await getDocs(q);
-                
-                localOrders = [];
-                querySnapshot.forEach((doc) => {
-                    localOrders.push({ id: doc.id, ...doc.data() });
-                });
-                
-                renderOrderList(localOrders);
-                updateKPIs(localOrders);
-            } catch (error) {
-                console.error("Erro ao carregar pedidos: ", error);
-                 if (error.code === 'failed-precondition') {
-                    console.warn("Firestore: Índice não encontrado. Carregando sem ordenação.");
-                    const fallbackSnapshot = await getDocs(pedidosCollectionRef);
-                    localOrders = [];
-                    fallbackSnapshot.forEach((doc) => {
-                        localOrders.push({ id: doc.id, ...doc.data() });
-                    });
-                    renderOrderList(localOrders);
-                    updateKPIs(localOrders);
-                 } else {
-                     orderListContainer.innerHTML = '<div class="no-orders-message" style="color:red;">Falha ao carregar pedidos.</div>';
-                 }
-            }
-        }
-
-        // --- 10. INICIALIZAÇÃO ---
-        searchInput.addEventListener('input', applyFiltersAndSearch);
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                applyFiltersAndSearch();
-            });
-        });
-
-        loadAndRenderOrders(); // Carrega os dados ao iniciar
-
+        // Funções globais
+        window.updateOrderStatus = updateOrderStatus;
     </script>
 </body>
 </html>

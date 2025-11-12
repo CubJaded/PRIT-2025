@@ -7,6 +7,12 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
     <style>
         /* --- Configurações Globais --- */
         :root {
@@ -50,7 +56,10 @@
             width: 100%;
         }
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-info .user-avatar { font-size: 36px; opacity: 0.9; }
+        .user-info .user-avatar { 
+            font-size: 36px; 
+            opacity: 0.9; 
+        }
         .user-info div { display: flex; flex-direction: column; font-size: 14px; }
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
@@ -59,6 +68,7 @@
         .header-nav { 
             display: flex; 
             align-items: center; 
+            gap: 10px;
         }
         .header-nav a {
             color: white;
@@ -67,6 +77,9 @@
             padding: 10px 15px;
             border-radius: 6px; 
             transition: opacity 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .header-nav a:hover {
             opacity: 1; 
@@ -150,7 +163,7 @@
         /* --- Modal --- */
         .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease-in-out; }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content { background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 90%; max-width: 500px; position: relative; transform: scale(0.95); transition: transform 0.2s ease-in-out; }
+        .modal-content { background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 90%; max-width: 600px; position: relative; transform: scale(0.95); transition: transform 0.2s ease-in-out; max-height: 90vh; overflow-y: auto; }
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-close { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; }
         .modal-close:hover { color: #333; }
@@ -159,6 +172,27 @@
         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 16px; margin-bottom: 5px; font-family: inherit; }
         .form-group textarea { min-height: 80px; resize: vertical; }
+        
+        /* Campos de Informação Nutricional */
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .nutrition-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .nutrition-item input {
+            width: 100%;
+        }
+        
+        /* Upload de Imagem */
+        .image-upload-container { border: 2px dashed var(--color-border); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 16px; }
+        .image-preview { max-width: 200px; max-height: 200px; margin: 10px auto; display: none; border-radius: 8px; }
+        .upload-btn { background: var(--color-secondary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 10px 0; }
+        .upload-btn:hover { background: #0056b3; }
         
         .btn-base { border: none; padding: 10px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
         .btn-primary { background-color: var(--color-primary); color: white; }
@@ -172,10 +206,15 @@
         #alert-modal-message, #confirm-modal-message { font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
 
+        .loading { opacity: 0.7; pointer-events: none; }
+        .progress-bar { width: 100%; height: 4px; background: #f0f0f0; border-radius: 2px; margin: 10px 0; overflow: hidden; }
+        .progress { height: 100%; background: var(--color-primary); width: 0%; transition: width 0.3s; }
+
         /* --- Responsividade --- */
         @media (max-width: 768px) {
             .top-bar { flex-direction: column; gap: 16px; padding: 16px; }
-            .header-nav { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            .header-nav { gap: 5px; flex-wrap: wrap; justify-content: center; }
+            .header-nav a { padding: 8px 12px; font-size: 0.9rem; }
             .page-header { text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
             .page-header h2 { font-size: 18px; }
             .page-header .timestamp { position: static; font-size: 14px; }
@@ -186,6 +225,8 @@
             .menu-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
             .item-title { font-size: 18px; }
             .item-price { font-size: 20px; }
+            .modal-content { width: 95%; padding: 16px; }
+            .nutrition-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -195,19 +236,19 @@
         <div class="user-info">
             <i class="fa-solid fa-user-circle user-avatar"></i>
             <div>
-                <span class="user-name">Felipe</span>
+                <span class="user-name" id="user-display-name">Felipe</span>
                 <span class="user-role">administração da plataforma</span>
             </div>
         </div>
         <nav class="header-nav">
-            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
-            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
-            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
-            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
-            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
-            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
-            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
-            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check"></i> </a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck"></i> </a>
+            <a href="Adm_anal.html"><i class="fa-solid fa-chart-line"></i> </a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box"></i> </a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days"></i> </a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user"></i> </a>
+            <a href="adm_adCard.html" style="background-color: rgba(255,255,255,0.2);"><i class="fa-solid fa-utensils"></i> </a>
+            <a href="#" id="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> </a>
         </nav>
     </header>
 
@@ -224,12 +265,12 @@
             </div>
             <div class="filter-container">
                 <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="Fritos">Fritos</button>
                 <button class="filter-btn" data-filter="Mini Salgados">Mini Salgados</button>
-                <button class="filter-btn" data-filter="Assados">Assados</button>
-                <button class="filter-btn" data-filter="Bebidas">Bebidas</button>
                 <button class="filter-btn" data-filter="Doces">Doces</button>
                 <button class="filter-btn" data-filter="Combos">Combos</button>
+                <button class="filter-btn" data-filter="Bebidas">Bebidas</button>
+                <button class="filter-btn" data-filter="Assados">Assados</button>
+                <button class="filter-btn" data-filter="Fritos">Fritos</button>
             </div>
         </section>
 
@@ -245,57 +286,102 @@
 
     </main>
 
+    <!-- Modal para Adicionar/Editar Item -->
     <div class="modal-overlay" id="item-modal">
         <div class="modal-content">
             <span class="modal-close" data-modal-id="item-modal">&times;</span>
             <h3 id="modal-title">Adicionar Novo Item</h3>
             <form id="item-form">
                 <input type="hidden" id="item-id">
+                
                 <div class="form-group">
-                    <label for="item-name">Nome do Item</label>
+                    <label for="item-name">Nome do Item *</label>
                     <input type="text" id="item-name" required>
-                </div>
-                 <div class="form-group">
-                    <label for="item-category">Categoria</label>
-                    <select id="item-category" required>
-                        <option value="">Selecione...</option>
-                        <option value="Fritos">Fritos</option>
-                        <option value="Mini Salgados">Mini Salgados</option>
-                        <option value="Assados">Assados</option>
-                        <option value="Bebidas">Bebidas</option>
-                        <option value="Doces">Doces</option>
-                        <option value="Combos">Combos</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="item-price">Preço (R$)</label>
-                    <input type="number" step="0.01" id="item-price" required placeholder="Ex: 14.99">
-                </div>
-                 <div class="form-group">
-                    <label for="item-units">Unidades (texto)</label>
-                    <input type="text" id="item-units" required placeholder="Ex: 1 UNID., 25 UNID.">
-                </div>
-                <div class="form-group">
-                     <label for="item-image-path">Caminho da Imagem</label>
-                     <input type="text" id="item-image-path" placeholder="Ex: imagens_cardapio/coxinha.png">
-                     <small>Adicione a imagem na pasta do projeto e dê 'git push' primeiro.</small>
                 </div>
                 
                 <div class="form-group">
-                     <label for="item-description">Descrição</label>
-                     <textarea id="item-description" placeholder="Descreva o produto..."></textarea>
+                    <label for="item-category">Categoria *</label>
+                    <select id="item-category" required>
+                        <option value="">Selecione...</option>
+                        <option value="Mini Salgados">Mini Salgados</option>
+                        <option value="Doces">Doces</option>
+                        <option value="Combos">Combos</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Assados">Assados</option>
+                        <option value="Fritos">Fritos</option>
+                    </select>
                 </div>
+                
                 <div class="form-group">
-                     <label for="item-nutrition">Informação Nutricional</label>
-                     <textarea id="item-nutrition" placeholder="Ex: CALORIAS: 180 KCAL, PROTEÍNAS: 5 G..."></textarea>
-                     <small>Dica: Separe os itens com vírgula ou quebra de linha.</small>
+                    <label for="item-price">Preço (R$) *</label>
+                    <input type="number" step="0.01" id="item-price" required placeholder="Ex: 14.99" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="item-units">Unidades (texto) *</label>
+                    <input type="text" id="item-units" required placeholder="Ex: 1 UNID., 25 UNID.">
+                </div>
+                
+                <div class="form-group">
+                    <label>Imagem do Produto</label>
+                    <div class="image-upload-container">
+                        <img id="image-preview" class="image-preview" alt="Preview da imagem">
+                        <div id="upload-area">
+                            <p>Arraste uma imagem aqui ou clique para selecionar</p>
+                            <input type="file" id="item-image" accept="image/*" style="display: none;">
+                            <button type="button" class="upload-btn" id="select-image-btn">Selecionar Imagem</button>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="upload-progress"></div>
+                        </div>
+                        <small>Formatos: JPG, PNG, GIF. Tamanho máximo: 5MB</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="item-description">Descrição</label>
+                    <textarea id="item-description" placeholder="Descreva o produto..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Informação Nutricional</label>
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <label for="nutrition-calories">Calorias</label>
+                            <input type="text" id="nutrition-calories" placeholder="Ex: 90 KCAL">
+                        </div>
+                        <div class="nutrition-item">
+                            <label for="nutrition-carbs">Carboidratos</label>
+                            <input type="text" id="nutrition-carbs" placeholder="Ex: 7 G">
+                        </div>
+                        <div class="nutrition-item">
+                            <label for="nutrition-proteins">Proteínas</label>
+                            <input type="text" id="nutrition-proteins" placeholder="Ex: 2 G">
+                        </div>
+                        <div class="nutrition-item">
+                            <label for="nutrition-fats">Gorduras</label>
+                            <input type="text" id="nutrition-fats" placeholder="Ex: 5 G">
+                        </div>
+                        <div class="nutrition-item">
+                            <label for="nutrition-sodium">Sódio</label>
+                            <input type="text" id="nutrition-sodium" placeholder="Ex: 75 MG">
+                        </div>
+                        <div class="nutrition-item">
+                            <label for="nutrition-fibers">Fibras</label>
+                            <input type="text" id="nutrition-fibers" placeholder="Ex: 1 G">
+                        </div>
+                    </div>
+                    <small>Preencha os campos desejados da tabela nutricional</small>
                 </div>
 
-                <button type="submit" class="btn-primary" id="save-item-btn">Salvar Item</button>
+                <button type="submit" class="btn-primary" id="save-item-btn">
+                    <span id="save-btn-text">Salvar Item</span>
+                </button>
             </form>
         </div>
     </div>
 
+    <!-- Modais de Alerta/Confirmação -->
     <div class="modal-overlay" id="alert-modal">
         <div class="modal-content">
             <h3 id="alert-modal-title">Aviso</h3>
@@ -305,6 +391,7 @@
             </div>
         </div>
     </div>
+    
     <div class="modal-overlay" id="confirm-modal">
         <div class="modal-content">
             <h3 id="confirm-modal-title">Confirmar Ação</h3>
@@ -316,15 +403,8 @@
         </div>
     </div>
 
-    <script type="module">
-        // --- 1. IMPORTS DO FIREBASE ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-        import { 
-            getFirestore, collection, getDocs, doc, getDoc, 
-            addDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-        
-        // --- 2. CONFIGURAÇÃO DO FIREBASE ---
+    <script>
+        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
             authDomain: "salgaderia-mestre.firebaseapp.com",
@@ -335,313 +415,324 @@
             measurementId: "G-1QSMWQ65ZZ"
         };
 
-        // --- 3. INICIALIZAÇÃO ---
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const produtosCollectionRef = collection(db, "produtos");
-        const logsCollectionRef = collection(db, "logs");
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
-        // --- 4. SELETORES DO DOM ---
-        const timestampElement = document.getElementById('current-timestamp');
-        const menuGrid = document.getElementById('menu-grid');
-        const searchInput = document.getElementById('search-input');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const addItemBtnCard = document.getElementById('add-item-btn');
-        
-        // Modais de Formulário
-        const itemModal = document.getElementById('item-modal');
-        const itemForm = document.getElementById('item-form');
-        const modalTitle = document.getElementById('modal-title');
-        const itemIdInput = document.getElementById('item-id');
-        const itemNameInput = document.getElementById('item-name');
-        const itemCategoryInput = document.getElementById('item-category');
-        const itemPriceInput = document.getElementById('item-price');
-        const itemUnitsInput = document.getElementById('item-units');
-        const itemImagePathInput = document.getElementById('item-image-path');
-        const itemDescriptionInput = document.getElementById('item-description');
-        const itemNutritionInput = document.getElementById('item-nutrition');
-        const modalCloseButtons = document.querySelectorAll('.modal-close');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const menuGrid = document.getElementById('menu-grid');
+            const addItemBtn = document.getElementById('add-item-btn');
+            const itemModal = document.getElementById('item-modal');
+            const itemForm = document.getElementById('item-form');
+            const searchInput = document.getElementById('search-input');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const timestampElement = document.getElementById('current-timestamp');
 
-        // Modais de Alerta/Confirmação
-        const alertModal = document.getElementById('alert-modal');
-        const alertModalOkBtn = document.getElementById('alert-modal-ok');
-        const confirmModal = document.getElementById('confirm-modal');
-        const confirmModalCancelBtn = document.getElementById('confirm-modal-cancel');
-        let confirmModalOkBtn = document.getElementById('confirm-modal-ok');
+            let allMenuItems = [];
+            let currentEditingItem = null;
 
-        let localMenuItems = [];
-
-        // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
-        function updateCurrentTime() {
-            const now = new Date();
-            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            const date = now.toLocaleDateString('pt-BR', optionsDate);
-            const time = now.toLocaleTimeString('pt-BR', optionsTime);
-            if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
-        }
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
-
-        // --- 6. FUNÇÕES DE MODAL (ALERTAS) ---
-        function showCustomAlert(message, title = "Aviso") {
-            document.getElementById('alert-modal-title').textContent = title;
-            document.getElementById('alert-modal-message').textContent = message;
-            alertModal.classList.add('active');
-        }
-        
-        function showCustomConfirm(message, title, onConfirm) {
-            document.getElementById('confirm-modal-title').textContent = title;
-            document.getElementById('confirm-modal-message').textContent = message;
-            confirmModal.classList.add('active');
-            
-            let newOkBtn = confirmModalOkBtn.cloneNode(true);
-            confirmModalOkBtn.parentNode.replaceChild(newOkBtn, confirmModalOkBtn);
-            confirmModalOkBtn = newOkBtn; 
-            
-            newOkBtn.addEventListener('click', () => {
-                onConfirm(); 
-                confirmModal.classList.remove('active');
-            });
-        }
-        
-        alertModalOkBtn.addEventListener('click', () => alertModal.classList.remove('active'));
-        confirmModalCancelBtn.addEventListener('click', () => confirmModal.classList.remove('active'));
-
-        // --- 7. FUNÇÃO DE LOG ---
-        async function logAdminAction(level, system, message) {
-            try {
-                await addDoc(logsCollectionRef, {
-                    level: level,
-                    system: system,
-                    message: message,
-                    timestamp: serverTimestamp()
-                });
-            } catch (e) {
-                console.error("Falha ao salvar log: ", e);
+            // Atualizar timestamp
+            function updateTimestamp() {
+                const now = new Date();
+                const date = now.toLocaleDateString('pt-BR');
+                const time = now.toLocaleTimeString('pt-BR');
+                timestampElement.textContent = `${date} ${time}`;
             }
-        }
+            setInterval(updateTimestamp, 1000);
+            updateTimestamp();
 
-        // --- 8. FUNÇÃO PARA RENDERIZAR A GRADE ---
-        function renderMenuGrid(itemsToRender) {
-            const existingItems = menuGrid.querySelectorAll('.menu-item-card:not(.add-item-card)');
-            existingItems.forEach(item => item.remove());
-            const noResultsMsg = menuGrid.querySelector('.no-results-message');
-            if (noResultsMsg) noResultsMsg.remove();
-
-            if (itemsToRender.length === 0 && !searchInput.value && document.querySelector('.filter-btn.active[data-filter="all"]')) {
-                // Não mostra mensagem se não há itens mas também não há filtro/busca ativa
-            } else if (itemsToRender.length === 0) {
-                 const noResults = document.createElement('p');
-                 noResults.className = 'no-results-message';
-                 noResults.textContent = 'Nenhum item encontrado.';
-                 noResults.style.gridColumn = '1 / -1';
-                 noResults.style.textAlign = 'center';
-                 noResults.style.color = 'var(--color-text-light)';
-                 menuGrid.appendChild(noResults);
-            }
-
-            itemsToRender.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'menu-item-card';
-                card.setAttribute('data-id', item.id);
-                card.setAttribute('data-category', item.categoria);
-
-                const placeholder = `https://via.placeholder.com/150/EEEEEE/AAAAAA?text=SemFoto`;
-                const imageSrc = item.caminhoImagem || placeholder;
-
-                card.innerHTML = `
-                    <img src="${imageSrc}" alt="${item.nome}" class="item-image" onerror="this.onerror=null; this.src='${placeholder}';">
-                    <div class="item-info-bg"></div>
-                    <div class="item-details">
-                        <div class="item-title">${item.nome}</div>
-                        <div class="item-units">${item.unidadesTexto}</div>
-                    </div>
-                    <div class="item-price-bg">
-                        <span class="item-price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</span>
-                    </div>
-                    <div class="item-actions">
-                        <button class="action-btn edit" title="Editar Item" data-id="${item.id}"><i class="fa-solid fa-pencil"></i></button>
-                        <button class="action-btn delete" title="Excluir Item" data-id="${item.id}" data-name="${item.nome}"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-                menuGrid.insertBefore(card, addItemBtnCard); 
-            });
-            
-            // Adiciona listeners aos botões
-            menuGrid.querySelectorAll('.edit').forEach(btn => {
-                btn.addEventListener('click', (e) => openModal('edit', e.currentTarget.dataset.id));
-            });
-            menuGrid.querySelectorAll('.delete').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    const name = e.currentTarget.dataset.name;
-                    showCustomConfirm(`Tem certeza que deseja excluir "${name}"?`, "Confirmar Exclusão", () => {
-                        deleteItem(id, name);
+            // Carregar itens do Firebase
+            async function loadMenuItems() {
+                try {
+                    const querySnapshot = await db.collection("produtos").get();
+                    allMenuItems = [];
+                    
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        allMenuItems.push({
+                            id: doc.id,
+                            nome: data.nome || '',
+                            categoria: data.categoria || '',
+                            preco: data.preco || 0,
+                            unidadesTexto: data.unidadesTexto || '',
+                            imagemUrl: data.imagemUrl || '',
+                            descricao: data.descricao || '',
+                            nutricao: data.nutricao || {}
+                        });
                     });
-                });
-            });
-        }
-        
-        // --- 9. CARREGAMENTO INICIAL DO FIRESTORE ---
-        async function loadAndRenderItems() {
-            try {
-                const q = query(produtosCollectionRef, orderBy("categoria", "asc"), orderBy("nome", "asc"));
-                const querySnapshot = await getDocs(q);
-                localMenuItems = []; 
-                querySnapshot.forEach((doc) => {
-                    localMenuItems.push({ id: doc.id, ...doc.data() });
-                });
-                applyFiltersAndSearch(); 
-            } catch (error) {
-                console.error("Erro ao carregar itens: ", error);
-                if (error.code === 'failed-precondition') {
-                    console.warn("Firestore: Índices não encontrados. Carregando sem ordenação.");
-                    const fallbackSnapshot = await getDocs(produtosCollectionRef);
-                    localMenuItems = [];
-                    fallbackSnapshot.forEach((doc) => {
-                        localMenuItems.push({ id: doc.id, ...doc.data() });
-                    });
-                    applyFiltersAndSearch();
-                } else {
-                    showCustomAlert(`Não foi possível carregar os itens: ${error.message}`, "Erro no Firebase");
+                    
+                    renderMenuGrid(allMenuItems);
+                    
+                } catch (error) {
+                    console.error("Erro ao carregar itens:", error);
+                    showAlert('Erro ao carregar itens: ' + error.message);
                 }
             }
-        }
-        
-        // --- 10. LÓGICA DO MODAL (ADICIONAR/EDITAR) ---
-        async function openModal(mode = 'add', itemId = null) {
-            itemForm.reset();
-            itemIdInput.value = '';
 
-            if (mode === 'edit' && itemId !== null) {
-                modalTitle.textContent = 'Editar Item';
-                try {
-                    const docRef = doc(db, "produtos", itemId);
-                    const docSnap = await getDoc(docRef);
-                    if (!docSnap.exists()) {
-                        showCustomAlert("Erro: Item não encontrado.", "Erro");
-                        return;
-                    }
-                    const item = docSnap.data();
-                    
-                    itemIdInput.value = docSnap.id;
-                    itemNameInput.value = item.nome;
-                    itemCategoryInput.value = item.categoria;
-                    itemPriceInput.value = Number(item.preco).toFixed(2);
-                    itemUnitsInput.value = item.unidadesTexto;
-                    itemImagePathInput.value = item.caminhoImagem || '';
-                    itemDescriptionInput.value = item.descricao || '';
-                    itemNutritionInput.value = item.infoNutricional || '';
+            // Renderizar grade de itens
+            function renderMenuGrid(items) {
+                // Remover todos os itens exceto o botão de adicionar
+                const existingItems = menuGrid.querySelectorAll('.menu-item-card:not(.add-item-card)');
+                existingItems.forEach(item => item.remove());
 
-                } catch (error) {
-                    console.error("Erro ao buscar item para edição: ", error);
-                    showCustomAlert("Não foi possível carregar os dados do item.", "Erro");
+                if (items.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'no-results-message';
+                    noResults.textContent = 'Nenhum item encontrado.';
+                    noResults.style.gridColumn = '1 / -1';
+                    menuGrid.appendChild(noResults);
                     return;
                 }
-            } else {
-                modalTitle.textContent = 'Adicionar Novo Item';
-            }
-            itemModal.classList.add('active');
-        }
 
-        function closeModal() { 
-            itemModal.classList.remove('active'); 
-        }
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-item-card';
+                    
+                    const placeholder = `https://via.placeholder.com/200/EEEEEE/666666?text=${encodeURIComponent(item.nome.substring(0, 15))}`;
+                    const imageSrc = item.imagemUrl || placeholder;
 
-        // Event listeners para fechar modal
-        modalCloseButtons.forEach(btn => {
-            if (btn.dataset.modalId) {
-                btn.addEventListener('click', () => {
-                    const modalId = btn.dataset.modalId;
-                    document.getElementById(modalId).classList.remove('active');
+                    card.innerHTML = `
+                        <img src="${imageSrc}" alt="${item.nome}" class="item-image" onerror="this.src='${placeholder}'">
+                        <div class="item-info-bg"></div>
+                        <div class="item-details">
+                            <div class="item-title">${item.nome}</div>
+                            <div class="item-units">${item.unidadesTexto}</div>
+                        </div>
+                        <div class="item-price-bg">
+                            <span class="item-price">R$ ${Number(item.preco).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="item-actions">
+                            <button class="action-btn edit" data-id="${item.id}"><i class="fa-solid fa-pencil"></i></button>
+                            <button class="action-btn delete" data-id="${item.id}" data-name="${item.nome}"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                    
+                    menuGrid.appendChild(card);
+                });
+
+                // Adicionar event listeners para editar/excluir
+                document.querySelectorAll('.action-btn.edit').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openEditModal(e.target.closest('.action-btn').dataset.id);
+                    });
+                });
+
+                document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const id = e.target.closest('.action-btn').dataset.id;
+                        const name = e.target.closest('.action-btn').dataset.name;
+                        confirmDelete(id, name);
+                    });
                 });
             }
-        });
 
-        // Adicionar item
-        addItemBtnCard.addEventListener('click', () => openModal('add'));
-
-        // Salvar/editar item
-        itemForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const itemData = {
-                nome: itemNameInput.value.trim(),
-                categoria: itemCategoryInput.value,
-                preco: parseFloat(itemPriceInput.value),
-                unidadesTexto: itemUnitsInput.value.trim(),
-                caminhoImagem: itemImagePathInput.value.trim() || null,
-                descricao: itemDescriptionInput.value.trim() || null,
-                infoNutricional: itemNutritionInput.value.trim() || null
-            };
-
-            try {
-                if (itemIdInput.value) {
-                    // Editar item existente
-                    const docRef = doc(db, "produtos", itemIdInput.value);
-                    await updateDoc(docRef, itemData);
-                    showCustomAlert("Item atualizado com sucesso!", "Sucesso");
-                    await logAdminAction("INFO", "CARDAPIO", `Item editado: ${itemData.nome}`);
-                } else {
-                    // Adicionar novo item
-                    await addDoc(produtosCollectionRef, itemData);
-                    showCustomAlert("Item adicionado com sucesso!", "Sucesso");
-                    await logAdminAction("INFO", "CARDAPIO", `Item adicionado: ${itemData.nome}`);
-                }
-                
-                closeModal();
-                await loadAndRenderItems();
-            } catch (error) {
-                console.error("Erro ao salvar item: ", error);
-                showCustomAlert(`Falha ao salvar: ${error.message}`, "Erro no Firebase");
-            }
-        });
-
-        // Excluir item
-        async function deleteItem(itemId, itemName) {
-            try {
-                const docRef = doc(db, "produtos", itemId);
-                await deleteDoc(docRef);
-                showCustomAlert(`"${itemName}" excluído com sucesso!`, "Sucesso");
-                await logAdminAction("WARNING", "CARDAPIO", `Item excluído: ${itemName}`);
-                await loadAndRenderItems();
-            } catch (error) {
-                console.error("Erro ao excluir item: ", error);
-                showCustomAlert(`Falha ao excluir: ${error.message}`, "Erro no Firebase");
-            }
-        }
-        
-        // --- 11. LÓGICA DE FILTROS E BUSCA ---
-        function applyFiltersAndSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const activeFilterBtn = document.querySelector('.filter-btn.active');
-            const activeCategory = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
-
-            let filteredItems = localMenuItems;
-
-            if (activeCategory !== 'all') {
-                filteredItems = filteredItems.filter(item => item.categoria === activeCategory);
-            }
-            if (searchTerm) {
-                filteredItems = filteredItems.filter(item => item.nome.toLowerCase().includes(searchTerm));
-            }
-            
-            renderMenuGrid(filteredItems);
-        }
-        
-        searchInput.addEventListener('input', applyFiltersAndSearch);
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                applyFiltersAndSearch();
+            // Abrir modal para adicionar item
+            addItemBtn.addEventListener('click', () => {
+                openAddModal();
             });
+
+            function openAddModal() {
+                currentEditingItem = null;
+                document.getElementById('modal-title').textContent = 'Adicionar Novo Item';
+                document.getElementById('item-id').value = '';
+                document.getElementById('item-form').reset();
+                document.getElementById('image-preview').style.display = 'none';
+                document.getElementById('upload-area').style.display = 'block';
+                itemModal.classList.add('active');
+            }
+
+            async function openEditModal(itemId) {
+                try {
+                    const docRef = db.collection("produtos").doc(itemId);
+                    const docSnap = await docRef.get();
+                    
+                    if (!docSnap.exists()) {
+                        showAlert('Item não encontrado!');
+                        return;
+                    }
+
+                    currentEditingItem = { id: docSnap.id, ...docSnap.data() };
+                    
+                    document.getElementById('modal-title').textContent = 'Editar Item';
+                    document.getElementById('item-id').value = currentEditingItem.id;
+                    document.getElementById('item-name').value = currentEditingItem.nome;
+                    document.getElementById('item-category').value = currentEditingItem.categoria;
+                    document.getElementById('item-price').value = currentEditingItem.preco;
+                    document.getElementById('item-units').value = currentEditingItem.unidadesTexto;
+                    document.getElementById('item-description').value = currentEditingItem.descricao || '';
+
+                    // Preencher campos de nutrição
+                    const nutricao = currentEditingItem.nutricao || {};
+                    document.getElementById('nutrition-calories').value = nutricao.calorias || '';
+                    document.getElementById('nutrition-carbs').value = nutricao.carboidratos || '';
+                    document.getElementById('nutrition-proteins').value = nutricao.proteinas || '';
+                    document.getElementById('nutrition-fats').value = nutricao.gorduras || '';
+                    document.getElementById('nutrition-sodium').value = nutricao.sodio || '';
+                    document.getElementById('nutrition-fibers').value = nutricao.fibras || '';
+
+                    // Imagem
+                    if (currentEditingItem.imagemUrl) {
+                        document.getElementById('image-preview').src = currentEditingItem.imagemUrl;
+                        document.getElementById('image-preview').style.display = 'block';
+                        document.getElementById('upload-area').style.display = 'none';
+                    } else {
+                        document.getElementById('image-preview').style.display = 'none';
+                        document.getElementById('upload-area').style.display = 'block';
+                    }
+
+                    itemModal.classList.add('active');
+
+                } catch (error) {
+                    console.error("Erro ao carregar item:", error);
+                    showAlert('Erro ao carregar item: ' + error.message);
+                }
+            }
+
+            // Upload de imagem
+            document.getElementById('select-image-btn').addEventListener('click', () => {
+                document.getElementById('item-image').click();
+            });
+
+            document.getElementById('item-image').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('image-preview').src = e.target.result;
+                        document.getElementById('image-preview').style.display = 'block';
+                        document.getElementById('upload-area').style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Salvar item
+            itemForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const itemData = {
+                    nome: document.getElementById('item-name').value.trim(),
+                    categoria: document.getElementById('item-category').value,
+                    preco: parseFloat(document.getElementById('item-price').value),
+                    unidadesTexto: document.getElementById('item-units').value.trim(),
+                    descricao: document.getElementById('item-description').value.trim(),
+                    nutricao: {
+                        calorias: document.getElementById('nutrition-calories').value.trim(),
+                        carboidratos: document.getElementById('nutrition-carbs').value.trim(),
+                        proteinas: document.getElementById('nutrition-proteins').value.trim(),
+                        gorduras: document.getElementById('nutrition-fats').value.trim(),
+                        sodio: document.getElementById('nutrition-sodium').value.trim(),
+                        fibras: document.getElementById('nutrition-fibers').value.trim()
+                    },
+                    dataAtualizacao: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Validação
+                if (!itemData.nome || !itemData.categoria || isNaN(itemData.preco) || !itemData.unidadesTexto) {
+                    showAlert('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                try {
+                    // Upload de imagem se houver
+                    const imageFile = document.getElementById('item-image').files[0];
+                    if (imageFile) {
+                        const fileName = `produtos/${Date.now()}_${imageFile.name}`;
+                        const storageRef = storage.ref().child(fileName);
+                        await storageRef.put(imageFile);
+                        itemData.imagemUrl = await storageRef.getDownloadURL();
+                    } else if (currentEditingItem && currentEditingItem.imagemUrl) {
+                        // Manter imagem existente se não foi alterada
+                        itemData.imagemUrl = currentEditingItem.imagemUrl;
+                    }
+
+                    const itemId = document.getElementById('item-id').value;
+
+                    if (itemId) {
+                        // Atualizar item existente
+                        await db.collection("produtos").doc(itemId).update(itemData);
+                        showAlert('Item atualizado com sucesso!');
+                    } else {
+                        // Adicionar novo item
+                        itemData.dataCriacao = firebase.firestore.FieldValue.serverTimestamp();
+                        await db.collection("produtos").add(itemData);
+                        showAlert('Item adicionado com sucesso!');
+                    }
+
+                    itemModal.classList.remove('active');
+                    loadMenuItems();
+
+                } catch (error) {
+                    console.error("Erro ao salvar:", error);
+                    showAlert('Erro ao salvar: ' + error.message);
+                }
+            });
+
+            // Excluir item
+            async function confirmDelete(itemId, itemName) {
+                if (confirm(`Tem certeza que deseja excluir "${itemName}"?`)) {
+                    try {
+                        await db.collection("produtos").doc(itemId).delete();
+                        showAlert('Item excluído com sucesso!');
+                        loadMenuItems();
+                    } catch (error) {
+                        console.error("Erro ao excluir:", error);
+                        showAlert('Erro ao excluir: ' + error.message);
+                    }
+                }
+            }
+
+            // Fechar modal
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.modal-overlay').forEach(modal => {
+                        modal.classList.remove('active');
+                    });
+                });
+            });
+
+            // Filtros e busca
+            searchInput.addEventListener('input', applyFilters);
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    applyFilters();
+                });
+            });
+
+            function applyFilters() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+
+                let filteredItems = allMenuItems;
+
+                if (activeFilter !== 'all') {
+                    filteredItems = filteredItems.filter(item => item.categoria === activeFilter);
+                }
+
+                if (searchTerm) {
+                    filteredItems = filteredItems.filter(item => 
+                        item.nome.toLowerCase().includes(searchTerm) ||
+                        item.descricao.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                renderMenuGrid(filteredItems);
+            }
+
+            // Funções auxiliares
+            function showAlert(message) {
+                alert(message);
+            }
+
+            // Inicializar
+            loadMenuItems();
         });
-
-        // --- 12. INICIALIZAÇÃO ---
-        loadAndRenderItems();
-
     </script>
 </body>
 </html>

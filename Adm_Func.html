@@ -54,20 +54,28 @@
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
         
-        /* --- NAVBAR COM ÍCONES DIRETOS (ESTILO DO PRIMEIRO CÓDIGO) --- */
+        /* --- NAVBAR COM ESPAÇAMENTO IGUAL AOS OUTROS CÓDIGOS --- */
         .header-nav { 
             display: flex; 
             align-items: center; 
-            gap: 28px; 
+            gap: 28px; /* MESMO ESPAÇAMENTO DOS OUTROS CÓDIGOS */
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8; 
+            padding: 10px 15px; /* MESMO ESPAÇAMENTO DOS OUTROS CÓDIGOS */
+            border-radius: 6px; 
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+        .header-nav a:hover {
+            opacity: 1; 
+            background-color: rgba(255, 255, 255, 0.1); 
         }
         .header-nav i { 
             font-size: 20px; 
             cursor: pointer; 
-            opacity: 0.8; 
-            transition: opacity 0.2s; 
-        }
-        .header-nav i:hover { 
-            opacity: 1; 
+            display: block; 
         }
 
         /* --- Layout Principal --- */

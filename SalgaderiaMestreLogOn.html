@@ -1,14 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-g">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Salgaderia Mestre</title>
     <link rel="icon" href="imgs/mestreSalgado.jpg" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Roboto&family=Oswald:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { 
+            getAuth, 
+            signOut,
+            updateProfile,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytes, 
+            getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseStorage = storage;
+        window.firebaseFunctions = {
+            signOut,
+            updateProfile,
+            onAuthStateChanged,
+            doc,
+            getDoc,
+            updateDoc,
+            ref,
+            uploadBytes,
+            getDownloadURL
+        };
+    </script>
+
     <style>
-        /* Reset */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
@@ -16,7 +69,7 @@
             background-color: #fff8f0;
             color: #333;
             line-height: 1.6;
-            overflow-x: hidden; /* Previne scroll horizontal */
+            overflow-x: hidden;
         }
         header {
             background: linear-gradient(to right, #b84a1b, #ff914d);
@@ -141,14 +194,12 @@
             .cardapio-cards-grid { grid-template-columns: 1fr; }
         }
 
-        /* --- ESTILOS DA NOVA SEÇÃO --- */
         .cta-banner {
-            background: #FDF0DD; /* Cor de fundo da imagem */
+            background: #FDF0DD;
             text-align: center;
             position: relative;
             overflow: hidden;
             padding: 80px 20px;
-            /* Remove o max-width para as imagens de fundo funcionarem */
             max-width: none; 
             width: 100vw;
             margin-left: calc(50% - 50vw);
@@ -170,7 +221,7 @@
         .cta-banner p {
             font-family: 'Roboto', sans-serif;
             font-size: 1.25rem;
-            color: #6B4F3B; /* Cor do texto da imagem */
+            color: #6B4F3B;
             max-width: 500px;
             margin: 15px auto 30px auto;
         }
@@ -205,9 +256,7 @@
             width: 600px;
             z-index: 1;
         }
-        /* --- FIM DOS ESTILOS DA NOVA SEÇÃO --- */
 
-        /* RODAPÉ CORRIGIDO */
         footer {
             text-align: center;
             padding: 28px 20px;
@@ -278,35 +327,24 @@
             .carousel-container { max-width: 98vw; }
             .carousel-img { max-width: 98vw; height: 32vw; min-height: 160px; }
         }
-        /* RESPONSIVIDADE DA NOVA SEÇÃO */
         @media (max-width: 900px) {
-            /* Oculta imagens de fundo no mobile */
-            .cta-img-left, .cta-img-right {
-                display: none;
-            }
+            .cta-img-left, .cta-img-right { display: none; }
             .cta-banner {
                 padding: 60px 20px;
-                width: 100%; /* Volta ao normal */
+                width: 100%;
                 margin-left: 0;
             }
-            .cta-banner h1 {
-                font-size: 2.5rem;
-            }
-            .cta-banner p {
-                font-size: 1.1rem;
-            }
-            .cta-button {
-                font-size: 2rem;
-                padding: 12px 30px;
-            }
+            .cta-banner h1 { font-size: 2.5rem; }
+            .cta-banner p { font-size: 1.1rem; }
+            .cta-button { font-size: 2rem; padding: 12px 30px; }
         }
         @media (max-width: 700px) {
             .carousel-img { height: 140px; }
             .carousel-container { max-width: 98vw; }
         }
 
-        /* Perfil Modal (Estilos Mantidos) */
-        #profile-modal {
+        /* Profile Modal Styles */
+        .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -315,7 +353,7 @@
             justify-content: center;
             align-items: center;
         }
-        #profile-card {
+        .modal-content {
             background: #fff;
             padding: 32px 28px;
             border-radius: 16px;
@@ -328,20 +366,28 @@
             flex-direction: column;
             align-items: center;
         }
-        #profile-card h2 {
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #b84a1b;
+            cursor: pointer;
+        }
+        .modal h2 {
             color: #b84a1b;
             margin-bottom: 18px;
         }
-        #profile-card input[type="text"],
-        #profile-card input[type="email"],
-        #profile-card input[type="password"] {
+        .modal input {
             width: 90%;
             padding: 10px;
             margin-bottom: 12px;
             border-radius: 8px;
             border: 1px solid #ffd6b0;
         }
-        #profile-card label {
+        .modal label {
             font-weight: bold;
             color: #b84a1b;
             margin-bottom: 4px;
@@ -349,7 +395,27 @@
             text-align: left;
             width: 90%;
         }
-        #profile-avatar-edit {
+        .password-container {
+            width: 90%;
+            position: relative;
+            margin-bottom: 12px;
+        }
+        .password-container input {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #b84a1b;
+            padding: 0;
+        }
+        .avatar-preview {
             width: 70px;
             height: 70px;
             border-radius: 50%;
@@ -358,9 +424,8 @@
             background: #ffe1cc;
             margin-bottom: 10px;
             cursor: pointer;
-            box-shadow: 0 2px 8px #0002;
         }
-        #profile-card .profile-avatar-upload {
+        .avatar-upload {
             margin-bottom: 12px;
             color: #b84a1b;
             font-size: 0.98rem;
@@ -369,14 +434,14 @@
             background: none;
             border: none;
         }
-        #profile-card .profile-actions {
+        .profile-actions {
             margin-top: 18px;
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        #profile-card .profile-actions button {
+        .modal-button {
             background: linear-gradient(to right,#b84a1b,#ff914d);
             color: #fff;
             font-weight: bold;
@@ -388,7 +453,7 @@
             box-shadow: 0 2px 8px #0002;
             margin: 0 8px;
         }
-        #profile-card .profile-actions .logout-btn {
+        .logout-btn {
             background: #fff3e0;
             color: #b84a1b;
             border: 1px solid #ffd6b0;
@@ -400,25 +465,19 @@
             margin-left: auto;
             transition: background 0.2s;
         }
-        #profile-card .profile-actions .logout-btn:hover {
+        .logout-btn:hover {
             background: #ffe1cc;
             color: #ff5a1f;
         }
-        #close-profile {
-            position: absolute;
-            top: 12px;
-            right: 16px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #b84a1b;
-            cursor: pointer;
-        }
-        #profile-error {
+        .error-message {
             color: #ff5a1f;
             font-size: 0.98rem;
             margin-bottom: 10px;
             display: none;
+        }
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -458,7 +517,7 @@
         <h2>Cardápio</h2>
         <div class="cardapio-cards-grid">
             <a class="cardapio-card" href="cardapio_Combos.html">
-                <img src="image 1.png" alt="Combos">
+                <img src="imagens usadas/image 1.png" alt="Combos">
                 <span>Combos</span>
             </a>
             <a class="cardapio-card" href="cardapio_Fritos.html">
@@ -502,39 +561,38 @@
         </p>
     </footer>
 
-    <div id="profile-modal">
-        <div id="profile-card">
-            <button id="close-profile">&times;</button>
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-profile">&times;</button>
             <h2>Meu Perfil</h2>
-            <img src="imgs/default-avatar.png" alt="Foto de perfil" id="profile-avatar-edit">
+            <img src="imgs/default-avatar.png" alt="Foto de perfil" id="profile-avatar-edit" class="avatar-preview">
             <input type="file" id="profile-avatar-input" accept="image/*" style="display:none;">
-            <button class="profile-avatar-upload" id="profile-avatar-upload">Alterar foto</button>
-            <label for="profile-nome">Nome completo</label>
-            <input type="text" id="profile-nome" value="">
-            <label for="profile-user">Usuário</label>
-            <input type="text" id="profile-user" value="">
+            <button class="avatar-upload" id="profile-avatar-upload">Alterar foto</button>
+            <label for="profile-name">Nome completo</label>
+            <input type="text" id="profile-name" value="">
             <label for="profile-email">E-mail</label>
-            <input type="email" id="profile-email" value="">
-            <label for="profile-pass">Senha</label>
-            <div style="width:90%; position:relative; margin-bottom:12px;">
-                <input type="password" id="profile-pass" value="" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ffd6b0;">
-                <button type="button" id="toggle-profile-pass" style="position:absolute; right:8px; top:8px; background:none; border:none; cursor:pointer; font-size:1.3rem; color:#b84a1b; padding:0;">
-                    <span style="pointer-events:none;">
-                        <i class="fa-regular fa-eye"></i>
-                    </span>
+            <input type="email" id="profile-email" value="" readonly style="background:#f5f5f5;">
+            <label for="profile-password">Nova Senha (deixe em branco para manter atual)</label>
+            <div class="password-container">
+                <input type="password" id="profile-password" placeholder="Nova senha">
+                <button class="toggle-password" id="toggle-profile-password">
+                    <i class="fa-regular fa-eye"></i>
                 </button>
             </div>
-            <div id="profile-error"></div>
+            <div class="error-message" id="profile-error"></div>
             <div class="profile-actions">
-                <button id="save-profile">Salvar</button>
+                <button class="modal-button" id="save-profile">Salvar</button>
                 <button class="logout-btn" id="logout-btn">Sair</button>
             </div>
         </div>
     </div>
+
     <script>
         // Carousel JS
         let currentSlide = 0;
         let carouselInterval = null;
+
         function showSlide(n) {
             const slides = document.querySelectorAll('.carousel-img');
             const dots = document.querySelectorAll('.dot');
@@ -548,18 +606,216 @@
                 dot.classList.toggle('active', i === currentSlide);
             });
         }
+
         function moveCarousel(dir) {
             showSlide(currentSlide + dir);
             resetCarouselInterval();
         }
+
         function nextSlideAuto() {
             showSlide(currentSlide + 1);
         }
+
         function resetCarouselInterval() {
             if (carouselInterval) clearInterval(carouselInterval);
             carouselInterval = setInterval(nextSlideAuto, 10000);
         }
+
+        // Firebase Functions
+        async function updateUserProfile(user, name, newPassword, avatarFile) {
+            try {
+                const { updateProfile, updateDoc, doc, ref, uploadBytes, getDownloadURL } = window.firebaseFunctions;
+                const db = window.firebaseDb;
+                const storage = window.firebaseStorage;
+
+                let updates = {};
+                let avatarUrl = user.photoURL;
+
+                // Upload new avatar if provided
+                if (avatarFile) {
+                    const avatarRef = ref(storage, `avatars/${user.uid}`);
+                    await uploadBytes(avatarRef, avatarFile);
+                    avatarUrl = await getDownloadURL(avatarRef);
+                    updates.photoURL = avatarUrl;
+                }
+
+                // Update display name if changed
+                if (name && name !== user.displayName) {
+                    updates.displayName = name;
+                }
+
+                // Update profile in Firebase Auth
+                if (Object.keys(updates).length > 0) {
+                    await updateProfile(user, updates);
+                }
+
+                // Update user data in Firestore
+                const userDocRef = doc(db, "users", user.uid);
+                await updateDoc(userDocRef, {
+                    name: name || user.displayName,
+                    avatar: avatarUrl,
+                    updatedAt: new Date()
+                });
+
+                return { success: true, avatarUrl };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function logoutUser() {
+            try {
+                const { signOut } = window.firebaseFunctions;
+                const auth = window.firebaseAuth;
+                await signOut(auth);
+                window.location.href = 'SalgaderiaMestreLogOff.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+            }
+        }
+
+        async function loadUserData(user) {
+            try {
+                const { doc, getDoc } = window.firebaseFunctions;
+                const db = window.firebaseDb;
+
+                // Get additional user data from Firestore
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                const userData = userDoc.exists() ? userDoc.data() : {};
+
+                // Update UI with user data
+                document.getElementById('profile-name').value = user.displayName || userData.name || '';
+                document.getElementById('profile-email').value = user.email;
+                
+                const avatarUrl = user.photoURL || userData.avatar || 'imgs/default-avatar.png';
+                document.getElementById('header-avatar').src = avatarUrl;
+                document.getElementById('profile-avatar-edit').src = avatarUrl;
+                document.getElementById('header-avatar').alt = user.displayName || 'Perfil';
+
+            } catch (error) {
+                console.error('Erro ao carregar dados do usuário:', error);
+            }
+        }
+
+        // Modal Management
+        const profileBtn = document.getElementById('profile-btn');
+        const profileModal = document.getElementById('profile-modal');
+        const closeProfile = document.getElementById('close-profile');
+        const logoutBtn = document.getElementById('logout-btn');
+        const saveProfile = document.getElementById('save-profile');
+
+        function showModal(modal) {
+            modal.style.display = 'flex';
+        }
+
+        function hideModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        profileBtn.onclick = () => showModal(profileModal);
+        closeProfile.onclick = () => hideModal(profileModal);
+        profileModal.onclick = (e) => { if (e.target === profileModal) hideModal(profileModal); };
+
+        // Password Toggle
+        document.getElementById('toggle-profile-password').onclick = function() {
+            const passwordInput = document.getElementById('profile-password');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        };
+
+        // Avatar Upload
+        document.getElementById('profile-avatar-upload').onclick = function() {
+            document.getElementById('profile-avatar-input').click();
+        };
+        
+        document.getElementById('profile-avatar-edit').onclick = function() {
+            document.getElementById('profile-avatar-input').click();
+        };
+
+        document.getElementById('profile-avatar-input').onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    document.getElementById('profile-avatar-edit').src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Save Profile
+        saveProfile.onclick = async function() {
+            const name = document.getElementById('profile-name').value.trim();
+            const newPassword = document.getElementById('profile-password').value;
+            const avatarFile = document.getElementById('profile-avatar-input').files[0];
+            const errorElement = document.getElementById('profile-error');
+
+            if (!name) {
+                errorElement.textContent = 'O nome é obrigatório!';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            if (newPassword && newPassword.length < 6) {
+                errorElement.textContent = 'A senha deve ter pelo menos 6 caracteres!';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Show loading
+            saveProfile.textContent = 'Salvando...';
+            saveProfile.classList.add('loading');
+
+            const auth = window.firebaseAuth;
+            const user = auth.currentUser;
+
+            if (!user) {
+                errorElement.textContent = 'Usuário não autenticado!';
+                errorElement.style.display = 'block';
+                saveProfile.textContent = 'Salvar';
+                saveProfile.classList.remove('loading');
+                return;
+            }
+
+            const result = await updateUserProfile(user, name, newPassword, avatarFile);
+            
+            saveProfile.textContent = 'Salvar';
+            saveProfile.classList.remove('loading');
+
+            if (result.success) {
+                errorElement.textContent = 'Dados salvos com sucesso!';
+                errorElement.style.color = '#28a745';
+                errorElement.style.display = 'block';
+                
+                // Update header avatar
+                if (result.avatarUrl) {
+                    document.getElementById('header-avatar').src = result.avatarUrl;
+                }
+                document.getElementById('header-avatar').alt = name;
+
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                    hideModal(profileModal);
+                }, 1500);
+            } else {
+                errorElement.textContent = result.error;
+                errorElement.style.color = '#ff5a1f';
+                errorElement.style.display = 'block';
+            }
+        };
+
+        // Logout
+        logoutBtn.onclick = logoutUser;
+
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize carousel
             showSlide(0);
             carouselInterval = setInterval(nextSlideAuto, 10000);
             document.querySelectorAll('.dot').forEach((dot, idx) => {
@@ -569,99 +825,19 @@
                 };
             });
 
-            // Perfil: carrega dados da URL se existirem
-            const params = new URLSearchParams(window.location.search);
-            const nome = params.get('nome') || 'Cliente';
-            const user = params.get('user') || 'cliente';
-            const email = params.get('email') || 'cliente@email.com';
-            const pass = params.get('pass') || '********';
-            const avatar = params.get('avatar') || 'imgs/default-avatar.png';
-
-            document.getElementById('profile-nome').value = nome;
-            document.getElementById('profile-user').value = user;
-            document.getElementById('profile-email').value = email;
-            document.getElementById('profile-pass').value = pass;
-
-            // Mostra nome no avatar alt
-            document.getElementById('header-avatar').alt = nome;
-            document.getElementById('header-avatar').src = avatar;
-            document.getElementById('profile-avatar-edit').src = avatar;
-
-            // Modal de perfil
-            const profileBtn = document.getElementById('profile-btn');
-            const profileModal = document.getElementById('profile-modal');
-            const closeProfile = document.getElementById('close-profile');
-            const logoutBtn = document.getElementById('logout-btn');
-            const saveProfile = document.getElementById('save-profile');
-            const profileError = document.getElementById('profile-error');
-            const avatarEdit = document.getElementById('profile-avatar-edit');
-            const avatarUploadBtn = document.getElementById('profile-avatar-upload');
-            const avatarInput = document.getElementById('profile-avatar-input');
-            const headerAvatar = document.getElementById('header-avatar');
-
-            profileBtn.onclick = function() {
-                profileModal.style.display = 'flex';
-                profileError.style.display = 'none';
-            };
-            closeProfile.onclick = function() {
-                profileModal.style.display = 'none';
-            };
-            profileModal.onclick = function(e) {
-                if (e.target === profileModal) profileModal.style.display = 'none';
-            };
-            logoutBtn.onclick = function() {
-                // Redireciona para a página de logoff (que eu corrigi antes)
-                window.location.href = "SalgaderiaMestreLogOff.html"; 
-            };
-            saveProfile.onclick = function() {
-                // Simples validação
-                const nomeVal = document.getElementById('profile-nome').value.trim();
-                const userVal = document.getElementById('profile-user').value.trim();
-                const emailVal = document.getElementById('profile-email').value.trim();
-                const passVal = document.getElementById('profile-pass').value.trim();
-                if (!nomeVal || !userVal || !emailVal || !passVal) {
-                    profileError.textContent = "Preencha todos os campos!";
-                    profileError.style.display = "block";
-                    return;
-                }
-                profileError.textContent = "Dados salvos!";
-                profileError.style.display = "block";
-                setTimeout(() => { profileError.style.display = "none"; }, 1500);
-                // Atualiza avatar alt
-                headerAvatar.alt = nomeVal;
-            };
-            // Avatar upload
-            avatarUploadBtn.onclick = function() {
-                avatarInput.click();
-            };
-            avatarEdit.onclick = function() {
-                avatarInput.click();
-            };
-            avatarInput.onchange = function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        avatarEdit.src = ev.target.result;
-                        headerAvatar.src = ev.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-            // Mostrar/ocultar senha perfil
-            document.getElementById('toggle-profile-pass').onclick = function() {
-                const input = document.getElementById('profile-pass');
-                const icon = this.querySelector('i');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
+            // Check authentication state
+            const auth = window.firebaseAuth;
+            const { onAuthStateChanged } = window.firebaseFunctions;
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in
+                    loadUserData(user);
                 } else {
-                    input.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
+                    // User is signed out, redirect to login
+                    window.location.href = 'salgaderiaMestreLogOff.html';
                 }
-            };
+            });
         });
     </script>
 </body>

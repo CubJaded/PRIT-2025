@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho - Salgaderia Mestre</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --color-primary: #d96d24;
+            --color-secondary: #b95c21;
+            --color-text-dark: #333;
+            --color-text-light: #555;
+            --color-border: #e9e9e9;
+            --color-bg-page: #ffffff;
+            --color-bg-light: #f9f9f9;
+            --color-success: #28a745;
+            --color-danger: #dc3545;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        .top-bar {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+
+        .user-info .user-avatar { 
+            font-size: 36px; 
+            opacity: 0.9; 
+        }
+
+        .user-info div { 
+            display: flex; 
+            flex-direction: column; 
+            font-size: 14px; 
+        }
+
+        .user-info .user-name { 
+            font-weight: 600; 
+        }
+
+        .user-info .user-type { 
+            font-size: 12px; 
+            opacity: 0.9; 
+        }
+
+        .header-nav { 
+            display: flex; 
+            gap: 24px; 
+        }
+
+        .header-nav a { 
+            color: white; 
+            text-decoration: none; 
+            font-size: 24px; 
+            transition: transform 0.2s; 
+        }
+
+        .header-nav a:hover { 
+            transform: scale(1.1); 
+        }
+
+        /* --- Container Principal --- */
+        .page-container {
+            max-width: 1200px;
+            width: 95%;
+            margin: 24px auto;
+            padding: 24px;
+            flex-grow: 1;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--color-primary);
+        }
+
+        /* --- Layout do Carrinho --- */
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        /* --- Itens do Carrinho --- */
+        .cart-items {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .item-price {
+            font-size: 16px;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .quantity-btn {
+            background: var(--color-bg-light);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 4px;
+        }
+
+        .remove-btn {
+            background: var(--color-danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        /* --- Resumo do Pedido --- */
+        .order-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .summary-total {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--color-border);
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 16px;
+        }
+
+        .checkout-btn:hover {
+            background: var(--color-secondary);
+        }
+
+        .checkout-btn:disabled {
+            background: var(--color-text-light);
+            cursor: not-allowed;
+        }
+
+        /* --- Carrinho Vazio --- */
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-light);
+        }
+
+        .empty-cart i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* --- Modal de Endereço --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .address-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .address-option {
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .address-option:hover {
+            border-color: var(--color-primary);
+        }
+
+        .address-option.selected {
+            border-color: var(--color-primary);
+            background: rgba(217, 109, 36, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-secondary);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-light);
+            color: var(--color-text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-border);
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .item-details {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="user-info">
+            <i class="fa-solid fa-user-circle user-avatar"></i>
+            <div>
+                <span class="user-name">Bruno</span>
+                <span class="user-type">cliente</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <a href="cardapio.html"><i class="fa-solid fa-utensils"></i></a>
+            <a href="Carrinho.html"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="#"><i class="fa-solid fa-book-open"></i></a>
+            <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+        </nav>
+    </header>
+
+    <main class="page-container">
+        <h1 class="page-title">Meu Carrinho</h1>
+        
+        <div class="cart-layout">
+            <section class="cart-items" id="cart-items">
+                <div class="empty-cart">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <h3>Seu carrinho está vazio</h3>
+                    <p>Adicione produtos incríveis do nosso cardápio!</p>
+                    <a href="cardapio.html" style="color: var(--color-primary); text-decoration: none; font-weight: 600; margin-top: 16px; display: inline-block;">
+                        Ver Cardápio
+                    </a>
+                </div>
+            </section>
+
+            <aside class="order-summary">
+                <h3 class="summary-title">Resumo do Pedido</h3>
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">R$ 0,00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Taxa de entrega:</span>
+                    <span id="delivery-fee">R$ 0,00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Descontos:</span>
+                    <span id="discount">- R$ 0,00</span>
+                </div>
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span id="total">R$ 0,00</span>
+                </div>
+                <button class="checkout-btn" id="checkout-btn" disabled>
+                    Continuar para Pagamento
+                </button>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Modal de Endereço -->
+    <div class="modal-overlay" id="address-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Escolha o endereço de entrega</h3>
+            
+            <div class="address-options" id="address-options">
+                <div class="address-option" data-address="casa">
+                    <strong>Casa</strong>
+                    <p>R. Delfim, 156 - Jardim Paraiso, Barueri - SP</p>
+                </div>
+                <div class="address-option" data-address="trabalho">
+                    <strong>Trabalho</strong>
+                    <p>Av. Paulista, 1000 - Bela Vista, São Paulo - SP</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="delivery-option">Forma de Entrega</label>
+                <select id="delivery-option">
+                    <option value="delivery">Entrega</option>
+                    <option value="pickup">Retirar no Local</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancel-address">Cancelar</button>
+                <button class="btn btn-primary" id="confirm-address">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let cart = [];
+        let selectedAddress = null;
+        let deliveryOption = 'delivery';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCart();
+            setupEventListeners();
+        });
+
+        function loadCart() {
+            // Recuperar carrinho do localStorage
+            const savedCart = localStorage.getItem('cart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                renderCart();
+                updateSummary();
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function renderCart() {
+            const cartItems = document.getElementById('cart-items');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <h3>Seu carrinho está vazio</h3>
+                        <p>Adicione produtos incríveis do nosso cardápio!</p>
+                        <a href="cardapio.html" style="color: var(--color-primary); text-decoration: none; font-weight: 600; margin-top: 16px; display: inline-block;">
+                            Ver Cardápio
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.imagemUrl || 'https://via.placeholder.com/80'}" alt="${item.nome}" class="item-image">
+                    <div class="item-details">
+                        <div class="item-name">${item.nome}</div>
+                        <div class="item-price">R$ ${item.preco.toFixed(2).replace('.', ',')}</div>
+                        <div class="item-quantity">
+                            <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" 
+                                   onchange="updateQuantityInput('${item.id}', this.value)">
+                            <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                        </div>
+                    </div>
+                    <button class="remove-btn" onclick="removeFromCart('${item.id}')">
+                        <i class="fa-solid fa-trash"></i> Remover
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity < 1) item.quantity = 1;
+                saveCart();
+                renderCart();
+                updateSummary();
+            }
+        }
+
+        function updateQuantityInput(productId, value) {
+            const quantity = parseInt(value);
+            if (quantity > 0) {
+                const item = cart.find(item => item.id === productId);
+                if (item) {
+                    item.quantity = quantity;
+                    saveCart();
+                    renderCart();
+                    updateSummary();
+                }
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveCart();
+            renderCart();
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.preco * item.quantity), 0);
+            const deliveryFee = deliveryOption === 'delivery' ? 5.00 : 0.00;
+            const total = subtotal + deliveryFee;
+
+            document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('delivery-fee').textContent = `R$ ${deliveryFee.toFixed(2).replace('.', ',')}`;
+            document.getElementById('total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+
+            // Habilitar/desabilitar botão de checkout
+            document.getElementById('checkout-btn').disabled = cart.length === 0;
+        }
+
+        function setupEventListeners() {
+            // Botão de checkout
+            document.getElementById('checkout-btn').addEventListener('click', () => {
+                document.getElementById('address-modal').classList.add('active');
+            });
+
+            // Seleção de endereço
+            document.querySelectorAll('.address-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.address-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                    selectedAddress = option.dataset.address;
+                });
+            });
+
+            // Opção de entrega
+            document.getElementById('delivery-option').addEventListener('change', (e) => {
+                deliveryOption = e.target.value;
+                updateSummary();
+            });
+
+            // Confirmar endereço
+            document.getElementById('confirm-address').addEventListener('click', () => {
+                if (!selectedAddress) {
+                    alert('Por favor, selecione um endereço de entrega.');
+                    return;
+                }
+
+                // Salvar informações de entrega
+                const deliveryInfo = {
+                    address: selectedAddress,
+                    option: deliveryOption,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('deliveryInfo', JSON.stringify(deliveryInfo));
+
+                // Redirecionar para pagamento
+                window.location.href = 'pagamento.html';
+            });
+
+            // Cancelar seleção de endereço
+            document.getElementById('cancel-address').addEventListener('click', () => {
+                document.getElementById('address-modal').classList.remove('active');
+            });
+        }
+
+        // Funções globais para o HTML
+        window.updateQuantity = updateQuantity;
+        window.updateQuantityInput = updateQuantityInput;
+        window.removeFromCart = removeFromCart;
+    </script>
+</body>
+</html>

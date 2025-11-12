@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Firebase v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #d96d24;
+            --secondary-color: #ff914d;
+            --text-color: #000000;
+            --light-bg: #F4EAE3;
+            --gold-star: #FFD700;
+            --success-color: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+        }
+
+        .header-left,
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left span:first-of-type {
+            font-weight: 700;
+        }
+
+        .header-right a {
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .header-right i {
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        main {
+            text-align: center;
+            padding: 30px 20px;
+            flex: 1;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: auto;
+            max-width: 1200px;
+        }
+
+        .product-info-card,
+        .description-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 450px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-info-card {
+            flex: 1;
+            max-width: 450px;
+            text-align: left;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 250px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .product-details {
+            width: 100%;
+        }
+
+        .product-details p {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .product-details p strong {
+            font-weight: 700;
+            color: white;
+        }
+
+        .price {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .unit {
+            font-size: 0.5em;
+            font-weight: 400;
+            vertical-align: top;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .rating-value {
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .stars .fa-star {
+            color: var(--gold-star);
+        }
+
+        .rate-product {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .rate-product .fa-star {
+            font-size: 1.5em;
+            color: white;
+            cursor: pointer;
+        }
+
+        .rate-product .fa-star.active,
+        .rate-product .fa-star:hover {
+            color: var(--gold-star);
+        }
+
+        .add-to-cart-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #8c5b3b;
+        }
+
+        .add-to-cart-btn.success {
+            background-color: var(--success-color);
+        }
+
+        .add-to-cart-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .description-card {
+            flex: 1;
+            max-width: 450px;
+            text-align: center;
+            padding: 50px;
+            background-color: white;
+        }
+
+        .description-card h2 {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .description-text {
+            font-size: 1.2em;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .divider {
+            border-top: 1px solid var(--primary-color);
+            width: 80%;
+            margin: 0 auto 30px;
+        }
+
+        .nutrition-list {
+            list-style-type: none;
+            text-align: left;
+            padding-left: 0;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .nutrition-list li {
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nutrition-list li:last-child {
+            border-bottom: none;
+        }
+
+        .nutrition-list li::before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 100px 20px;
+            color: #d9534f;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                flex-direction: column;
+            }
+            .product-info-card,
+            .description-card {
+                max-width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                transform: translateY(-100px);
+            }
+            
+            .toast.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <i class="fa-solid fa-user"></i>
+            <span>Bruno</span>
+            <span>cliente</span>
+        </div>
+        <div class="header-right">
+            <a href="cardapio.html"><i class="fa-solid fa-arrow-left"></i></a>
+            <a href="Carrinho.html" id="cart-link"><i class="fa-solid fa-cart-shopping"></i></a>
+            <i class="fa-solid fa-bookmark"></i>
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Carregando produto...</p>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-check-circle"></i>
+        <span id="toast-message">Produto adicionado ao carrinho!</span>
+    </div>
+
+    <footer>
+        <p>© MESTRE DOS SALGADOS. TODOS OS DIREITOS RESERVADOS</p>
+    </footer>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentProduct = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            console.log("Buscando produto ID:", productId);
+            
+            if (!productId) {
+                showError("ID do produto não encontrado na URL");
+                return;
+            }
+
+            // Carregar produto do Firebase
+            loadProduct(productId);
+        });
+
+        async function loadProduct(productId) {
+            try {
+                console.log("Iniciando busca do produto...");
+                
+                // Usando a sintaxe correta do Firebase v8
+                const docRef = db.collection("produtos").doc(productId);
+                
+                // Obter o documento
+                docRef.get().then((doc) => {
+                    if (doc.exists) {
+                        currentProduct = {
+                            id: doc.id,
+                            ...doc.data()
+                        };
+                        
+                        console.log("Produto carregado:", currentProduct);
+                        renderProduct(currentProduct);
+                    } else {
+                        console.log("Produto não encontrado");
+                        showError("Produto não encontrado");
+                    }
+                }).catch((error) => {
+                    console.error("Erro ao buscar produto:", error);
+                    showError("Erro ao carregar produto: " + error.message);
+                });
+
+            } catch (error) {
+                console.error("Erro:", error);
+                showError("Erro ao carregar produto: " + error.message);
+            }
+        }
+
+        function showError(message) {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = `
+                <div class="error-container">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 64px; margin-bottom: 20px;"></i>
+                    <h2>Erro</h2>
+                    <p>${message}</p>
+                    <a href="cardapio.html" style="color: var(--primary-color); text-decoration: none; font-weight: bold; margin-top: 20px; display: inline-block;">
+                        ← Voltar ao Cardápio
+                    </a>
+                </div>
+            `;
+        }
+
+        function renderProduct(product) {
+            const mainContent = document.getElementById('main-content');
+            
+            const placeholderImage = `https://via.placeholder.com/300/EEEEEE/666666?text=${encodeURIComponent(product.nome?.substring(0, 15) || 'Produto')}`;
+            const imageSrc = product.imagemUrl || placeholderImage;
+
+            // Construir lista nutricional
+            let nutritionHTML = '';
+            const nutricao = product.nutricao || {};
+            
+            if (nutricao.calorias) nutritionHTML += `<li><strong>Calorias:</strong> ${nutricao.calorias}</li>`;
+            if (nutricao.carboidratos) nutritionHTML += `<li><strong>Carboidratos:</strong> ${nutricao.carboidratos}</li>`;
+            if (nutricao.proteinas) nutritionHTML += `<li><strong>Proteínas:</strong> ${nutricao.proteinas}</li>`;
+            if (nutricao.gorduras) nutritionHTML += `<li><strong>Gorduras:</strong> ${nutricao.gorduras}</li>`;
+            if (nutricao.sodio) nutritionHTML += `<li><strong>Sódio:</strong> ${nutricao.sodio}</li>`;
+            if (nutricao.fibras) nutritionHTML += `<li><strong>Fibras:</strong> ${nutricao.fibras}</li>`;
+            
+            if (!nutritionHTML) {
+                nutritionHTML = '<li>Informações nutricionais não disponíveis</li>';
+            }
+
+            mainContent.innerHTML = `
+                <h1>${product.categoria ? product.categoria.toUpperCase() : 'DETALHES DO PRODUTO'}</h1>
+                <div class="content-container">
+                    <div class="product-info-card">
+                        <img src="${imageSrc}" alt="${product.nome}" class="product-image" onerror="this.src='${placeholderImage}'">
+                        <div class="product-details">
+                            <p><strong>Produto:</strong></p>
+                            <p id="product-name-and-units">${product.nome || 'Nome não disponível'} - ${product.unidadesTexto || ''}</p>
+                            <p><strong>Preço:</strong></p>
+                            <p class="price">R$ ${product.preco ? Number(product.preco).toFixed(2).replace('.', ',') : '0,00'}</p>
+                            
+                            <p><strong>Avaliação:</strong></p>
+                            <div class="rating">
+                                <span class="rating-value">5.0</span>
+                                <span class="stars">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+                            </div>
+                            
+                            <p><strong>Avaliar:</strong></p>
+                            <div class="rate-product" id="user-rating-stars">
+                                <i class="fa-regular fa-star" data-value="1"></i>
+                                <i class="fa-regular fa-star" data-value="2"></i>
+                                <i class="fa-regular fa-star" data-value="3"></i>
+                                <i class="fa-regular fa-star" data-value="4"></i>
+                                <i class="fa-regular fa-star" data-value="5"></i>
+                            </div>
+                            <p id="rating-message" style="color: #b4f749; font-weight: bold; margin-top: 8px;"></p>
+                            <button class="add-to-cart-btn" id="add-to-cart-btn" onclick="addToCart()">
+                                ADICIONAR AO CARRINHO
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="description-card">
+                        <h2>DESCRIÇÃO</h2>
+                        <p class="description-text">${product.descricao || 'Descrição não disponível para este produto.'}</p>
+                        
+                        <div class="divider"></div>
+                        
+                        <div>
+                            <h2>INFORMAÇÕES NUTRICIONAIS</h2>
+                            <ul class="nutrition-list">
+                                ${nutritionHTML}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Configurar sistema de avaliação
+            setupRatingSystem();
+        }
+
+        function setupRatingSystem() {
+            const userRatingStars = document.getElementById('user-rating-stars');
+            if (userRatingStars) {
+                const stars = userRatingStars.querySelectorAll('.fa-star');
+                const ratingMessage = document.getElementById('rating-message');
+
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        const value = this.getAttribute('data-value');
+                        
+                        // Reset stars
+                        stars.forEach(s => {
+                            s.classList.remove('active', 'fa-solid');
+                            s.classList.add('fa-regular');
+                        });
+
+                        // Fill stars up to clicked one
+                        for (let i = 0; i < value; i++) {
+                            stars[i].classList.add('active', 'fa-solid');
+                            stars[i].classList.remove('fa-regular');
+                        }
+                        
+                        if (ratingMessage) {
+                            ratingMessage.textContent = `Você avaliou com ${value} estrela${value > 1 ? 's' : ''}.`;
+                        }
+                    });
+                });
+            }
+        }
+
+        function addToCart() {
+            if (!currentProduct) {
+                showToast('Erro: Produto não carregado', 'error');
+                return;
+            }
+
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            
+            // Desabilitar botão temporariamente para evitar múltiplos cliques
+            addToCartBtn.disabled = true;
+            addToCartBtn.textContent = 'ADICIONANDO...';
+
+            try {
+                // Recuperar carrinho atual do localStorage
+                let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                
+                // Verificar se o produto já está no carrinho
+                const existingItemIndex = cart.findIndex(item => item.id === currentProduct.id);
+                
+                if (existingItemIndex !== -1) {
+                    // Se já existe, incrementar a quantidade
+                    cart[existingItemIndex].quantity += 1;
+                    showToast(`${currentProduct.nome} - Quantidade atualizada!`, 'success');
+                } else {
+                    // Se não existe, adicionar novo item
+                    const cartItem = {
+                        id: currentProduct.id,
+                        nome: currentProduct.nome,
+                        preco: currentProduct.preco,
+                        imagemUrl: currentProduct.imagemUrl,
+                        unidadesTexto: currentProduct.unidadesTexto,
+                        quantity: 1
+                    };
+                    cart.push(cartItem);
+                    showToast(`${currentProduct.nome} adicionado ao carrinho!`, 'success');
+                }
+                
+                // Salvar carrinho atualizado no localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+                
+                // Atualizar contador do carrinho no header
+                updateCartCounter();
+                
+                // Feedback visual no botão
+                addToCartBtn.classList.add('success');
+                addToCartBtn.textContent = '✓ ADICIONADO!';
+                
+                // Restaurar botão após 2 segundos
+                setTimeout(() => {
+                    addToCartBtn.disabled = false;
+                    addToCartBtn.classList.remove('success');
+                    addToCartBtn.textContent = 'ADICIONAR AO CARRINHO';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erro ao adicionar ao carrinho:', error);
+                showToast('Erro ao adicionar produto ao carrinho', 'error');
+                
+                // Restaurar botão em caso de erro
+                addToCartBtn.disabled = false;
+                addToCartBtn.textContent = 'ADICIONAR AO CARRINHO';
+            }
+        }
+
+        function updateCartCounter() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            
+            // Atualizar o ícone do carrinho no header se existir um contador
+            const cartIcon = document.querySelector('#cart-link');
+            if (cartIcon) {
+                // Remover contador anterior se existir
+                const existingCounter = cartIcon.querySelector('.cart-counter');
+                if (existingCounter) {
+                    existingCounter.remove();
+                }
+                
+                // Adicionar novo contador se houver itens
+                if (totalItems > 0) {
+                    const counter = document.createElement('span');
+                    counter.className = 'cart-counter';
+                    counter.textContent = totalItems;
+                    counter.style.cssText = `
+                        position: absolute;
+                        top: -8px;
+                        right: -8px;
+                        background: var(--success-color);
+                        color: white;
+                        border-radius: 50%;
+                        width: 20px;
+                        height: 20px;
+                        font-size: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                    `;
+                    cartIcon.style.position = 'relative';
+                    cartIcon.appendChild(counter);
+                }
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            // Configurar estilo baseado no tipo
+            if (type === 'error') {
+                toast.style.backgroundColor = '#dc3545';
+                toast.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i><span id="toast-message">${message}</span>`;
+            } else {
+                toast.style.backgroundColor = 'var(--success-color)';
+                toast.innerHTML = `<i class="fa-solid fa-check-circle"></i><span id="toast-message">${message}</span>`;
+            }
+            
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            // Ocultar toast após 3 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Inicializar contador do carrinho quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCounter();
+        });
+    </script>
+</body>
+</html>

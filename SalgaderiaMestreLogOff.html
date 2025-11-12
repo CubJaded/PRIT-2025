@@ -7,6 +7,64 @@
     <link rel="icon" href="imgs/mestreSalgado.jpg" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Roboto&family=Oswald:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            doc, 
+            setDoc,
+            getDoc 
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytes, 
+            getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseStorage = storage;
+        window.firebaseFunctions = {
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            updateProfile,
+            collection,
+            addDoc,
+            doc,
+            setDoc,
+            getDoc,
+            ref,
+            uploadBytes,
+            getDownloadURL
+        };
+    </script>
+
     <style>
         /* Reset */
         * {
@@ -24,7 +82,7 @@
             background-color: #fff8f0;
             color: #333;
             line-height: 1.6;
-            overflow-x: hidden; /* Previne scroll horizontal da nova seção */
+            overflow-x: hidden;
         }
 
         header {
@@ -151,14 +209,12 @@
             }
         }
 
-        /* --- ESTILOS DA NOVA SEÇÃO --- */
         .cta-banner {
-            background: #FDF0DD; /* Cor de fundo da imagem */
+            background: #FDF0DD;
             text-align: center;
             position: relative;
             overflow: hidden;
             padding: 80px 20px;
-            /* Remove o max-width para as imagens de fundo funcionarem */
             max-width: none; 
             width: 100vw;
             margin-left: calc(50% - 50vw);
@@ -180,7 +236,7 @@
         .cta-banner p {
             font-family: 'Roboto', sans-serif;
             font-size: 1.25rem;
-            color: #6B4F3B; /* Cor do texto da imagem */
+            color: #6B4F3B;
             max-width: 500px;
             margin: 15px auto 30px auto;
         }
@@ -216,24 +272,19 @@
             z-index: 1;
         }
 
-        /* --- FIM DOS ESTILOS DA NOVA SEÇÃO --- */
-
-
         footer {
             text-align: center;
-            padding: 28px 20px; /* Ajustado padding */
+            padding: 28px 20px;
             background: linear-gradient(to right, #b84a1b, #ff914d);
             color: #fff;
             font-size: 1.1rem;
             border-top: none;
             box-shadow: 0 -2px 8px #0001;
-            /* CSS do footer corrigido - removido width, margin, position, etc. */
         }
         footer p {
             margin: 0;
         }
 
-        /* ...existing styles... */
         .carousel-container {
             position: relative;
             max-width: 1000px;
@@ -301,15 +352,13 @@
                 min-height: 160px;
             }
         }
-        /* RESPONSIVIDADE DA NOVA SEÇÃO */
         @media (max-width: 900px) {
-            /* Oculta imagens de fundo no mobile */
             .cta-img-left, .cta-img-right {
                 display: none;
             }
             .cta-banner {
                 padding: 60px 20px;
-                width: 100%; /* Volta ao normal */
+                width: 100%;
                 margin-left: 0;
             }
             .cta-banner h1 {
@@ -330,6 +379,153 @@
             .carousel-container {
                 max-width: 98vw;
             }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 32px 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px #0006;
+            max-width: 400px;
+            width: 90vw;
+            position: relative;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #b84a1b;
+            cursor: pointer;
+        }
+        .modal h2 {
+            color: #b84a1b;
+            margin-bottom: 18px;
+        }
+        .modal input {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #ffd6b0;
+        }
+        .password-container {
+            width: 90%;
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .password-container input {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #b84a1b;
+            padding: 0;
+        }
+        .error-message {
+            color: #ff5a1f;
+            font-size: 0.98rem;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .modal-button {
+            background: linear-gradient(to right,#b84a1b,#ff914d);
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 32px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #0002;
+            margin-top: 8px;
+            width: 90%;
+        }
+        .modal-link {
+            background: none;
+            color: #b84a1b;
+            border: none;
+            font-size: 1rem;
+            margin-top: 14px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .avatar-preview {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #b84a1b;
+            background: #ffe1cc;
+            margin-bottom: 10px;
+        }
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .user-type-selector {
+            display: flex;
+            width: 90%;
+            margin-bottom: 15px;
+            border: 1px solid #ffd6b0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .user-type-btn {
+            flex: 1;
+            padding: 10px;
+            background: #fff3e0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .user-type-btn.active {
+            background: #b84a1b;
+            color: white;
+        }
+        .user-type-btn:first-child {
+            border-right: 1px solid #ffd6b0;
+        }
+        .avatar-upload-btn {
+            background: #fff3e0;
+            color: #b84a1b;
+            border: 1px solid #ffd6b0;
+            border-radius: 8px;
+            padding: 8px 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .avatar-upload-btn:hover {
+            background: #ffe1cc;
         }
     </style>
 </head>
@@ -373,7 +569,7 @@
         <h2>Cardápio</h2>
         <div class="cardapio-cards-grid">
             <a class="cardapio-card" href="cardapio_Combos.html">
-                <img src="image 1.png" alt="Combos">
+                <img src="imagens usadas/image 1.png" alt="Combos">
                 <span>Combos</span>
             </a>
             <a class="cardapio-card" href="cardapio_Fritos.html">
@@ -397,7 +593,9 @@
                 <span>Bebidas</span>
             </a>
         </div>
-    </section> <section class="section cta-banner" id="pedir">
+    </section>
+
+    <section class="section cta-banner" id="pedir">
         <img src="image 11.png" class="cta-img-left" alt="Doces">
         <img src="CoxiCoca.png" class="cta-img-right" alt="Coxinhas e Refrigerante">
         
@@ -415,46 +613,59 @@
         </p>
     </footer>
 
-    <div id="login-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:#fff; padding:32px 28px; border-radius:16px; box-shadow:0 4px 24px #0006; max-width:350px; width:90vw; position:relative; text-align:center; display:flex; flex-direction:column; align-items:center;">
-            <button id="close-login" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.5rem; color:#b84a1b; cursor:pointer;">&times;</button>
-            <h2 style="color:#b84a1b; margin-bottom:18px;">Entrar</h2>
-            <input type="text" id="login-user" placeholder="Usuário" style="width:90%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #ffd6b0;">
-            <div style="width:90%; position:relative; margin-bottom:18px;">
-                <input type="password" id="login-pass" placeholder="Senha" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ffd6b0;">
-                <button type="button" id="toggle-login-pass" style="position:absolute; right:8px; top:8px; background:none; border:none; cursor:pointer; font-size:1.3rem; color:#b84a1b; padding:0;">
-                    <span style="pointer-events:none;">
-                        <i class="fa-regular fa-eye"></i>
-                    </span>
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-login">&times;</button>
+            <h2>Entrar</h2>
+            
+            <div class="user-type-selector">
+                <button class="user-type-btn active" data-type="cliente">Cliente</button>
+                <button class="user-type-btn" data-type="funcionario">Funcionário</button>
+            </div>
+            
+            <input type="email" id="login-email" placeholder="E-mail">
+            <div class="password-container">
+                <input type="password" id="login-password" placeholder="Senha">
+                <button class="toggle-password" id="toggle-login-password">
+                    <i class="fa-regular fa-eye"></i>
                 </button>
             </div>
-            <div id="login-error" style="color:#ff5a1f; font-size:0.98rem; margin-bottom:10px; display:none;"></div>
-            <button id="login-confirm" style="background:linear-gradient(to right,#b84a1b,#ff914d); color:#fff;font-weight:bold; border:none;border-radius:8px; padding:10px 32px;font-size:1.1rem;cursor:pointer; box-shadow:0 2px 8px #0002; margin-top:8px;">Entrar</button>
-            <button id="open-register" style="background:none; color:#b84a1b; border:none; font-size:1rem; margin-top:14px; text-decoration:underline; cursor:pointer;">Cadastre-se</button>
+            <div class="error-message" id="login-error"></div>
+            <button class="modal-button" id="login-confirm">Entrar</button>
+            <button class="modal-link" id="open-register">Cadastre-se</button>
         </div>
     </div>
 
-    <div id="register-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
-        <div style="background:#fff; padding:32px 28px; border-radius:16px; box-shadow:0 4px 24px #0006; max-width:350px; width:90vw; position:relative; text-align:center; display:flex; flex-direction:column; align-items:center;">
-            <button id="close-register" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.5rem; color:#b84a1b; cursor:pointer;">&times;</button>
-            <h2 style="color:#b84a1b; margin-bottom:18px;">Cadastre-se</h2>
-            <img id="register-avatar-preview" src="imgs/default-avatar.png" alt="Foto de perfil" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #b84a1b;background:#ffe1cc;margin-bottom:10px;">
-            <input type="file" id="register-avatar" accept="image/*" style="margin-bottom:12px;">
-            <input type="text" id="register-user" placeholder="Usuário" style="width:90%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #ffd6b0;">
-            <div style="width:90%; position:relative; margin-bottom:12px;">
-                <input type="password" id="register-pass" placeholder="Senha" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ffd6b0;">
-                <button type="button" id="toggle-register-pass" style="position:absolute; right:8px; top:8px; background:none; border:none; cursor:pointer; font-size:1.3rem; color:#b84a1b; padding:0;">
-                    <span style="pointer-events:none;">
-                        <i class="fa-regular fa-eye"></i>
-                    </span>
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-register">&times;</button>
+            <h2>Cadastre-se</h2>
+            
+            <div class="user-type-selector">
+                <button class="user-type-btn active" data-type="cliente">Cliente</button>
+                <button class="user-type-btn" data-type="funcionario">Funcionário</button>
+            </div>
+            
+            <img id="register-avatar-preview" src="imgs/default-avatar.png" alt="Foto de perfil" class="avatar-preview">
+            <input type="file" id="register-avatar" accept="image/*" style="display:none;">
+            <button class="avatar-upload-btn" id="register-avatar-btn">Escolher foto</button>
+            
+            <input type="text" id="register-name" placeholder="Nome completo">
+            <input type="email" id="register-email" placeholder="E-mail">
+            <div class="password-container">
+                <input type="password" id="register-password" placeholder="Senha">
+                <button class="toggle-password" id="toggle-register-password">
+                    <i class="fa-regular fa-eye"></i>
                 </button>
             </div>
-            <input type="text" id="register-nome" placeholder="Nome completo" style="width:90%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #ffd6b0;">
-            <input type="email" id="register-email" placeholder="E-mail" style="width:90%;padding:10px;margin-bottom:18px;border-radius:8px;border:1px solid #ffd6b0;">
-            <div id="register-error" style="color:#ff5a1f; font-size:0.98rem; margin-bottom:10px; display:none;"></div>
-            <button id="register-confirm" style="background:linear-gradient(to right,#b84a1b,#ff914d); color:#fff;font-weight:bold; border:none;border-radius:8px; padding:10px 32px;font-size:1.1rem;cursor:pointer; box-shadow:0 2px 8px #0002; margin-top:8px;">Cadastrar</button>
+            <div class="error-message" id="register-error"></div>
+            <button class="modal-button" id="register-confirm">Cadastrar</button>
+            <button class="modal-link" id="open-login">Já tem conta? Entrar</button>
         </div>
     </div>
+
     <script>
         // Carousel JS
         let currentSlide = 0;
@@ -488,130 +699,86 @@
             carouselInterval = setInterval(nextSlideAuto, 10000);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            showSlide(0);
-            carouselInterval = setInterval(nextSlideAuto, 10000);
-            // Reinicia o timer ao clicar nos dots
-            document.querySelectorAll('.dot').forEach((dot, idx) => {
-                dot.onclick = () => {
-                    showSlide(idx);
-                    resetCarouselInterval();
-                };
-            });
-        });
+        // User Type Management
+        let currentUserType = 'cliente';
 
-        // Login modal logic
+        function setupUserTypeSelector() {
+            const userTypeBtns = document.querySelectorAll('.user-type-btn');
+            userTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    userTypeBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    // Update current user type
+                    currentUserType = this.dataset.type;
+                });
+            });
+        }
+
+        // Modal Management
         const entrarBtn = document.getElementById('entrar-btn');
         const loginModal = document.getElementById('login-modal');
-        const closeLogin = document.getElementById('close-login');
-        const loginConfirm = document.getElementById('login-confirm');
-        const loginError = document.getElementById('login-error');
-        const openRegister = document.getElementById('open-register');
-
         const registerModal = document.getElementById('register-modal');
+        const closeLogin = document.getElementById('close-login');
         const closeRegister = document.getElementById('close-register');
-        const registerConfirm = document.getElementById('register-confirm');
-        const registerError = document.getElementById('register-error');
+        const openRegister = document.getElementById('open-register');
+        const openLogin = document.getElementById('open-login');
 
-        entrarBtn.onclick = function(e) {
+        function showModal(modal) {
+            modal.style.display = 'flex';
+        }
+
+        function hideModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        entrarBtn.onclick = (e) => {
             e.preventDefault();
-            loginModal.style.display = 'flex';
-            loginError.style.display = 'none';
-            document.getElementById('login-user').value = '';
-            document.getElementById('login-pass').value = '';
-        };
-        closeLogin.onclick = function() {
-            loginModal.style.display = 'none';
-        };
-        loginModal.onclick = function(e) {
-            if (e.target === loginModal) loginModal.style.display = 'none';
+            showModal(loginModal);
         };
 
-        openRegister.onclick = function() {
-            loginModal.style.display = 'none';
-            registerModal.style.display = 'flex';
-            registerError.style.display = 'none';
-            document.getElementById('register-user').value = '';
-            document.getElementById('register-pass').value = '';
-            document.getElementById('register-nome').value = '';
-            document.getElementById('register-email').value = '';
+        closeLogin.onclick = () => hideModal(loginModal);
+        closeRegister.onclick = () => hideModal(registerModal);
+        
+        openRegister.onclick = () => {
+            hideModal(loginModal);
+            showModal(registerModal);
         };
 
-        closeRegister.onclick = function() {
-            registerModal.style.display = 'none';
-        };
-        registerModal.onclick = function(e) {
-            if (e.target === registerModal) registerModal.style.display = 'none';
+        openLogin.onclick = () => {
+            hideModal(registerModal);
+            showModal(loginModal);
         };
 
-        registerConfirm.onclick = function() {
-            const user = document.getElementById('register-user').value.trim();
-            const pass = document.getElementById('register-pass').value.trim();
-            const nome = document.getElementById('register-nome').value.trim();
-            const email = document.getElementById('register-email').value.trim();
-            const avatarSrc = document.getElementById('register-avatar-preview').src;
+        loginModal.onclick = (e) => { if (e.target === loginModal) hideModal(loginModal); };
+        registerModal.onclick = (e) => { if (e.target === registerModal) hideModal(registerModal); };
 
-            if (!user || !pass || !nome || !email) {
-                registerError.textContent = 'Preencha todos os campos!';
-                registerError.style.display = 'block';
-                return;
-            }
-            // Salva os dados em memória (poderia ser localStorage)
-            cadastro = { user, pass, nome, email, avatar: avatarSrc };
-            registerModal.style.display = 'none';
-            loginModal.style.display = 'flex';
-            document.getElementById('login-user').value = user;
-            document.getElementById('login-pass').value = '';
-            loginError.style.display = 'none';
+        // Password Toggle
+        function setupPasswordToggle(toggleBtnId, passwordInputId) {
+            const toggleBtn = document.getElementById(toggleBtnId);
+            const passwordInput = document.getElementById(passwordInputId);
+            
+            toggleBtn.onclick = () => {
+                const icon = toggleBtn.querySelector('i');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            };
+        }
+
+        setupPasswordToggle('toggle-login-password', 'login-password');
+        setupPasswordToggle('toggle-register-password', 'register-password');
+
+        // Avatar Preview and Upload
+        document.getElementById('register-avatar-btn').onclick = function() {
+            document.getElementById('register-avatar').click();
         };
 
-        loginConfirm.onclick = function() {
-            const user = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-
-            // Se usuário e senha são do cadastro, loga
-            if (cadastro.user && user === cadastro.user && pass === cadastro.pass) {
-                // Passa dados via URL (exemplo simples)
-                const params = new URLSearchParams(cadastro).toString();
-                window.location.href = 'SalgaderiaMestreLogOn.html?' + params;
-                return;
-            }
-            // Removido login fixo do usuário Bruno
-            loginError.textContent = 'Usuário ou senha incorretos!';
-            loginError.style.display = 'block';
-        };
-
-        // Mostrar/ocultar senha login
-        document.getElementById('toggle-login-pass').onclick = function() {
-            const input = document.getElementById('login-pass');
-            const icon = this.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        };
-
-        // Mostrar/ocultar senha cadastro
-        document.getElementById('toggle-register-pass').onclick = function() {
-            const input = document.getElementById('register-pass');
-            const icon = this.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        };
-
-        // Preview da foto de perfil no cadastro
         document.getElementById('register-avatar').onchange = function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -623,8 +790,199 @@
             }
         };
 
-        // Guardar dados do cadastro
-        let cadastro = {};
+        // Firebase Authentication
+        async function registerUser(email, password, name, avatarFile, userType) {
+            try {
+                const { createUserWithEmailAndPassword, updateProfile } = window.firebaseFunctions;
+                const auth = window.firebaseAuth;
+                
+                // Create user
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Upload avatar if exists
+                let avatarUrl = 'imgs/default-avatar.png';
+                if (avatarFile) {
+                    const { ref, uploadBytes, getDownloadURL } = window.firebaseFunctions;
+                    const storage = window.firebaseStorage;
+                    
+                    const avatarRef = ref(storage, `avatars/${user.uid}/${avatarFile.name}`);
+                    const snapshot = await uploadBytes(avatarRef, avatarFile);
+                    avatarUrl = await getDownloadURL(snapshot.ref);
+                }
+
+                // Update profile
+                await updateProfile(user, {
+                    displayName: name,
+                    photoURL: avatarUrl
+                });
+
+                // Save user data to Firestore with user type
+                const { doc, setDoc } = window.firebaseFunctions;
+                const db = window.firebaseDb;
+                
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    email: email,
+                    avatar: avatarUrl,
+                    userType: userType,
+                    createdAt: new Date()
+                });
+
+                return { success: true, user };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function loginUser(email, password, userType) {
+            try {
+                const { signInWithEmailAndPassword } = window.firebaseFunctions;
+                const auth = window.firebaseAuth;
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                // Check user type if logging in as employee
+                if (userType === 'funcionario') {
+                    const { doc, getDoc } = window.firebaseFunctions;
+                    const db = window.firebaseDb;
+                    
+                    const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        if (userData.userType !== 'funcionario') {
+                            await auth.signOut();
+                            return { success: false, error: 'Acesso restrito para funcionários' };
+                        }
+                    }
+                }
+                
+                return { success: true, user: userCredential.user };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('register-confirm').onclick = async () => {
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const avatarFile = document.getElementById('register-avatar').files[0];
+            const errorElement = document.getElementById('register-error');
+
+            if (!name || !email || !password) {
+                errorElement.textContent = 'Preencha todos os campos!';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                errorElement.textContent = 'A senha deve ter pelo menos 6 caracteres!';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Show loading
+            const registerBtn = document.getElementById('register-confirm');
+            registerBtn.textContent = 'Cadastrando...';
+            registerBtn.classList.add('loading');
+
+            const result = await registerUser(email, password, name, avatarFile, currentUserType);
+            
+            registerBtn.textContent = 'Cadastrar';
+            registerBtn.classList.remove('loading');
+
+            if (result.success) {
+                hideModal(registerModal);
+                showModal(loginModal);
+                document.getElementById('login-email').value = email;
+                document.getElementById('register-error').style.display = 'none';
+                
+                // Redirect based on user type
+                if (currentUserType === 'funcionario') {
+                    window.location.href = 'Adm_status.html';
+                } else {
+                    window.location.href = 'SalgaderiaMestreLogOn.html';
+                }
+            } else {
+                errorElement.textContent = result.error;
+                errorElement.style.display = 'block';
+            }
+        };
+
+        document.getElementById('login-confirm').onclick = async () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorElement = document.getElementById('login-error');
+
+            if (!email || !password) {
+                errorElement.textContent = 'Preencha todos os campos!';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Show loading
+            const loginBtn = document.getElementById('login-confirm');
+            loginBtn.textContent = 'Entrando...';
+            loginBtn.classList.add('loading');
+
+            const result = await loginUser(email, password, currentUserType);
+            
+            loginBtn.textContent = 'Entrar';
+            loginBtn.classList.remove('loading');
+
+            if (result.success) {
+                // Redirect based on user type
+                if (currentUserType === 'funcionario') {
+                    window.location.href = 'Adm_status.html';
+                } else {
+                    window.location.href = 'SalgaderiaMestreLogOn.html';
+                }
+            } else {
+                errorElement.textContent = result.error;
+                errorElement.style.display = 'block';
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showSlide(0);
+            carouselInterval = setInterval(nextSlideAuto, 10000);
+            
+            document.querySelectorAll('.dot').forEach((dot, idx) => {
+                dot.onclick = () => {
+                    showSlide(idx);
+                    resetCarouselInterval();
+                };
+            });
+
+            // Setup user type selector
+            setupUserTypeSelector();
+
+            // Check if user is already logged in
+            const auth = window.firebaseAuth;
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // Check user type and redirect accordingly
+                    const { doc, getDoc } = window.firebaseFunctions;
+                    const db = window.firebaseDb;
+                    
+                    getDoc(doc(db, "users", user.uid)).then((userDoc) => {
+                        if (userDoc.exists()) {
+                            const userData = userDoc.data();
+                            if (userData.userType === 'funcionario') {
+                                window.location.href = 'Adm_status.html';
+                            } else {
+                                window.location.href = 'SalgaderiaMestreLogOn.html';
+                            }
+                        } else {
+                            window.location.href = 'SalgaderiaMestreLogOn.html';
+                        }
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
