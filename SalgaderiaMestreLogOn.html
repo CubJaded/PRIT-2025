@@ -8,59 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Roboto&family=Oswald:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-        import { 
-            getAuth, 
-            signOut,
-            updateProfile,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc,
-            updateDoc
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-        import { 
-            getStorage, 
-            ref, 
-            uploadBytes, 
-            getDownloadURL 
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
-            authDomain: "salgaderia-mestre.firebaseapp.com",
-            projectId: "salgaderia-mestre",
-            storageBucket: "salgaderia-mestre.firebasestorage.app",
-            messagingSenderId: "280285587483",
-            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
-            measurementId: "G-1QSMWQ65ZZ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseStorage = storage;
-        window.firebaseFunctions = {
-            signOut,
-            updateProfile,
-            onAuthStateChanged,
-            doc,
-            getDoc,
-            updateDoc,
-            ref,
-            uploadBytes,
-            getDownloadURL
-        };
-    </script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -99,7 +46,26 @@
             border: 2px solid #fff;
             background: #ffe1cc;
             box-shadow: 0 2px 8px #0002;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #b84a1b;
+        }
+        .user-info {
+            position: absolute;
+            top: 24px;
+            right: 90px;
+            color: white;
+            font-weight: bold;
+            text-align: right;
+        }
+        .user-name {
+            font-size: 1.1rem;
+        }
+        .user-status {
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
         nav {
             background-color: #fff3e0;
@@ -141,7 +107,26 @@
             font-family: 'Playfair Display', serif;
             text-align: center;
         }
-        .sobre p { font-size: 1.1rem; }
+        .sobre-btn-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .sobre-btn {
+            display: inline-block;
+            background: linear-gradient(to right, #b84a1b, #ff914d);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(184, 74, 27, 0.3);
+        }
+        .sobre-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(184, 74, 27, 0.4);
+        }
         .cardapio-cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -192,6 +177,7 @@
         }
         @media (max-width: 600px) {
             .cardapio-cards-grid { grid-template-columns: 1fr; }
+            .user-info { display: none; }
         }
 
         .cta-banner {
@@ -424,6 +410,11 @@
             background: #ffe1cc;
             margin-bottom: 10px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #b84a1b;
         }
         .avatar-upload {
             margin-bottom: 12px;
@@ -485,23 +476,29 @@
     <header>
         <h1>Salgaderia Mestre</h1>
         <p>Tradição, sabor e qualidade em cada mordida!</p>
+        <div class="user-info">
+            <div class="user-name">Bruno</div>
+            <div class="user-status">Logado</div>
+        </div>
         <span class="profile-btn" id="profile-btn">
-            <img src="imgs/default-avatar.png" alt="Perfil" class="profile-avatar" id="header-avatar">
+            <i class="fa-solid fa-user-circle profile-avatar" id="header-avatar"></i>
         </span>
     </header>
     <nav>
         <ul>
-            <li><a href="#carrossel">Sobre</a></li>
+            <li><a href="sobre_logado.html">Sobre</a></li>
+            <li><a href="#carrossel">Início</a></li>
             <li><a href="#cardapio">Cardápio</a></li>
             <li><a href="#pedir">Peça Agora!</a></li>
         </ul>
     </nav>
+
     <section class="section carrossel" id="carrossel">
-        <h2>Bem-vindo a Salgaderia Mestre!</h2>
+        <h2>Nossos Destaques</h2>
         <div class="carousel-container">
             <button class="carousel-btn left" onclick="moveCarousel(-1)">&#10094;</button>
             <div class="carousel-slide">
-                <img src="coxinha-2.webp" alt="Coxinhas" class="carousel-img" style="display:block;">
+                <img src="https://www.estadao.com.br/resizer/v2/Q7HKQKQW4RDTFMK7CR4ZZWTTTI.JPG?auth=060f77d9ab978eace9c4b28ec294049d907aac5dbed5157f114eb18088799e0f" alt="Coxinhas" class="carousel-img" style="display:block;">
                 <img src="https://imagens.jotaja.com/produtos/ac77e0cb-2279-4e82-af29-ac6d87ca1c09.jpg" alt="Tabua de salgados" class="carousel-img" style="display:none;">
                 <img src="https://i.pinimg.com/736x/95/86/51/9586515700f9bbaebaaca53dda0d0fb3.jpg" alt="Festa com salgados" class="carousel-img" style="display:none;">
             </div>
@@ -512,31 +509,38 @@
             <span class="dot" onclick="showSlide(1)"></span>
             <span class="dot" onclick="showSlide(2)"></span>
         </div>
+
+        <div class="sobre-btn-container">
+            <a href="sobre_logado.html" class="sobre-btn">
+                <i class="fa-solid fa-info-circle"></i> Conheça Nossa História
+            </a>
+        </div>
     </section>
+
     <section class="section cardapio" id="cardapio">
         <h2>Cardápio</h2>
         <div class="cardapio-cards-grid">
-            <a class="cardapio-card" href="cardapio_Combos.html">
+            <a class="cardapio-card" href="cardapio.html">
                 <img src="imagens usadas/image 1.png" alt="Combos">
                 <span>Combos</span>
             </a>
-            <a class="cardapio-card" href="cardapio_Fritos.html">
+            <a class="cardapio-card" href="cardapio.html">
                 <img src="https://d2qcpt1idvpipw.cloudfront.net/recipes/2022/01/Massa-de-salgado-frito.png" alt="Fritos">
                 <span>Fritos</span>
             </a>
-            <a class="cardapio-card" href="cardapio_Assados.html">
+            <a class="cardapio-card" href="cardapio.html">
                 <img src="https://www.tiaeliana.com.br/alimentacao-salgados/imagens/fabrica-salgados-assados.jpg" alt="Assados">
                 <span>Assados</span>
             </a>
-            <a class="cardapio-card" href="cardapio_MiniSalgados.html">
+            <a class="cardapio-card" href="cardapio.html">
                 <img src="https://ibassets.com.br/ib.item.image.large/l-9113aff4d6bf4046ad19a23785233444.jpeg" alt="Mini Salgados">
                 <span>Mini Salgados</span>
             </a>
-            <a class="cardapio-card" href="cardapio_Doces.html">
+            <a class="cardapio-card" href="cardapio.html">
                 <img src="https://receitasdebemcasado.com/wp-content/uploads/2025/05/Brigadeiro.png" alt="Doces">
                 <span>Doces</span>
             </a>
-            <a class="cardapio-card" href="cardapio_bebidas.html">
+            <a class="cardapio-card" href="cardapio.html">
                 <img src="https://www.gizmodo.com.br/app/uploads/2025/09/refrigerantes.png" alt="Bebidas">
                 <span>Bebidas</span>
             </a>
@@ -544,8 +548,8 @@
     </section>
 
     <section class="section cta-banner" id="pedir">
-        <img src="image 11.png" class="cta-img-left" alt="Doces">
-        <img src="CoxiCoca.png" class="cta-img-right" alt="Coxinhas e Refrigerante">
+        <img src="imagens usadas/image 11.png" class="cta-img-left" alt="Doces">
+        <img src="imagens usadas/CoxiCoca.png" class="cta-img-right" alt="Coxinhas e Refrigerante">
         
         <div class="cta-text">
             <h1>SENTIU FOME?</h1>
@@ -557,7 +561,10 @@
     <footer>
         <p>&copy; 2025 Mestre dos Salgados &mdash; Todos os direitos reservados</p>
         <p style="margin-top:8px; font-size:0.98rem;">
-            Rua dos Sabores, 123 - São Paulo/SP &nbsp;|&nbsp; WhatsApp: (11) 99999-9999 &nbsp;|&nbsp; Instagram: <a href="https://instagram.com/mestredossalgados" target="_blank" style="color:#fff; text-decoration:underline;">@mestredossalgados</a>
+            Rua dos Sabores, 123 - Barueri/SP &nbsp;|&nbsp; WhatsApp: (11) 99999-9999 &nbsp;|&nbsp; Instagram: <a href="https://instagram.com/SalgaderiaMestreOficial" target="_blank" style="color:#fff; text-decoration:underline;">@SalgaderiaMestreOficial</a>
+        </p>
+        <p style="margin-top:8px; font-size:0.98rem;">
+           Tem alguma sugestão? <a href="Fale_ConoscoLog.html" target="_blank" style="color:#fff; text-decoration:underline;">Fale conosco!!</a>
         </p>
     </footer>
 
@@ -566,13 +573,15 @@
         <div class="modal-content">
             <button class="modal-close" id="close-profile">&times;</button>
             <h2>Meu Perfil</h2>
-            <img src="imgs/default-avatar.png" alt="Foto de perfil" id="profile-avatar-edit" class="avatar-preview">
+            <div class="avatar-preview" id="profile-avatar-edit">
+                <i class="fa-solid fa-user-circle"></i>
+            </div>
             <input type="file" id="profile-avatar-input" accept="image/*" style="display:none;">
             <button class="avatar-upload" id="profile-avatar-upload">Alterar foto</button>
             <label for="profile-name">Nome completo</label>
-            <input type="text" id="profile-name" value="">
+            <input type="text" id="profile-name" value="Bruno">
             <label for="profile-email">E-mail</label>
-            <input type="email" id="profile-email" value="" readonly style="background:#f5f5f5;">
+            <input type="email" id="profile-email" value="bruno@email.com" readonly style="background:#f5f5f5;">
             <label for="profile-password">Nova Senha (deixe em branco para manter atual)</label>
             <div class="password-container">
                 <input type="password" id="profile-password" placeholder="Nova senha">
@@ -621,82 +630,6 @@
             carouselInterval = setInterval(nextSlideAuto, 10000);
         }
 
-        // Firebase Functions
-        async function updateUserProfile(user, name, newPassword, avatarFile) {
-            try {
-                const { updateProfile, updateDoc, doc, ref, uploadBytes, getDownloadURL } = window.firebaseFunctions;
-                const db = window.firebaseDb;
-                const storage = window.firebaseStorage;
-
-                let updates = {};
-                let avatarUrl = user.photoURL;
-
-                // Upload new avatar if provided
-                if (avatarFile) {
-                    const avatarRef = ref(storage, `avatars/${user.uid}`);
-                    await uploadBytes(avatarRef, avatarFile);
-                    avatarUrl = await getDownloadURL(avatarRef);
-                    updates.photoURL = avatarUrl;
-                }
-
-                // Update display name if changed
-                if (name && name !== user.displayName) {
-                    updates.displayName = name;
-                }
-
-                // Update profile in Firebase Auth
-                if (Object.keys(updates).length > 0) {
-                    await updateProfile(user, updates);
-                }
-
-                // Update user data in Firestore
-                const userDocRef = doc(db, "users", user.uid);
-                await updateDoc(userDocRef, {
-                    name: name || user.displayName,
-                    avatar: avatarUrl,
-                    updatedAt: new Date()
-                });
-
-                return { success: true, avatarUrl };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        }
-
-        async function logoutUser() {
-            try {
-                const { signOut } = window.firebaseFunctions;
-                const auth = window.firebaseAuth;
-                await signOut(auth);
-                window.location.href = 'SalgaderiaMestreLogOff.html';
-            } catch (error) {
-                console.error('Erro ao fazer logout:', error);
-            }
-        }
-
-        async function loadUserData(user) {
-            try {
-                const { doc, getDoc } = window.firebaseFunctions;
-                const db = window.firebaseDb;
-
-                // Get additional user data from Firestore
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                const userData = userDoc.exists() ? userDoc.data() : {};
-
-                // Update UI with user data
-                document.getElementById('profile-name').value = user.displayName || userData.name || '';
-                document.getElementById('profile-email').value = user.email;
-                
-                const avatarUrl = user.photoURL || userData.avatar || 'imgs/default-avatar.png';
-                document.getElementById('header-avatar').src = avatarUrl;
-                document.getElementById('profile-avatar-edit').src = avatarUrl;
-                document.getElementById('header-avatar').alt = user.displayName || 'Perfil';
-
-            } catch (error) {
-                console.error('Erro ao carregar dados do usuário:', error);
-            }
-        }
-
         // Modal Management
         const profileBtn = document.getElementById('profile-btn');
         const profileModal = document.getElementById('profile-modal');
@@ -743,17 +676,36 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(ev) {
-                    document.getElementById('profile-avatar-edit').src = ev.target.result;
+                    // Substitui o ícone pela imagem carregada
+                    const avatarPreview = document.getElementById('profile-avatar-edit');
+                    avatarPreview.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.borderRadius = '50%';
+                    img.style.objectFit = 'cover';
+                    avatarPreview.appendChild(img);
+
+                    // Atualiza também o avatar do header
+                    const headerAvatar = document.getElementById('header-avatar');
+                    headerAvatar.className = 'profile-avatar';
+                    headerAvatar.innerHTML = '';
+                    const headerImg = document.createElement('img');
+                    headerImg.src = ev.target.result;
+                    headerImg.style.width = '100%';
+                    headerImg.style.height = '100%';
+                    headerImg.style.borderRadius = '50%';
+                    headerImg.style.objectFit = 'cover';
+                    headerAvatar.appendChild(headerImg);
                 };
                 reader.readAsDataURL(file);
             }
         };
 
         // Save Profile
-        saveProfile.onclick = async function() {
+        saveProfile.onclick = function() {
             const name = document.getElementById('profile-name').value.trim();
-            const newPassword = document.getElementById('profile-password').value;
-            const avatarFile = document.getElementById('profile-avatar-input').files[0];
             const errorElement = document.getElementById('profile-error');
 
             if (!name) {
@@ -762,56 +714,33 @@
                 return;
             }
 
-            if (newPassword && newPassword.length < 6) {
-                errorElement.textContent = 'A senha deve ter pelo menos 6 caracteres!';
-                errorElement.style.display = 'block';
-                return;
-            }
-
             // Show loading
             saveProfile.textContent = 'Salvando...';
             saveProfile.classList.add('loading');
 
-            const auth = window.firebaseAuth;
-            const user = auth.currentUser;
-
-            if (!user) {
-                errorElement.textContent = 'Usuário não autenticado!';
-                errorElement.style.display = 'block';
+            // Simulate save
+            setTimeout(() => {
+                document.querySelector('.user-name').textContent = name;
                 saveProfile.textContent = 'Salvar';
                 saveProfile.classList.remove('loading');
-                return;
-            }
-
-            const result = await updateUserProfile(user, name, newPassword, avatarFile);
-            
-            saveProfile.textContent = 'Salvar';
-            saveProfile.classList.remove('loading');
-
-            if (result.success) {
+                
                 errorElement.textContent = 'Dados salvos com sucesso!';
                 errorElement.style.color = '#28a745';
                 errorElement.style.display = 'block';
                 
-                // Update header avatar
-                if (result.avatarUrl) {
-                    document.getElementById('header-avatar').src = result.avatarUrl;
-                }
-                document.getElementById('header-avatar').alt = name;
-
                 setTimeout(() => {
                     errorElement.style.display = 'none';
                     hideModal(profileModal);
                 }, 1500);
-            } else {
-                errorElement.textContent = result.error;
-                errorElement.style.color = '#ff5a1f';
-                errorElement.style.display = 'block';
-            }
+            }, 1000);
         };
 
         // Logout
-        logoutBtn.onclick = logoutUser;
+        logoutBtn.onclick = function() {
+            if (confirm('Deseja realmente sair?')) {
+                window.location.href = 'SalgaderiaMestreLogOff.html';
+            }
+        };
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -825,19 +754,9 @@
                 };
             });
 
-            // Check authentication state
-            const auth = window.firebaseAuth;
-            const { onAuthStateChanged } = window.firebaseFunctions;
-            
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // User is signed in
-                    loadUserData(user);
-                } else {
-                    // User is signed out, redirect to login
-                    window.location.href = 'salgaderiaMestreLogOff.html';
-                }
-            });
+            // Set user data
+            document.getElementById('profile-name').value = 'Bruno';
+            document.getElementById('profile-email').value = 'bruno@email.com';
         });
     </script>
 </body>

@@ -1,36 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forma de Pagamento</title>
+    <title>Pagamento - Salgaderia Mestre</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
     <style>
         /* --- Configurações Globais --- */
         :root {
-            --color-primary-orange: #d96d24;
-            --color-secondary-orange: #f57c00;
-            --color-product-bg: #8c4a28;
+            --color-primary: #d96d24;
+            --color-secondary: #b95c21;
             --color-text-dark: #333;
-            --color-text-light: #666;
-            --color-text-inactive: #888;
-            --color-bg-page: #f4f4f4;
-            --color-bg-container: #ffffff;
-            --color-bg-option-light: #f9f9f9;
-            --color-bg-option-dark: #f0f0f0;
-            --color-bg-cart: #e9e9e9;
-            --color-border: #ddd;
-            --color-pix-green: #32c7b1;
-            --color-success: #4caf50;
-            --color-footer-bg: #b84a1b;
+            --color-text-light: #555;
+            --color-border: #e9e9e9;
+            --color-bg-page: #ffffff;
+            --color-bg-light: #f9f9f9;
+            --color-success: #28a745;
+            --color-danger: #dc3545;
+            --color-warning: #ffc107;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -41,9 +37,9 @@
             min-height: 100vh;
         }
 
-        /* --- Header (Barra Laranja) --- */
+        /* --- Header --- */
         .top-bar {
-            background-color: var(--color-primary-orange);
+            background-color: var(--color-primary);
             color: white;
             padding: 12px 24px;
             display: flex;
@@ -52,1119 +48,792 @@
             width: 100%;
         }
 
-        .user-info {
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+
+        .user-info .user-avatar { 
+            font-size: 36px; 
+            opacity: 0.9; 
+        }
+
+        .user-info div { 
+            display: flex; 
+            flex-direction: column; 
+            font-size: 14px; 
+        }
+
+        .user-info .user-name { 
+            font-weight: 600; 
+        }
+
+        .user-info .user-type { 
+            font-size: 12px; 
+            opacity: 0.9; 
+        }
+
+        .header-nav { 
+            display: flex; 
+            gap: 24px; 
+        }
+
+        .header-nav a { 
+            color: white; 
+            text-decoration: none; 
+            font-size: 24px; 
+            transition: transform 0.2s; 
+            position: relative;
+        }
+
+        .header-nav a:hover { 
+            transform: scale(1.1); 
+        }
+
+        .cart-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--color-success);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            font-weight: bold;
         }
 
-        .user-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid white;
-        }
-
-        .user-info div {
-            display: flex;
-            flex-direction: column;
-            font-size: 14px;
-        }
-
-        .user-info .user-name {
-            font-weight: 600;
-        }
-
-        .user-info .user-type {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .header-nav {
-            display: flex;
-            gap: 24px;
-        }
-
-        .header-nav i {
-            font-size: 24px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .header-nav i:hover {
-            transform: scale(1.1);
-        }
-
-        /* --- Container Principal do Checkout --- */
-        .checkout-container {
-            background-color: var(--color-bg-container);
-            max-width: 1000px;
+        /* --- Container Principal --- */
+        .page-container {
+            max-width: 1200px;
             width: 95%;
             margin: 24px auto;
             padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            flex: 1;
+            flex-grow: 1;
         }
 
-        .checkout-container>h1 {
-            font-size: 24px;
+        .page-title {
+            font-size: 28px;
             font-weight: 600;
             margin-bottom: 24px;
+            color: var(--color-primary);
         }
 
-        .checkout-layout {
-            display: flex;
+        /* --- Layout do Pagamento --- */
+        .payment-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 24px;
         }
 
-        /* --- Coluna da Esquerda: Opções de Pagamento --- */
-        .payment-options {
-            flex: 6;
-            /* Ocupa mais espaço */
+        @media (max-width: 768px) {
+            .payment-layout {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .payment-tabs {
-            display: flex;
-            gap: 24px;
-            border-bottom: 1px solid var(--color-border);
+        /* --- Seções --- */
+        .payment-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 24px;
         }
 
-        .payment-tabs span {
-            font-size: 16px;
-            font-weight: 500;
-            padding-bottom: 12px;
-            cursor: pointer;
-            color: var(--color-text-inactive);
-            border-bottom: 3px solid transparent;
-            position: relative;
-            top: 1px;
-            /* Alinha com a borda inferior do container */
-            transition: color 0.2s;
-        }
-
-        .payment-tabs span.active {
-            color: var(--color-secondary-orange);
-            border-bottom-color: var(--color-secondary-orange);
-        }
-
-        .payment-content {
-            display: none;
-            /* Escondido por padrão */
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .payment-content.active {
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-primary);
             display: flex;
-            /* Visível quando ativo */
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Resumo do Pedido --- */
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .order-summary-total {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--color-border);
+        }
+
+        /* --- Métodos de Pagamento --- */
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .payment-method {
             border: 1px solid var(--color-border);
             border-radius: 8px;
+            padding: 16px;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            overflow: hidden;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .payment-method:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-color: var(--color-primary);
         }
 
-        /* Estilo de seleção para "Pague na entrega" */
-        #pague-na-entrega .payment-method.active {
-            border-color: var(--color-secondary-orange);
-            box-shadow: 0 0 0 1px var(--color-secondary-orange);
+        .payment-method.selected {
+            border-color: var(--color-primary);
+            background: rgba(217, 109, 36, 0.1);
         }
 
-        .method-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            background-color: var(--color-bg-option-light);
-            border-radius: 8px;
-            transition: background-color 0.2s;
-        }
-
-        /* Estilo de acordeão para "Pague online" */
-        #pague-online .payment-method.active>.method-header {
-            background-color: white;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-
-        .payment-method .icon {
+        .payment-method i {
             font-size: 24px;
-            width: 40px;
-            height: 40px;
-            display: grid;
-            place-items: center;
+            color: var(--color-primary);
+            width: 30px;
         }
 
-        .pix-icon {
-            color: var(--color-pix-green);
-            background-color: #e0f8f5;
-            border-radius: 50%;
-        }
-
-        .card-icon {
-            color: #1976d2;
-            /* Azul do ícone do cartão */
-        }
-
-        .method-info {
-            display: flex;
-            flex-direction: column;
+        .payment-method-content {
             flex: 1;
         }
 
-        .method-info .title {
-            font-size: 16px;
+        .payment-method-title {
             font-weight: 600;
-            color: var(--color-text-dark);
+            margin-bottom: 4px;
         }
 
-        .method-info .description {
+        .payment-method-description {
             font-size: 14px;
             color: var(--color-text-light);
         }
 
-        .method-header i.fa-chevron-down {
-            transition: transform 0.3s ease;
-        }
-
-        .payment-method.active .method-header i.fa-chevron-down {
-            transform: rotate(180deg);
-        }
-
-        /* Detalhes do Método de Pagamento (Expandido) */
-        .method-details {
-            display: none;
-            /* Escondido por padrão */
-            background-color: var(--color-bg-option-dark);
-            padding: 20px;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-            border-top: 1px solid var(--color-border);
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        #pague-online .payment-method.active .method-details {
-            display: block;
-            /* Mostra quando o .payment-method está ativo */
-        }
-
-        /* QR Code para Pix */
-        .pix-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .qr-code-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--color-border);
-        }
-
-        .qr-code img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .pix-code {
-            background-color: white;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 14px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            word-break: break-all;
-            position: relative;
-        }
-
-        .copy-btn {
-            background-color: var(--color-pix-green);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .copy-btn:hover {
-            background-color: #2ab09d;
-        }
-
-        .copy-btn.copied {
-            background-color: var(--color-success);
-        }
-
-        /* Detalhes do Cartão */
-        .card-options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            font-size: 15px;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .radio-option:hover {
-            background-color: rgba(0, 0, 0, 0.03);
-        }
-
-        /* Custom Radio Button */
-        .radio-option input[type="radio"] {
-            display: none;
-            /* Esconde o radio button real */
-        }
-
-        .radio-custom {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--color-text-inactive);
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            transition: all 0.2s;
-        }
-
-        .radio-custom::after {
-            content: "";
-            width: 10px;
-            height: 10px;
-            background-color: var(--color-secondary-orange);
-            border-radius: 50%;
-            transform: scale(0);
-            transition: transform 0.2s;
-        }
-
-        .radio-option input[type="radio"]:checked+.radio-custom {
-            border-color: var(--color-secondary-orange);
-        }
-
-        .radio-option input[type="radio"]:checked+.radio-custom::after {
-            transform: scale(1);
-        }
-
-        .radio-option .icon {
-            font-size: 20px;
-            color: var(--color-text-light);
-        }
-
-        /* Formulário do Cartão */
-        .card-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
+        /* --- Formulários --- */
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--color-text-dark);
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 12px;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            font-size: 16px;
-            transition: border-color 0.2s;
-            font-family: inherit;
-            /* Garante que a select use a mesma fonte */
-            background-color: white;
-        }
-
-        /* Estilização customizada para o select */
-        .form-group select {
-            appearance: none;
-            /* Remove seta padrão */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--color-secondary-orange);
-            box-shadow: 0 0 0 2px rgba(245, 124, 0, 0.1);
-        }
-
-        .form-row {
-            display: flex;
-            gap: 16px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        /* --- Coluna da Direita: Resumo do Pedido --- */
-        .order-summary {
-            flex: 4;
-            /* Ocupa menos espaço */
-            background-color: var(--color-bg-cart);
-            border-radius: 8px;
-            padding: 20px;
-            height: fit-content;
-            /* Ajusta a altura ao conteúdo */
-        }
-
-        .order-summary h2 {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--color-text-dark);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .product-card {
-            position: relative;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .product-image {
-            width: 100%;
-            max-width: 250px;
-            height: auto;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-            border-radius: 8px;
-            /* Imagem de placeholder - substitua pela URL da imagem real */
-            background-image: url('https://i.imgur.com/7gMuzvN.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-
-        .product-overlay {
-            width: 100%;
-            max-width: 250px;
-            position: relative;
-            margin-top: -60px;
-            /* Sobrepõe a imagem */
-        }
-
-        .product-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: #d9534f;
-            /* Tom de vermelho/laranja para o texto */
-            text-align: center;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.3);
-            /* Fundo semi-transparente para legibilidade */
-            padding: 4px;
-            border-radius: 4px;
-        }
-
-        .product-price {
-            background-color: var(--color-product-bg);
-            color: white;
-            font-size: 22px;
-            font-weight: bold;
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .continue-button {
-            width: 100%;
-            background-color: var(--color-secondary-orange);
-            color: white;
-            border: none;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-
-        .continue-button:hover {
-            background-color: #e66f00;
-            /* Tom mais escuro no hover */
-        }
-
-        .continue-button:active {
-            transform: scale(0.98);
-        }
-
-        /* --- Footer --- */
-        .footer {
-            background-color: var(--color-footer-bg);
-            color: white;
-            padding: 40px 0 20px;
-            margin-top: auto;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-        }
-
-        .footer-section h3 {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: var(--color-secondary-orange);
-        }
-
-        .footer-section p,
-        .footer-section a {
-            color: #ffffff;
-            line-height: 1.6;
-            margin-bottom: 10px;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer-section a:hover {
-            color: var(--color-secondary-orange);
-        }
-
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transition: background-color 0.2s, transform 0.2s;
-        }
-
-        .social-links a:hover {
-            box-shadow: #80310f 0px 0px 10px;
-            transform: translateY(-2px);
-        }
-
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 30px auto 0;
-            padding: 20px 24px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            color: #ffffff;
-            font-size: 14px;
-        }
-
-        .payment-methods-footer {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .payment-method-icon {
-            width: 40px;
-            height: 25px;
-            background-color: white;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #333;
-        }
-
-        /* --- Estilos do Modal de Sucesso --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 32px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            max-width: 400px;
-            width: 90%;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
-
-        .modal-icon {
-            font-size: 48px;
-            color: var(--color-success);
             margin-bottom: 16px;
         }
 
-        .modal-content h2 {
-            font-size: 22px;
-            margin-bottom: 8px;
-            color: var(--color-text-dark);
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
-        .modal-content p {
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
             font-size: 16px;
-            color: var(--color-text-light);
         }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
 
-        /* --- Responsividade --- */
-        @media (max-width: 768px) {
-            .checkout-layout {
-                flex-direction: column-reverse;
-                /* Carrinho vem primeiro no mobile */
-            }
+        /* --- Botões --- */
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
 
-            .top-bar {
-                padding: 12px 16px;
-            }
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            width: 100%;
+        }
 
-            .header-nav {
-                gap: 16px;
-            }
+        .btn-primary:hover {
+            background: var(--color-secondary);
+        }
 
-            .header-nav i {
-                font-size: 22px;
-            }
+        .btn-secondary {
+            background: var(--color-bg-light);
+            color: var(--color-text-dark);
+            border: 1px solid var(--color-border);
+        }
 
-            .form-row {
-                flex-direction: column;
-                gap: 12px;
-            }
+        .btn-secondary:hover {
+            background: var(--color-border);
+        }
 
-            .footer-content {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
+        .btn:disabled {
+            background: var(--color-text-light);
+            cursor: not-allowed;
+        }
+
+        /* --- Toast Notification --- */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--color-success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background-color: var(--color-danger);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        /* --- Loading Spinner --- */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Informações do Pedido --- */
+        .order-info {
+            background: var(--color-bg-light);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
         }
     </style>
 </head>
-
 <body>
 
     <header class="top-bar">
         <div class="user-info">
-            <i class="fa-solid fa-user-circle" style="font-size: 40px;"></i>
+            <i class="fa-solid fa-user-circle user-avatar"></i>
             <div>
                 <span class="user-name">Bruno</span>
                 <span class="user-type">cliente</span>
             </div>
         </div>
         <nav class="header-nav">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <i class="fa-solid fa-book-open"></i>
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <a href="cardapio.html"><i class="fa-solid fa-utensils"></i></a>
+            <a href="Carrinho.html" id="cart-link"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="#"><i class="fa-solid fa-book-open"></i></a>
+            <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
         </nav>
     </header>
 
-    <main class="checkout-container">
-        <h1>Forma de pagamento</h1>
-
-        <div class="checkout-layout">
-
-            <section class="payment-options">
-                <div class="payment-tabs">
-                    <span class="tab-link active" data-tab="pague-online">Pague online</span>
-                    <span class="tab-link" data-tab="pague-na-entrega">Pague na entrega</span>
-                </div>
-
-                <div id="pague-online" class="payment-content active">
-
-                    <div class="payment-method" id="method-pix">
-                        <div class="method-header" role="button" aria-expanded="false">
-                            <div class="icon pix-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M12 0C5.373 0 0 5.373 0 12C0 18.627 5.373 24 12 24C18.627 24 24 18.627 24 12C24 5.373 18.627 0 12 0ZM18.47 16.903L12 13.013L5.53 16.903C5.347 17.01 5.127 16.96 4.99 16.79C4.853 16.62 4.83 16.38 4.94 16.2L11.4 12L4.94 7.8C4.83 7.62 4.853 7.38 4.99 7.21C5.127 7.04 5.347 6.99 5.53 7.097L12 10.987L18.47 7.097C18.653 6.99 18.873 7.04 19.01 7.21C19.147 7.38 19.17 7.62 19.06 7.8L12.6 12L19.06 16.2C19.17 16.38 19.147 16.62 19.01 16.79C18.873 16.96 18.653 17.01 18.47 16.903Z"
-                                        fill="#32C7B1" />
-                                </svg>
-                            </div>
-                            <div class="method-info">
-                                <span class="title">Pix</span>
-                                <span class="description">Use o qr code ou copie e cole o código</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                        <div class="method-details" aria-hidden="true">
-                            <div class="pix-content">
-                                <div class="qr-code-container">
-                                    <div class="qr-code">
-                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PIX_CODIGO_1234567890"
-                                            alt="QR Code Pix">
-                                    </div>
-                                    <p>Escaneie o código com seu app bancário</p>
-                                </div>
-                                <div class="pix-code" id="pix-code">
-                                    00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-4266141740005204000053039865802BR5913NOME
-                                    DO VENDEDOR6008SAO PAULO62070503***6304E2CA
-                                </div>
-                                <button class="copy-btn" id="copy-pix-btn">Copiar código</button>
-                            </div>
-                        </div>
+    <main class="page-container">
+        <h1 class="page-title">Finalizar Pedido</h1>
+        
+        <div class="payment-layout">
+            <div class="payment-column">
+                <!-- Informações do Pedido -->
+                <section class="payment-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-receipt"></i>
+                        Resumo do Pedido
+                    </h3>
+                    <div id="order-summary">
+                        <!-- Preenchido via JavaScript -->
                     </div>
+                </section>
 
-                    <div class="payment-method" id="method-card">
-                        <div class="method-header" role="button" aria-expanded="false">
-                            <div class="icon card-icon">
-                                <i class="fa-solid fa-credit-card"></i>
-                            </div>
-                            <div class="method-info">
-                                <span class="title">Cartão</span>
-                                <span class="description">Escolha o tipo de cartão</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                        <div class="method-details" aria-hidden="true">
-                            <div class="card-options-list">
-                                <label class="radio-option">
-                                    <input type="radio" name="card-type" value="credito" checked>
-                                    <span class="radio-custom"></span>
-                                    <i class="fa-regular fa-credit-card icon"></i>
-                                    <span>Crédito</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="card-type" value="debito">
-                                    <span class="radio-custom"></span>
-                                    <i class="fa-solid fa-credit-card icon"></i>
-                                    <span>Débito</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="card-type" value="refeicao">
-                                    <span class="radio-custom"></span>
-                                    <i class="fa-solid fa-utensils icon"></i>
-                                    <span>Vale-refeição</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="card-type" value="alimentacao">
-                                    <span class="radio-custom"></span>
-                                    <i class="fa-solid fa-cart-shopping icon"></i>
-                                    <span>Vale-alimentação</span>
-                                </label>
-                            </div>
-
-                            <form class="card-form" id="card-form" novalidate>
-                                <div class="form-group">
-                                    <label for="card-number">Número do cartão</label>
-                                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19"
-                                        inputmode="numeric" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="card-name">Nome no cartão</label>
-                                    <input type="text" id="card-name" placeholder="Como está no cartão" required>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="card-expiry">Validade</label>
-                                        <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5"
-                                            inputmode="numeric" required>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="card-cvv">CVV</label>
-                                        <input type="text" id="card-cvv" placeholder="123" maxlength="4"
-                                            inputmode="numeric" required>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="card-installments">Parcelas</label>
-                                    <select id="card-installments" required>
-                                        <option value="1">1x de R$ 14,99 sem juros</option>
-                                        <option value="2">2x de R$ 7,50 sem juros</option>
-                                        <option value="3">3x de R$ 5,00 sem juros</option>
-                                    </select>
-                                </div>
-                            </form>
-                        </div>
+                <!-- Endereço de Entrega -->
+                <section class="payment-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Endereço de Entrega
+                    </h3>
+                    <div class="order-info" id="delivery-address-info">
+                        <!-- Preenchido via JavaScript -->
                     </div>
+                </section>
 
-                </div>
-
-                <div id="pague-na-entrega" class="payment-content">
-                    <div class="payment-method" id="method-dinheiro">
-                        <div class="method-header">
-                            <div class="icon">
-                                <i class="fa-solid fa-money-bill-wave"></i>
+                <!-- Método de Pagamento -->
+                <section class="payment-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-credit-card"></i>
+                        Método de Pagamento
+                    </h3>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method" data-method="pix">
+                            <i class="fa-brands fa-pix"></i>
+                            <div class="payment-method-content">
+                                <div class="payment-method-title">PIX</div>
+                                <div class="payment-method-description">Pagamento instantâneo</div>
                             </div>
-                            <div class="method-info">
-                                <span class="title">Dinheiro</span>
-                                <span class="description">Pague com dinheiro na entrega</span>
+                        </div>
+                        
+                        <div class="payment-method" data-method="cartao">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <div class="payment-method-content">
+                                <div class="payment-method-title">Cartão de Crédito</div>
+                                <div class="payment-method-description">Parcelamento em até 12x</div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-method" data-method="dinheiro">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <div class="payment-method-content">
+                                <div class="payment-method-title">Dinheiro</div>
+                                <div class="payment-method-description">Pagamento na entrega</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="payment-method" id="method-cartao-entrega">
-                        <div class="method-header">
-                            <div class="icon">
-                                <i class="fa-solid fa-credit-card"></i>
+                    <!-- Formulário Cartão de Crédito -->
+                    <div id="credit-card-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="card-number">Número do Cartão</label>
+                            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="card-expiry">Validade</label>
+                                <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5">
                             </div>
-                            <div class="method-info">
-                                <span class="title">Cartão na entrega</span>
-                                <span class="description">Máquina de cartão na entrega</span>
+                            <div class="form-group">
+                                <label for="card-cvv">CVV</label>
+                                <input type="text" id="card-cvv" placeholder="000" maxlength="3">
                             </div>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="card-name">Nome no Cartão</label>
+                            <input type="text" id="card-name" placeholder="Como está no cartão">
+                        </div>
                     </div>
-                </div>
 
-            </section>
-
-            <aside class="order-summary">
-                <h2>há 1 item no seu carrinho</h2>
-
-                <div class="product-card">
-                    <div class="product-image">
+                    <!-- Informações PIX -->
+                    <div id="pix-info" style="display: none;">
+                        <div class="order-info">
+                            <p><strong>Chave PIX:</strong> contato@salgaderiamestre.com.br</p>
+                            <p><strong>Nome:</strong> Salgaderia Mestre</p>
+                            <p><strong>Valor:</strong> <span id="pix-amount">R$ 0,00</span></p>
+                        </div>
                     </div>
-                    <div class="product-overlay">
-                        <div class="product-name">MORANGO DO AMOR</div>
-                        <div class="product-price">R$ 14,99</div>
-                    </div>
-                </div>
 
-                <button class="continue-button">Continuar</button>
-            </aside>
+                    <!-- Informações Dinheiro -->
+                    <div id="cash-info" style="display: none;">
+                        <div class="form-group">
+                            <label for="cash-change">Precisa de troco para quanto?</label>
+                            <input type="text" id="cash-change" placeholder="R$ 0,00">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="payment-column">
+                <!-- Resumo Final -->
+                <section class="payment-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        Total do Pedido
+                    </h3>
+                    
+                    <div id="final-summary">
+                        <!-- Preenchido via JavaScript -->
+                    </div>
+
+                    <div class="loading-spinner" id="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Processando seu pedido...</p>
+                    </div>
+
+                    <button class="btn btn-primary" id="confirm-order-btn" disabled>
+                        <i class="fa-solid fa-lock"></i> Confirmar Pedido
+                    </button>
+                    
+                    <a href="Carrinho.html" class="btn btn-secondary" style="margin-top: 12px; display: block;">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar ao Carrinho
+                    </a>
+                </section>
+            </div>
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Sobre Nós</h3>
-                <p>Somos uma empresa dedicada a oferecer os melhores produtos com qualidade e preço justo. Nossa missão
-                    é proporcionar uma experiência de compra excepcional.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
-                </div>
-            </div>
-
-            <div class="footer-section">
-                <h3>Links Rápidos</h3>
-                <a href="#">Início</a>
-                <a href="#">Produtos</a>
-                <a href="#">Sobre</a>
-                <a href="#">Contato</a>
-                <a href="#">Política de Privacidade</a>
-                <a href="#">Termos de Uso</a>
-            </div>
-
-            <div class="footer-section">
-                <h3>Formas de Pagamento</h3>
-                <div class="payment-methods-footer">
-                    <div class="payment-method-icon">PIX</div>
-                    <div class="payment-method-icon">VISA</div>
-                    <div class="payment-method-icon">MC</div>
-                    <div class="payment-method-icon">ELO</div>
-                    <div class="payment-method-icon">VR</div>
-                    <div class="payment-method-icon">VA</div>
-                </div>
-                <h3 style="margin-top: 20px;">Contato</h3>
-                <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
-                <p><i class="fas fa-envelope"></i> contato@exemplo.com</p>
-                <p><i class="fas fa-map-marker-alt"></i> São Paulo, SP</p>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>&copy; Salgaderia mestre 2025 Todos os direitos reservados.</p>
-        </div>
-    </footer>
-
-    <div id="success-modal" class="modal-overlay">
-        <div class="modal-content">
-            <i class="fa-solid fa-check-circle modal-icon"></i>
-            <h2>Pagamento processado com sucesso!</h2>
-            <p>Você será redirecionado em instantes...</p>
-        </div>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-check-circle"></i>
+        <span id="toast-message">Pedido realizado com sucesso!</span>
     </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
 
-            // --- Seletores Globais ---
-            const tabLinks = document.querySelectorAll('.tab-link');
-            const paymentContents = document.querySelectorAll('.payment-content');
-            const modal = document.getElementById('success-modal');
-            const continueButton = document.querySelector('.continue-button');
-            const cardForm = document.getElementById('card-form');
-            const copyPixBtn = document.getElementById('copy-pix-btn');
-            const pixCode = document.getElementById('pix-code');
-            const cardNumber = document.getElementById('card-number');
-            const cardExpiry = document.getElementById('card-expiry');
-            const cardCvv = document.getElementById('card-cvv');
-            const cardName = document.getElementById('card-name');
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
+        let currentOrder = null;
+        let selectedPaymentMethod = null;
 
-            // --- Lógica para as Tabs ---
-            tabLinks.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabLinks.forEach(link => link.classList.remove('active'));
-                    paymentContents.forEach(content => content.classList.remove('active'));
-                    tab.classList.add('active');
-                    document.getElementById(tab.dataset.tab).classList.add('active');
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderData();
+            setupEventListeners();
+        });
 
-                    // Desmarca qualquer seleção ao trocar de aba
-                    document.querySelectorAll('.payment-method.active').forEach(m => m.classList.remove('active'));
-                });
-            });
-
-            // --- Lógica para o Acordeão (Pague online) ---
-            const onlineMethods = document.querySelectorAll('#pague-online .payment-method');
-            onlineMethods.forEach(method => {
-                const header = method.querySelector('.method-header');
-                const details = method.querySelector('.method-details');
-
-                if (header) {
-                    header.addEventListener('click', () => {
-                        const isActive = method.classList.contains('active');
-                        // Fecha todos os *outros* métodos online
-                        onlineMethods.forEach(m => {
-                            if (m !== method) {
-                                m.classList.remove('active');
-                                m.querySelector('.method-header')?.setAttribute('aria-expanded', 'false');
-                                m.querySelector('.method-details')?.setAttribute('aria-hidden', 'true');
-                            }
-                        });
-                        // Alterna o método clicado
-                        method.classList.toggle('active');
-                        header.setAttribute('aria-expanded', !isActive);
-                        details?.setAttribute('aria-hidden', isActive);
-                    });
-                }
-            });
-
-            // --- Lógica para Seleção (Pague na entrega) ---
-            const deliveryMethods = document.querySelectorAll('#pague-na-entrega .payment-method');
-            deliveryMethods.forEach(method => {
-                // Adiciona o listener ao método inteiro
-                method.addEventListener('click', () => {
-                    // Remove 'active' de todos os métodos de entrega
-                    deliveryMethods.forEach(m => m.classList.remove('active'));
-                    // Adiciona 'active' apenas ao clicado
-                    method.classList.add('active');
-                });
-            });
-
-
-            // --- Cópia do código Pix (Método Moderno) ---
-            if (copyPixBtn) {
-                copyPixBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Impede que o clique feche o acordeão
-                    const codeToCopy = pixCode.textContent.trim();
-
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(codeToCopy).then(() => {
-                            showCopyFeedback(copyPixBtn);
-                        }).catch(err => {
-                            console.error('Falha ao copiar: ', err);
-                            alert('Não foi possível copiar o código.');
-                        });
-                    } else {
-                        // Fallback para navegadores antigos (raro)
-                        try {
-                            const textArea = document.createElement('textarea');
-                            textArea.value = codeToCopy;
-                            document.body.appendChild(textArea);
-                            textArea.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(textArea);
-                            showCopyFeedback(copyPixBtn);
-                        } catch (err) {
-                            alert('Não foi possível copiar o código.');
-                        }
-                    }
-                });
-            }
-
-            function showCopyFeedback(button) {
-                button.textContent = 'Código copiado!';
-                button.classList.add('copied');
+        function loadOrderData() {
+            // Recuperar dados do pedido do localStorage
+            const savedOrder = localStorage.getItem('currentOrder');
+            if (savedOrder) {
+                currentOrder = JSON.parse(savedOrder);
+                renderOrderSummary();
+                renderDeliveryAddress();
+                updateFinalSummary();
+            } else {
+                showToast('Nenhum pedido encontrado. Volte ao carrinho.', 'error');
                 setTimeout(() => {
-                    button.textContent = 'Copiar código';
-                    button.classList.remove('copied');
+                    window.location.href = 'Carrinho.html';
                 }, 2000);
             }
+        }
 
-            // --- Formatação dos campos do cartão ---
-            if (cardNumber) {
-                cardNumber.addEventListener('input', function (e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-                    e.target.value = value.substring(0, 19);
-                });
+        function renderOrderSummary() {
+            const orderSummary = document.getElementById('order-summary');
+            
+            if (!currentOrder || !currentOrder.cart) {
+                orderSummary.innerHTML = '<p>Nenhum item no pedido</p>';
+                return;
             }
 
-            if (cardExpiry) {
-                cardExpiry.addEventListener('input', function (e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length >= 2) {
-                        let month = value.substring(0, 2);
-                        let year = value.substring(2, 4);
-                        if (parseInt(month) > 12) month = '12'; // Valida o mês
-                        value = month + (year ? '/' + year : '');
-                    }
-                    e.target.value = value.substring(0, 5);
+            let html = '';
+            currentOrder.cart.forEach(item => {
+                html += `
+                    <div class="order-summary-item">
+                        <div>
+                            <strong>${item.quantity}x ${item.nome}</strong>
+                        </div>
+                        <div>R$ ${(item.preco * item.quantity).toFixed(2).replace('.', ',')}</div>
+                    </div>
+                `;
+            });
+
+            orderSummary.innerHTML = html;
+        }
+
+        function renderDeliveryAddress() {
+            const addressInfo = document.getElementById('delivery-address-info');
+            
+            if (currentOrder && currentOrder.address) {
+                addressInfo.innerHTML = `
+                    <div class="info-row">
+                        <strong>${currentOrder.address.title}</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>${currentOrder.address.details}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function updateFinalSummary() {
+            const finalSummary = document.getElementById('final-summary');
+            const pixAmount = document.getElementById('pix-amount');
+            
+            if (currentOrder) {
+                finalSummary.innerHTML = `
+                    <div class="order-summary-item">
+                        <span>Subtotal:</span>
+                        <span>R$ ${currentOrder.subtotal.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="order-summary-item">
+                        <span>Taxa de entrega:</span>
+                        <span>R$ ${currentOrder.deliveryFee.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="order-summary-total">
+                        <span>Total:</span>
+                        <span>R$ ${currentOrder.total.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                `;
+
+                if (pixAmount) {
+                    pixAmount.textContent = `R$ ${currentOrder.total.toFixed(2).replace('.', ',')}`;
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            // Seleção de método de pagamento
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.addEventListener('click', () => {
+                    document.querySelectorAll('.payment-method').forEach(m => {
+                        m.classList.remove('selected');
+                    });
+                    method.classList.add('selected');
+                    
+                    selectedPaymentMethod = method.dataset.method;
+                    showPaymentForm(selectedPaymentMethod);
+                    updateConfirmButton();
                 });
+            });
+
+            // Formatação de inputs
+            document.getElementById('card-number')?.addEventListener('input', formatCardNumber);
+            document.getElementById('card-expiry')?.addEventListener('input', formatExpiryDate);
+            document.getElementById('card-cvv')?.addEventListener('input', formatCVV);
+            document.getElementById('cash-change')?.addEventListener('input', formatCurrency);
+
+            // Botão de confirmar pedido
+            document.getElementById('confirm-order-btn').addEventListener('click', confirmOrder);
+        }
+
+        function showPaymentForm(method) {
+            // Esconder todos os formulários
+            document.getElementById('credit-card-form').style.display = 'none';
+            document.getElementById('pix-info').style.display = 'none';
+            document.getElementById('cash-info').style.display = 'none';
+
+            // Mostrar formulário específico
+            switch(method) {
+                case 'cartao':
+                    document.getElementById('credit-card-form').style.display = 'block';
+                    break;
+                case 'pix':
+                    document.getElementById('pix-info').style.display = 'block';
+                    break;
+                case 'dinheiro':
+                    document.getElementById('cash-info').style.display = 'block';
+                    break;
+            }
+        }
+
+        function updateConfirmButton() {
+            const confirmBtn = document.getElementById('confirm-order-btn');
+            let isValid = selectedPaymentMethod !== null;
+
+            // Validações específicas por método
+            if (selectedPaymentMethod === 'cartao') {
+                isValid = isValid && validateCreditCard();
             }
 
-            if (cardCvv) {
-                cardCvv.addEventListener('input', function (e) {
-                    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
-                });
+            confirmBtn.disabled = !isValid;
+        }
+
+        function validateCreditCard() {
+            // Validação básica do cartão (implementar validação real conforme necessidade)
+            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+            const expiry = document.getElementById('card-expiry').value;
+            const cvv = document.getElementById('card-cvv').value;
+            const name = document.getElementById('card-name').value;
+
+            return cardNumber.length >= 13 && 
+                   expiry.length === 5 && 
+                   cvv.length >= 3 && 
+                   name.length > 0;
+        }
+
+        function formatCardNumber(e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+            let formattedValue = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            e.target.value = formattedValue.substring(0, 19);
+            updateConfirmButton();
+        }
+
+        function formatExpiryDate(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value.substring(0, 5);
+            updateConfirmButton();
+        }
+
+        function formatCVV(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+            updateConfirmButton();
+        }
+
+        function formatCurrency(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = (value / 100).toFixed(2);
+            value = value.replace('.', ',');
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+            e.target.value = value ? 'R$ ' + value : '';
+        }
+
+        async function confirmOrder() {
+            if (!currentOrder || !selectedPaymentMethod) {
+                showToast('Selecione um método de pagamento', 'error');
+                return;
             }
 
-            // --- Lógica do botão Continuar (COM MODAL) ---
-            if (continueButton) {
-                continueButton.addEventListener('click', function (e) {
-                    e.preventDefault(); // Previne qualquer envio de formulário padrão
+            // Mostrar loading
+            document.getElementById('loading-spinner').classList.add('active');
+            document.getElementById('confirm-order-btn').disabled = true;
 
-                    const activeTab = document.querySelector('.payment-tabs .tab-link.active');
-                    let selectedMethod = null;
-                    let isValid = false;
+            try {
+                // Criar objeto do pedido COMPATÍVEL
+                const orderData = {
+                    ...currentOrder,
+                    paymentMethod: selectedPaymentMethod,
+                    status: 'confirmado',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    orderNumber: generateOrderNumber(),
+                    customerName: 'Bruno',
+                    customerId: 'user123',
+                    
+                    // CAMPOS PARA COMPATIBILIDADE
+                    id_num: generateOrderNumber(),
+                    data: new Date().toLocaleDateString('pt-BR'),
+                    hora: new Date().toLocaleTimeString('pt-BR'),
+                    
+                    // ESTRUTURA COMPATÍVEL
+                    pagamento: {
+                        metodo: selectedPaymentMethod,
+                        status: 'confirmado'
+                    },
+                    endereco: {
+                        rua: currentOrder.address.street || currentOrder.address.details.split(',')[0] || '',
+                        numero: currentOrder.address.number || '',
+                        bairro: currentOrder.address.neighborhood || '',
+                        cidade: currentOrder.address.city || '',
+                        complemento: currentOrder.address.complement || ''
+                    },
+                    cliente: {
+                        nome: 'Bruno',
+                        telefone: ''
+                    },
+                    itens: currentOrder.cart.map(item => ({
+                        nome: item.nome,
+                        quantidade: item.quantity,
+                        preco: item.preco
+                    }))
+                };
 
-                    if (activeTab.dataset.tab === 'pague-online') {
-                        selectedMethod = document.querySelector('#pague-online .payment-method.active');
+                // Adicionar informações específicas do pagamento
+                if (selectedPaymentMethod === 'cartao') {
+                    orderData.paymentInfo = {
+                        cardLastFour: document.getElementById('card-number').value.slice(-4),
+                        cardName: document.getElementById('card-name').value
+                    };
+                } else if (selectedPaymentMethod === 'dinheiro') {
+                    orderData.paymentInfo = {
+                        changeFor: document.getElementById('cash-change').value || null
+                    };
+                }
 
-                        if (selectedMethod) {
-                            if (selectedMethod.id === 'method-card') {
-                                // Valida o formulário do cartão
-                                if (cardForm.checkValidity()) {
-                                    isValid = true;
-                                } else {
-                                    cardForm.reportValidity(); // Mostra erros de validação do HTML5
-                                    return;
-                                }
-                            } else if (selectedMethod.id === 'method-pix') {
-                                isValid = true; // Pix não precisa de validação extra
-                            }
-                        }
+                // Salvar no Firebase
+                const docRef = await db.collection('pedidos').add(orderData);
+                
+                // Limpar carrinho e pedido atual
+                localStorage.removeItem('cart');
+                localStorage.removeItem('currentOrder');
+                
+                // Mostrar mensagem de sucesso
+                showToast('Pedido realizado com sucesso!');
+                
+                // Redirecionar para página de status
+                setTimeout(() => {
+                    window.location.href = `stats_Pedido.html?orderId=${docRef.id}`;
+                }, 2000);
 
-                    } else if (activeTab.dataset.tab === 'pague-na-entrega') {
-                        selectedMethod = document.querySelector('#pague-na-entrega .payment-method.active');
-
-                        if (selectedMethod) { // Se 'method-dinheiro' ou 'method-cartao-entrega'
-                            isValid = true;
-                        }
-                    }
-
-                    // --- Se a validação falhar ou nada for selecionado ---
-                    if (!selectedMethod || !isValid) {
-                        alert('Por favor, selecione um método de pagamento válido.');
-                        return;
-                    }
-
-                    // --- Se a validação passar ---
-
-                    // Simulação de processamento
-                    continueButton.textContent = 'Processando...';
-                    continueButton.disabled = true;
-
-                    setTimeout(() => {
-                        // 1. Mostrar o modal
-                        modal.classList.add('active');
-
-                        // 2. Esperar o modal ser exibido e redirecionar
-                        setTimeout(() => {
-                            // 3. Redirecionar para a página de sucesso/obrigado
-                            // Altere "obrigado.html" para sua página de destino
-                            window.location.href = 'obrigado.html';
-
-                        }, 2500); // Tempo que o modal fica visível (2.5 segundos)
-
-                    }, 2000); // Tempo do "Processando..." (2 segundos)
-                });
+            } catch (error) {
+                console.error('Erro ao confirmar pedido:', error);
+                showToast('Erro ao processar pedido. Tente novamente.', 'error');
+                document.getElementById('loading-spinner').classList.remove('active');
+                document.getElementById('confirm-order-btn').disabled = false;
             }
-        });
+        }
+
+        function generateOrderNumber() {
+            return 'SM' + Date.now() + Math.floor(Math.random() * 1000);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            if (type === 'error') {
+                toast.className = 'toast error';
+                toast.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i><span id="toast-message">${message}</span>`;
+            } else {
+                toast.className = 'toast';
+                toast.innerHTML = `<i class="fa-solid fa-check-circle"></i><span id="toast-message">${message}</span>`;
+            }
+            
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
     </script>
 </body>
-
 </html>

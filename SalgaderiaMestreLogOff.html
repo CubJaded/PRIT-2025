@@ -7,63 +7,6 @@
     <link rel="icon" href="imgs/mestreSalgado.jpg" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Roboto&family=Oswald:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
-    <!-- Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword,
-            updateProfile
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            doc, 
-            setDoc,
-            getDoc 
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-        import { 
-            getStorage, 
-            ref, 
-            uploadBytes, 
-            getDownloadURL 
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
-            authDomain: "salgaderia-mestre.firebaseapp.com",
-            projectId: "salgaderia-mestre",
-            storageBucket: "salgaderia-mestre.firebasestorage.app",
-            messagingSenderId: "280285587483",
-            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
-            measurementId: "G-1QSMWQ65ZZ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseStorage = storage;
-        window.firebaseFunctions = {
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            updateProfile,
-            collection,
-            addDoc,
-            doc,
-            setDoc,
-            getDoc,
-            ref,
-            uploadBytes,
-            getDownloadURL
-        };
-    </script>
 
     <style>
         /* Reset */
@@ -148,6 +91,29 @@
 
         .sobre p {
             font-size: 1.1rem;
+        }
+
+        .sobre-btn-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .sobre-btn {
+            display: inline-block;
+            background: linear-gradient(to right, #b84a1b, #ff914d);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(184, 74, 27, 0.3);
+        }
+
+        .sobre-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(184, 74, 27, 0.4);
         }
 
         .cardapio-cards-grid {
@@ -476,15 +442,6 @@
             text-decoration: underline;
             cursor: pointer;
         }
-        .avatar-preview {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #b84a1b;
-            background: #ffe1cc;
-            margin-bottom: 10px;
-        }
         .loading {
             opacity: 0.7;
             pointer-events: none;
@@ -513,20 +470,6 @@
         .user-type-btn:first-child {
             border-right: 1px solid #ffd6b0;
         }
-        .avatar-upload-btn {
-            background: #fff3e0;
-            color: #b84a1b;
-            border: 1px solid #ffd6b0;
-            border-radius: 8px;
-            padding: 8px 16px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        .avatar-upload-btn:hover {
-            background: #ffe1cc;
-        }
     </style>
 </head>
 <body>
@@ -538,7 +481,8 @@
 
     <nav>
         <ul>
-            <li><a href="#carrossel">Sobre</a></li>
+            <li><a href="sobre_deslogado.html">Sobre</a></li>
+            <li><a href="#carrossel">Início</a></li>
             <li><a href="#cardapio">Cardápio</a></li>
             <li><a href="#pedir">Peça Agora!</a></li>
             <li style="margin-left:auto;">
@@ -552,7 +496,7 @@
         <div class="carousel-container">
             <button class="carousel-btn left" onclick="moveCarousel(-1)">&#10094;</button>
             <div class="carousel-slide">
-                <img src="coxinha-2.webp" alt="Coxinhas" class="carousel-img" style="display:block;">
+                <img src="https://www.estadao.com.br/resizer/v2/Q7HKQKQW4RDTFMK7CR4ZZWTTTI.JPG?auth=060f77d9ab978eace9c4b28ec294049d907aac5dbed5157f114eb18088799e0f" alt="Coxinhas" class="carousel-img" style="display:block;">
                 <img src="https://imagens.jotaja.com/produtos/ac77e0cb-2279-4e82-af29-ac6d87ca1c09.jpg" alt="Tabua de salgados" class="carousel-img" style="display:none;">
                 <img src="https://i.pinimg.com/736x/95/86/51/9586515700f9bbaebaaca53dda0d0fb3.jpg" alt="Festa com salgados" class="carousel-img" style="display:none;">
             </div>
@@ -563,32 +507,38 @@
             <span class="dot" onclick="showSlide(1)"></span>
             <span class="dot" onclick="showSlide(2)"></span>
         </div>
+
+        <div class="sobre-btn-container">
+            <a href="sobre_deslogado.html" class="sobre-btn">
+                <i class="fa-solid fa-info-circle"></i> Conheça Nossa História
+            </a>
+        </div>
     </section>
 
     <section class="section cardapio" id="cardapio">
         <h2>Cardápio</h2>
         <div class="cardapio-cards-grid">
-            <a class="cardapio-card" href="cardapio_Combos.html">
+            <a class="cardapio-card" href="cardapio_deslogado.html">
                 <img src="imagens usadas/image 1.png" alt="Combos">
                 <span>Combos</span>
             </a>
-            <a class="cardapio-card" href="cardapio_Fritos.html">
+            <a class="cardapio-card" href="cardapio_deslogado.html">
                 <img src="https://d2qcpt1idvpipw.cloudfront.net/recipes/2022/01/Massa-de-salgado-frito.png" alt="Fritos">
                 <span>Fritos</span>
             </a>
-            <a class="cardapio-card" href="cardapio_Assados.html">
+            <a class="cardapio-card" href="cardapio_deslogado.html">
                 <img src="https://www.tiaeliana.com.br/alimentacao-salgados/imagens/fabrica-salgados-assados.jpg" alt="Assados">
                 <span>Assados</span>
             </a>
-            <a class="cardapio-card" href="cardapio_MiniSalgados.html">
+            <a class="cardapio-card" href="cardapio_deslogado.html">
                 <img src="https://ibassets.com.br/ib.item.image.large/l-9113aff4d6bf4046ad19a23785233444.jpeg" alt="Mini Salgados">
                 <span>Mini Salgados</span>
             </a>
-            <a class="cardapio-card" href="cardapio_Doces.html">
+            <a class="cardapio-card" href="cardapio_deslogado.html">
                 <img src="https://receitasdebemcasado.com/wp-content/uploads/2025/05/Brigadeiro.png" alt="Doces">
                 <span>Doces</span>
             </a>
-            <a class="cardapio-card" href="cardapio_bebidas.html">
+            <a class="cardapio-card" href="cardapio_deslogado.html">
                 <img src="https://www.gizmodo.com.br/app/uploads/2025/09/refrigerantes.png" alt="Bebidas">
                 <span>Bebidas</span>
             </a>
@@ -596,20 +546,23 @@
     </section>
 
     <section class="section cta-banner" id="pedir">
-        <img src="image 11.png" class="cta-img-left" alt="Doces">
-        <img src="CoxiCoca.png" class="cta-img-right" alt="Coxinhas e Refrigerante">
+        <img src="imagens usadas/image 11.png" class="cta-img-left" alt="Doces">
+        <img src="imagens usadas/CoxiCoca.png" class="cta-img-right" alt="Coxinhas e Refrigerante">
         
         <div class="cta-text">
             <h1>SENTIU FOME?</h1>
             <p>Só o mestre entende do assunto: salgado crocante, doce no ponto e bebida gelada!</p>
-            <a href="#" class="cta-button">Peça Agora!</a>
+            <a href="cardapio.html" class="cta-button">Peça Agora!</a>
         </div>
     </section>
         
     <footer>
         <p>&copy; 2025 Mestre dos Salgados &mdash; Todos os direitos reservados</p>
         <p style="margin-top:8px; font-size:0.98rem;">
-            Rua dos Sabores, 123 - São Paulo/SP &nbsp;|&nbsp; WhatsApp: (11) 99999-9999 &nbsp;|&nbsp; Instagram: <a href="https://instagram.com/mestredossalgados" target="_blank" style="color:#fff; text-decoration:underline;">@mestredossalgados</a>
+            Rua dos Sabores, 123 - Barueri/SP &nbsp;|&nbsp; WhatsApp: (11) 99999-9999 &nbsp;|&nbsp; Instagram: <a href="https://instagram.com/SalgaderiaMestreOficial" target="_blank" style="color:#fff; text-decoration:underline;">@SalgaderiaMestreOficial</a>
+        </p>
+        <p style="margin-top:8px; font-size:0.98rem;">
+           Tem alguma sugestão? <a href="Fale_Conosco.html" target="_blank" style="color:#fff; text-decoration:underline;">Fale conosco!!</a>
         </p>
     </footer>
 
@@ -645,12 +598,8 @@
             
             <div class="user-type-selector">
                 <button class="user-type-btn active" data-type="cliente">Cliente</button>
-                <button class="user-type-btn" data-type="funcionario">Funcionário</button>
+                <button class="user-type-btn" data-type="funcionario" style="display:none;">Funcionário</button>
             </div>
-            
-            <img id="register-avatar-preview" src="imgs/default-avatar.png" alt="Foto de perfil" class="avatar-preview">
-            <input type="file" id="register-avatar" accept="image/*" style="display:none;">
-            <button class="avatar-upload-btn" id="register-avatar-btn">Escolher foto</button>
             
             <input type="text" id="register-name" placeholder="Nome completo">
             <input type="email" id="register-email" placeholder="E-mail">
@@ -712,8 +661,24 @@
                     this.classList.add('active');
                     // Update current user type
                     currentUserType = this.dataset.type;
+                    
+                    // Update UI based on user type
+                    updateUIForUserType();
                 });
             });
+        }
+
+        // Update UI based on user type
+        function updateUIForUserType() {
+            const openRegisterBtn = document.getElementById('open-register');
+            
+            if (currentUserType === 'funcionario') {
+                // Hide cadastro link for funcionários
+                openRegisterBtn.style.display = 'none';
+            } else {
+                // Show cadastro link for clientes
+                openRegisterBtn.style.display = 'block';
+            }
         }
 
         // Modal Management
@@ -774,101 +739,60 @@
         setupPasswordToggle('toggle-login-password', 'login-password');
         setupPasswordToggle('toggle-register-password', 'register-password');
 
-        // Avatar Preview and Upload
-        document.getElementById('register-avatar-btn').onclick = function() {
-            document.getElementById('register-avatar').click();
-        };
-
-        document.getElementById('register-avatar').onchange = function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    document.getElementById('register-avatar-preview').src = ev.target.result;
-                };
-                reader.readAsDataURL(file);
+        // Fixed login credentials
+        const fixedAccounts = {
+            'cliente': {
+                'bruno@email.com': '123456'
+            },
+            'funcionario': {
+                'felipe@email.com': '123456'
             }
         };
 
-        // Firebase Authentication
-        async function registerUser(email, password, name, avatarFile, userType) {
-            try {
-                const { createUserWithEmailAndPassword, updateProfile } = window.firebaseFunctions;
-                const auth = window.firebaseAuth;
-                
-                // Create user
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+        // Login function
+        document.getElementById('login-confirm').onclick = function() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorElement = document.getElementById('login-error');
 
-                // Upload avatar if exists
-                let avatarUrl = 'imgs/default-avatar.png';
-                if (avatarFile) {
-                    const { ref, uploadBytes, getDownloadURL } = window.firebaseFunctions;
-                    const storage = window.firebaseStorage;
-                    
-                    const avatarRef = ref(storage, `avatars/${user.uid}/${avatarFile.name}`);
-                    const snapshot = await uploadBytes(avatarRef, avatarFile);
-                    avatarUrl = await getDownloadURL(snapshot.ref);
-                }
-
-                // Update profile
-                await updateProfile(user, {
-                    displayName: name,
-                    photoURL: avatarUrl
-                });
-
-                // Save user data to Firestore with user type
-                const { doc, setDoc } = window.firebaseFunctions;
-                const db = window.firebaseDb;
-                
-                await setDoc(doc(db, "users", user.uid), {
-                    name: name,
-                    email: email,
-                    avatar: avatarUrl,
-                    userType: userType,
-                    createdAt: new Date()
-                });
-
-                return { success: true, user };
-            } catch (error) {
-                return { success: false, error: error.message };
+            if (!email || !password) {
+                errorElement.textContent = 'Preencha todos os campos!';
+                errorElement.style.display = 'block';
+                return;
             }
-        }
 
-        async function loginUser(email, password, userType) {
-            try {
-                const { signInWithEmailAndPassword } = window.firebaseFunctions;
-                const auth = window.firebaseAuth;
+            // Show loading
+            const loginBtn = document.getElementById('login-confirm');
+            loginBtn.textContent = 'Entrando...';
+            loginBtn.classList.add('loading');
+
+            // Check fixed credentials
+            setTimeout(() => {
+                loginBtn.textContent = 'Entrar';
+                loginBtn.classList.remove('loading');
                 
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                
-                // Check user type if logging in as employee
-                if (userType === 'funcionario') {
-                    const { doc, getDoc } = window.firebaseFunctions;
-                    const db = window.firebaseDb;
+                if (fixedAccounts[currentUserType] && fixedAccounts[currentUserType][email] === password) {
+                    // Login successful
+                    hideModal(loginModal);
                     
-                    const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        if (userData.userType !== 'funcionario') {
-                            await auth.signOut();
-                            return { success: false, error: 'Acesso restrito para funcionários' };
-                        }
+                    // Redirect based on user type
+                    if (currentUserType === 'funcionario') {
+                        window.location.href = 'Adm_status.html';
+                    } else {
+                        window.location.href = 'SalgaderiaMestreLogOn.html';
                     }
+                } else {
+                    errorElement.textContent = 'E-mail ou senha inválidos!';
+                    errorElement.style.display = 'block';
                 }
-                
-                return { success: true, user: userCredential.user };
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        }
+            }, 1000);
+        };
 
-        // Event Listeners
-        document.getElementById('register-confirm').onclick = async () => {
+        // Registration function (only for clients)
+        document.getElementById('register-confirm').onclick = function() {
             const name = document.getElementById('register-name').value.trim();
             const email = document.getElementById('register-email').value.trim();
             const password = document.getElementById('register-password').value;
-            const avatarFile = document.getElementById('register-avatar').files[0];
             const errorElement = document.getElementById('register-error');
 
             if (!name || !email || !password) {
@@ -888,61 +812,21 @@
             registerBtn.textContent = 'Cadastrando...';
             registerBtn.classList.add('loading');
 
-            const result = await registerUser(email, password, name, avatarFile, currentUserType);
-            
-            registerBtn.textContent = 'Cadastrar';
-            registerBtn.classList.remove('loading');
+            // Simulate registration (only for clients)
+            setTimeout(() => {
+                registerBtn.textContent = 'Cadastrar';
+                registerBtn.classList.remove('loading');
 
-            if (result.success) {
                 hideModal(registerModal);
                 showModal(loginModal);
                 document.getElementById('login-email').value = email;
                 document.getElementById('register-error').style.display = 'none';
                 
-                // Redirect based on user type
-                if (currentUserType === 'funcionario') {
-                    window.location.href = 'Adm_status.html';
-                } else {
-                    window.location.href = 'SalgaderiaMestreLogOn.html';
-                }
-            } else {
-                errorElement.textContent = result.error;
-                errorElement.style.display = 'block';
-            }
-        };
-
-        document.getElementById('login-confirm').onclick = async () => {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            const errorElement = document.getElementById('login-error');
-
-            if (!email || !password) {
-                errorElement.textContent = 'Preencha todos os campos!';
-                errorElement.style.display = 'block';
-                return;
-            }
-
-            // Show loading
-            const loginBtn = document.getElementById('login-confirm');
-            loginBtn.textContent = 'Entrando...';
-            loginBtn.classList.add('loading');
-
-            const result = await loginUser(email, password, currentUserType);
-            
-            loginBtn.textContent = 'Entrar';
-            loginBtn.classList.remove('loading');
-
-            if (result.success) {
-                // Redirect based on user type
-                if (currentUserType === 'funcionario') {
-                    window.location.href = 'Adm_status.html';
-                } else {
-                    window.location.href = 'SalgaderiaMestreLogOn.html';
-                }
-            } else {
-                errorElement.textContent = result.error;
-                errorElement.style.display = 'block';
-            }
+                // Auto-fill login after registration
+                setTimeout(() => {
+                    document.getElementById('login-password').focus();
+                }, 500);
+            }, 1500);
         };
 
         // Initialize
@@ -959,29 +843,6 @@
 
             // Setup user type selector
             setupUserTypeSelector();
-
-            // Check if user is already logged in
-            const auth = window.firebaseAuth;
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    // Check user type and redirect accordingly
-                    const { doc, getDoc } = window.firebaseFunctions;
-                    const db = window.firebaseDb;
-                    
-                    getDoc(doc(db, "users", user.uid)).then((userDoc) => {
-                        if (userDoc.exists()) {
-                            const userData = userDoc.data();
-                            if (userData.userType === 'funcionario') {
-                                window.location.href = 'Adm_status.html';
-                            } else {
-                                window.location.href = 'SalgaderiaMestreLogOn.html';
-                            }
-                        } else {
-                            window.location.href = 'SalgaderiaMestreLogOn.html';
-                        }
-                    });
-                }
-            });
         });
     </script>
 </body>

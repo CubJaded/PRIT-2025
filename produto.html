@@ -249,6 +249,8 @@
             margin-bottom: 8px;
             padding: 5px 0;
             border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
         }
 
         .nutrition-list li:last-child {
@@ -262,6 +264,11 @@
             display: inline-block;
             width: 1em;
             margin-left: -1em;
+        }
+
+        .nutrition-value {
+            font-weight: bold;
+            color: var(--primary-color);
         }
 
         footer {
@@ -466,16 +473,17 @@
             const placeholderImage = `https://via.placeholder.com/300/EEEEEE/666666?text=${encodeURIComponent(product.nome?.substring(0, 15) || 'Produto')}`;
             const imageSrc = product.imagemUrl || placeholderImage;
 
-            // Construir lista nutricional
+            // Construir lista nutricional com os NOVOS CAMPOS
             let nutritionHTML = '';
             const nutricao = product.nutricao || {};
             
-            if (nutricao.calorias) nutritionHTML += `<li><strong>Calorias:</strong> ${nutricao.calorias}</li>`;
-            if (nutricao.carboidratos) nutritionHTML += `<li><strong>Carboidratos:</strong> ${nutricao.carboidratos}</li>`;
-            if (nutricao.proteinas) nutritionHTML += `<li><strong>Proteínas:</strong> ${nutricao.proteinas}</li>`;
-            if (nutricao.gorduras) nutritionHTML += `<li><strong>Gorduras:</strong> ${nutricao.gorduras}</li>`;
-            if (nutricao.sodio) nutritionHTML += `<li><strong>Sódio:</strong> ${nutricao.sodio}</li>`;
-            if (nutricao.fibras) nutritionHTML += `<li><strong>Fibras:</strong> ${nutricao.fibras}</li>`;
+            // Usando os campos corretos da tabela nutricional
+            if (nutricao.calorias) nutritionHTML += `<li><span>Calorias</span><span class="nutrition-value">${nutricao.calorias}</span></li>`;
+            if (nutricao.carboidratos) nutritionHTML += `<li><span>Carboidratos</span><span class="nutrition-value">${nutricao.carboidratos}</span></li>`;
+            if (nutricao.proteinas) nutritionHTML += `<li><span>Proteínas</span><span class="nutrition-value">${nutricao.proteinas}</span></li>`;
+            if (nutricao.gorduras) nutritionHTML += `<li><span>Gorduras</span><span class="nutrition-value">${nutricao.gorduras}</span></li>`;
+            if (nutricao.sodio) nutritionHTML += `<li><span>Sódio</span><span class="nutrition-value">${nutricao.sodio}</span></li>`;
+            if (nutricao.acucares) nutritionHTML += `<li><span>Açúcares</span><span class="nutrition-value">${nutricao.acucares}</span></li>`;
             
             if (!nutritionHTML) {
                 nutritionHTML = '<li>Informações nutricionais não disponíveis</li>';
@@ -526,7 +534,7 @@
                         <div class="divider"></div>
                         
                         <div>
-                            <h2>INFORMAÇÕES NUTRICIONAIS</h2>
+                            <h2>TABELA NUTRICIONAL</h2>
                             <ul class="nutrition-list">
                                 ${nutritionHTML}
                             </ul>
