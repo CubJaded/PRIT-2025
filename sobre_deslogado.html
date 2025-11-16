@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sobre - Salgaderia Mestre</title>
+    <link rel="icon" href="imgs/mestreSalgado.jpg" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Roboto&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #fff8f0;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        header {
+            background: linear-gradient(to right, #b84a1b, #ff914d);
+            padding: 20px 0;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            letter-spacing: 2px;
+        }
+        .login-btn {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .login-btn:hover {
+            background: white;
+            color: #b84a1b;
+        }
+        nav {
+            background-color: #fff3e0;
+            padding: 10px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        nav li {
+            margin: 0 20px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #b84a1b;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+        nav a:hover {
+            color: #ff5a1f;
+        }
+        .section {
+            padding: 60px 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+        .section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #b84a1b;
+            border-bottom: 2px solid #ffe1cc;
+            padding-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+        }
+        .sobre-content {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        .sobre-text {
+            flex: 1;
+        }
+        .sobre-text p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        .sobre-image {
+            flex: 1;
+            text-align: center;
+        }
+        .sobre-image img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .valores-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .valor-card {
+            background: #fff3e0;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .valor-card:hover {
+            transform: translateY(-5px);
+        }
+        .valor-icon {
+            font-size: 3rem;
+            color: #b84a1b;
+            margin-bottom: 15px;
+        }
+        .valor-card h3 {
+            color: #b84a1b;
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+        .back-btn {
+            display: inline-block;
+            background: linear-gradient(to right, #b84a1b, #ff914d);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 30px;
+            transition: transform 0.3s;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+        }
+        @media (max-width: 900px) {
+            .sobre-content { flex-direction: column; }
+            .valores-grid { grid-template-columns: 1fr; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 28px 20px;
+            background: linear-gradient(to right, #b84a1b, #ff914d);
+            color: #fff;
+            font-size: 1.1rem;
+            border-top: none;
+            box-shadow: 0 -2px 8px #0001;
+        }
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Salgaderia Mestre</h1>
+        <p>Tradição, sabor e qualidade em cada mordida!</p>
+        <a href="SalgaderiaMestreLogOff.html" class="login-btn">
+            <i class="fa-solid fa-right-to-bracket"></i> Entrar
+        </a>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="sobre_deslogado.html" style="color: #ff5a1f;">Sobre</a></li>
+            <li><a href="SalgaderiaMestreLogOff.html">Início</a></li>
+            <li><a href="SalgaderiaMestreLogOff.html#cardapio">Cardápio</a></li>
+            <li><a href="SalgaderiaMestreLogOff.html#pedir">Peça Agora!</a></li>
+        </ul>
+    </nav>
+
+    <section class="section sobre">
+        <h2>Sobre a Salgaderia Mestre</h2>
+        
+        <div class="sobre-content">
+            <div class="sobre-text">
+                <p>Fundada em 2010, a <strong>Salgaderia Mestre</strong> nasceu do sonho de trazer os sabores autênticos da culinária brasileira para o dia a dia das pessoas. Começamos como uma pequena loja de bairro e hoje somos referência em salgados na região.</p>
+                
+                <p>Nossa missão é simples: oferecer produtos de altíssima qualidade, feitos com ingredientes selecionados e muito cuidado no preparo. Cada salgado que sai da nossa cozinha carrega a tradição e o amor pela boa comida.</p>
+                
+                <p>Utilizamos apenas ingredientes frescos e de primeira qualidade, sem conservantes artificiais. Nossa massa é preparada diariamente e nossos recheios são feitos com carnes selecionadas e temperos especiais da casa.</p>
+                
+                <p>Além dos tradicionais salgados fritos e assados, oferecemos opções para todos os gostos: mini salgados para festas, doces irresistíveis e combos especiais para compartilhar momentos especiais com família e amigos.</p>
+            </div>
+            <div class="sobre-image">
+                <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Nossa cozinha">
+            </div>
+        </div>
+
+        <div class="valores-grid">
+            <div class="valor-card">
+                <div class="valor-icon">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <h3>Qualidade</h3>
+                <p>Ingredientes selecionados e preparo artesanal em todos os nossos produtos.</p>
+            </div>
+            <div class="valor-card">
+                <div class="valor-icon">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <h3>Tradição</h3>
+                <p>Mais de 15 anos levando o melhor da culinária brasileira para sua mesa.</p>
+            </div>
+            <div class="valor-card">
+                <div class="valor-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <h3>Família</h3>
+                <p>Atendimento familiar e acolhedor para tornar sua experiência única.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="SalgaderiaMestreLogOff.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Voltar para a Página Inicial
+            </a>
+        </div>
+    </section>
+    
+    <footer>
+        <p>&copy; 2025 Mestre dos Salgados &mdash; Todos os direitos reservados</p>
+        <p style="margin-top:8px; font-size:0.98rem;">
+            Rua dos Sabores, 123 - São Paulo/SP &nbsp;|&nbsp; WhatsApp: (11) 99999-9999 &nbsp;|&nbsp; Instagram: <a href="https://instagram.com/mestredossalgados" target="_blank" style="color:#fff; text-decoration:underline;">@mestredossalgados</a>
+        </p>
+    </footer>
+</body>
+</html>
