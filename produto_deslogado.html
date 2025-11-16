@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Firebase v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #d96d24;
+            --secondary-color: #ff914d;
+            --text-color: #000000;
+            --light-bg: #F4EAE3;
+            --gold-star: #FFD700;
+            --success-color: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+        }
+
+        .header-left,
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-left span:first-of-type {
+            font-weight: 700;
+        }
+
+        .header-right a {
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .header-right i {
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        main {
+            text-align: center;
+            padding: 30px 20px;
+            flex: 1;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: auto;
+            max-width: 1200px;
+        }
+
+        .product-info-card,
+        .description-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 450px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-info-card {
+            flex: 1;
+            max-width: 450px;
+            text-align: left;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 250px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .product-details {
+            width: 100%;
+        }
+
+        .product-details p {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .product-details p strong {
+            font-weight: 700;
+            color: white;
+        }
+
+        .price {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .unit {
+            font-size: 0.5em;
+            font-weight: 400;
+            vertical-align: top;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .rating-value {
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .stars .fa-star {
+            color: var(--gold-star);
+        }
+
+        .rate-product {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .rate-product .fa-star {
+            font-size: 1.5em;
+            color: white;
+            cursor: pointer;
+        }
+
+        .rate-product .fa-star.active,
+        .rate-product .fa-star:hover {
+            color: var(--gold-star);
+        }
+
+        .add-to-cart-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #8c5b3b;
+        }
+
+        .description-card {
+            flex: 1;
+            max-width: 450px;
+            text-align: center;
+            padding: 50px;
+            background-color: white;
+        }
+
+        .description-card h2 {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .description-text {
+            font-size: 1.2em;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .divider {
+            border-top: 1px solid var(--primary-color);
+            width: 80%;
+            margin: 0 auto 30px;
+        }
+
+        .nutrition-list {
+            list-style-type: none;
+            text-align: left;
+            padding-left: 0;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .nutrition-list li {
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .nutrition-list li:last-child {
+            border-bottom: none;
+        }
+
+        .nutrition-list li::before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        .nutrition-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 100px 20px;
+            color: #d9534f;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 32px 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px #0006;
+            max-width: 400px;
+            width: 90vw;
+            position: relative;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #b84a1b;
+            cursor: pointer;
+        }
+        .modal h2 {
+            color: #b84a1b;
+            margin-bottom: 18px;
+        }
+        .modal input {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #ffd6b0;
+        }
+        .password-container {
+            width: 90%;
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .password-container input {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #b84a1b;
+            padding: 0;
+        }
+        .error-message {
+            color: #ff5a1f;
+            font-size: 0.98rem;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .modal-button {
+            background: linear-gradient(to right,#b84a1b,#ff914d);
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 32px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #0002;
+            margin-top: 8px;
+            width: 90%;
+        }
+        .modal-link {
+            background: none;
+            color: #b84a1b;
+            border: none;
+            font-size: 1rem;
+            margin-top: 14px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .user-type-selector {
+            display: flex;
+            width: 90%;
+            margin-bottom: 15px;
+            border: 1px solid #ffd6b0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .user-type-btn {
+            flex: 1;
+            padding: 10px;
+            background: #fff3e0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .user-type-btn.active {
+            background: #b84a1b;
+            color: white;
+        }
+        .user-type-btn:first-child {
+            border-right: 1px solid #ffd6b0;
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                flex-direction: column;
+            }
+            .product-info-card,
+            .description-card {
+                max-width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <i class="fa-solid fa-user"></i>
+            <span>Visitante</span>
+            <span>Não logado</span>
+        </div>
+        <div class="header-right">
+            <a href="cardapio_deslogado.html"><i class="fa-solid fa-arrow-left"></i></a>
+            <a href="#" id="cart-link"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="SalgaderiaMestreLogOff.html"><i class="fa-solid fa-right-to-bracket"></i></a>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Carregando produto...</p>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-login">&times;</button>
+            <h2>Entrar</h2>
+            
+            <div class="user-type-selector">
+                <button class="user-type-btn active" data-type="cliente">Cliente</button>
+                <button class="user-type-btn" data-type="funcionario">Funcionário</button>
+            </div>
+            
+            <input type="email" id="login-email" placeholder="E-mail">
+            <div class="password-container">
+                <input type="password" id="login-password" placeholder="Senha">
+                <button class="toggle-password" id="toggle-login-password">
+                    <i class="fa-regular fa-eye"></i>
+                </button>
+            </div>
+            <div class="error-message" id="login-error"></div>
+            <button class="modal-button" id="login-confirm">Entrar</button>
+            <button class="modal-link" id="open-register">Cadastre-se</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© MESTRE DOS SALGADOS. TODOS OS DIREITOS RESERVADOS</p>
+    </footer>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
+            authDomain: "salgaderia-mestre.firebaseapp.com",
+            projectId: "salgaderia-mestre",
+            storageBucket: "salgaderia-mestre.firebasestorage.app",
+            messagingSenderId: "280285587483",
+            appId: "1:280285587483:web:0b36fab366f2e0f2b8b0be",
+            measurementId: "G-1QSMWQ65ZZ"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentProduct = null;
+
+        // User Type Management
+        let currentUserType = 'cliente';
+
+        function setupUserTypeSelector() {
+            const userTypeBtns = document.querySelectorAll('.user-type-btn');
+            userTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    userTypeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentUserType = this.dataset.type;
+                    updateUIForUserType();
+                });
+            });
+        }
+
+        function updateUIForUserType() {
+            const openRegisterBtn = document.getElementById('open-register');
+            if (currentUserType === 'funcionario') {
+                openRegisterBtn.style.display = 'none';
+            } else {
+                openRegisterBtn.style.display = 'block';
+            }
+        }
+
+        // Modal Management
+        const cartLink = document.getElementById('cart-link');
+        const loginModal = document.getElementById('login-modal');
+        const closeLogin = document.getElementById('close-login');
+        const loginConfirm = document.getElementById('login-confirm');
+
+        function showModal(modal) {
+            modal.style.display = 'flex';
+        }
+
+        function hideModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        cartLink.onclick = (e) => {
+            e.preventDefault();
+            showModal(loginModal);
+        };
+
+        closeLogin.onclick = () => hideModal(loginModal);
+        loginModal.onclick = (e) => { if (e.target === loginModal) hideModal(loginModal); };
+
+        // Password Toggle
+        document.getElementById('toggle-login-password').onclick = function() {
+            const passwordInput = document.getElementById('login-password');
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        };
+
+        // Fixed login credentials
+        const fixedAccounts = {
+            'cliente': {
+                'bruno@email.com': '123456'
+            },
+            'funcionario': {
+                'felipe@email.com': '123456'
+            }
+        };
+
+        // Login function
+        loginConfirm.onclick = function() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorElement = document.getElementById('login-error');
+
+            if (!email || !password) {
+                errorElement.textContent = 'Preencha todos os campos!';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            const loginBtn = document.getElementById('login-confirm');
+            loginBtn.textContent = 'Entrando...';
+            loginBtn.classList.add('loading');
+
+            setTimeout(() => {
+                loginBtn.textContent = 'Entrar';
+                loginBtn.classList.remove('loading');
+                
+                if (fixedAccounts[currentUserType] && fixedAccounts[currentUserType][email] === password) {
+                    hideModal(loginModal);
+                    if (currentUserType === 'funcionario') {
+                        window.location.href = 'Adm_status.html';
+                    } else {
+                        window.location.href = 'produto.html?id=' + (currentProduct ? currentProduct.id : '');
+                    }
+                } else {
+                    errorElement.textContent = 'E-mail ou senha inválidos!';
+                    errorElement.style.display = 'block';
+                }
+            }, 1000);
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            console.log("Buscando produto ID:", productId);
+            
+            if (!productId) {
+                showError("ID do produto não encontrado na URL");
+                return;
+            }
+
+            // Setup user type selector
+            setupUserTypeSelector();
+
+            // Carregar produto do Firebase
+            loadProduct(productId);
+        });
+
+        async function loadProduct(productId) {
+            try {
+                console.log("Iniciando busca do produto...");
+                
+                const docRef = db.collection("produtos").doc(productId);
+                
+                docRef.get().then((doc) => {
+                    if (doc.exists) {
+                        currentProduct = {
+                            id: doc.id,
+                            ...doc.data()
+                        };
+                        
+                        console.log("Produto carregado:", currentProduct);
+                        renderProduct(currentProduct);
+                    } else {
+                        console.log("Produto não encontrado");
+                        showError("Produto não encontrado");
+                    }
+                }).catch((error) => {
+                    console.error("Erro ao buscar produto:", error);
+                    showError("Erro ao carregar produto: " + error.message);
+                });
+
+            } catch (error) {
+                console.error("Erro:", error);
+                showError("Erro ao carregar produto: " + error.message);
+            }
+        }
+
+        function showError(message) {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = `
+                <div class="error-container">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 64px; margin-bottom: 20px;"></i>
+                    <h2>Erro</h2>
+                    <p>${message}</p>
+                    <a href="cardapio_deslogado.html" style="color: var(--primary-color); text-decoration: none; font-weight: bold; margin-top: 20px; display: inline-block;">
+                        ← Voltar ao Cardápio
+                    </a>
+                </div>
+            `;
+        }
+
+        function renderProduct(product) {
+            const mainContent = document.getElementById('main-content');
+            
+            const placeholderImage = `https://via.placeholder.com/300/EEEEEE/666666?text=${encodeURIComponent(product.nome?.substring(0, 15) || 'Produto')}`;
+            const imageSrc = product.imagemUrl || placeholderImage;
+
+            // Construir lista nutricional
+            let nutritionHTML = '';
+            const nutricao = product.nutricao || {};
+            
+            if (nutricao.calorias) nutritionHTML += `<li><span>Calorias</span><span class="nutrition-value">${nutricao.calorias}</span></li>`;
+            if (nutricao.carboidratos) nutritionHTML += `<li><span>Carboidratos</span><span class="nutrition-value">${nutricao.carboidratos}</span></li>`;
+            if (nutricao.proteinas) nutritionHTML += `<li><span>Proteínas</span><span class="nutrition-value">${nutricao.proteinas}</span></li>`;
+            if (nutricao.gorduras) nutritionHTML += `<li><span>Gorduras</span><span class="nutrition-value">${nutricao.gorduras}</span></li>`;
+            if (nutricao.sodio) nutritionHTML += `<li><span>Sódio</span><span class="nutrition-value">${nutricao.sodio}</span></li>`;
+            if (nutricao.acucares) nutritionHTML += `<li><span>Açúcares</span><span class="nutrition-value">${nutricao.acucares}</span></li>`;
+            
+            if (!nutritionHTML) {
+                nutritionHTML = '<li>Informações nutricionais não disponíveis</li>';
+            }
+
+            mainContent.innerHTML = `
+                <h1>${product.categoria ? product.categoria.toUpperCase() : 'DETALHES DO PRODUTO'}</h1>
+                <div class="content-container">
+                    <div class="product-info-card">
+                        <img src="${imageSrc}" alt="${product.nome}" class="product-image" onerror="this.src='${placeholderImage}'">
+                        <div class="product-details">
+                            <p><strong>Produto:</strong></p>
+                            <p id="product-name-and-units">${product.nome || 'Nome não disponível'} - ${product.unidadesTexto || ''}</p>
+                            <p><strong>Preço:</strong></p>
+                            <p class="price">R$ ${product.preco ? Number(product.preco).toFixed(2).replace('.', ',') : '0,00'}</p>
+                            
+                            <p><strong>Avaliação:</strong></p>
+                            <div class="rating">
+                                <span class="rating-value">5.0</span>
+                                <span class="stars">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+                            </div>
+                            
+                            <p><strong>Avaliar:</strong></p>
+                            <div class="rate-product" id="user-rating-stars">
+                                <i class="fa-regular fa-star" data-value="1"></i>
+                                <i class="fa-regular fa-star" data-value="2"></i>
+                                <i class="fa-regular fa-star" data-value="3"></i>
+                                <i class="fa-regular fa-star" data-value="4"></i>
+                                <i class="fa-regular fa-star" data-value="5"></i>
+                            </div>
+                            <p id="rating-message" style="color: #b4f749; font-weight: bold; margin-top: 8px;"></p>
+                            <button class="add-to-cart-btn" id="add-to-cart-btn" onclick="showLoginModal()">
+                                ADICIONAR AO CARRINHO
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="description-card">
+                        <h2>DESCRIÇÃO</h2>
+                        <p class="description-text">${product.descricao || 'Descrição não disponível para este produto.'}</p>
+                        
+                        <div class="divider"></div>
+                        
+                        <div>
+                            <h2>TABELA NUTRICIONAL</h2>
+                            <ul class="nutrition-list">
+                                ${nutritionHTML}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Configurar sistema de avaliação
+            setupRatingSystem();
+        }
+
+        function setupRatingSystem() {
+            const userRatingStars = document.getElementById('user-rating-stars');
+            if (userRatingStars) {
+                const stars = userRatingStars.querySelectorAll('.fa-star');
+                const ratingMessage = document.getElementById('rating-message');
+
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        const value = this.getAttribute('data-value');
+                        
+                        // Reset stars
+                        stars.forEach(s => {
+                            s.classList.remove('active', 'fa-solid');
+                            s.classList.add('fa-regular');
+                        });
+
+                        // Fill stars up to clicked one
+                        for (let i = 0; i < value; i++) {
+                            stars[i].classList.add('active', 'fa-solid');
+                            stars[i].classList.remove('fa-regular');
+                        }
+                        
+                        if (ratingMessage) {
+                            ratingMessage.textContent = `Você avaliou com ${value} estrela${value > 1 ? 's' : ''}.`;
+                        }
+                    });
+                });
+            }
+        }
+
+        function showLoginModal() {
+            showModal(loginModal);
+        }
+    </script>
+</body>
+</html>

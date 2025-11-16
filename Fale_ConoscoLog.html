@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fale Conosco - Mestre dos Salgados</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* --- Configurações Globais --- */
+        :root {
+            --cor-laranja-fundo: #E87933; 
+            --cor-header-logado: #E46E22; /* Laranja do header */
+            --cor-footer: #b3581b; /* Cor do rodapé */
+            --cor-input-fundo: #f0f0f0;
+            --cor-placeholder: #888;
+            --cor-texto: #333;
+            --cor-borda-foco: #E87933;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--cor-footer); 
+        }
+
+        /* --- Cabeçalho LOGADO (Branco) --- */
+        .top-section {
+            background-color: #fff; 
+            padding-bottom: 50px; 
+            position: relative;
+        }
+        
+        /* Barra Laranja do Usuário Logado */
+        .user-bar {
+            background-color: var(--cor-header-logado);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info i {
+            font-size: 24px;
+        }
+
+        .user-info div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info strong { font-size: 1rem; }
+        .user-info span { font-size: 0.8rem; opacity: 0.9; }
+        
+        .header-exit {
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+        }
+
+        .intro-text {
+            text-align: center;
+            padding-top: 40px; /* Menos padding pois não tem a seta */
+            max-width: 500px;
+            margin: 0 auto;
+            color: var(--cor-texto);
+        }
+
+        .intro-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .intro-text p {
+            font-size: 1.15rem; /* Fonte aumentada */
+            line-height: 1.6;
+            margin: 10px 0;
+            color: #555;
+        }
+
+        /* --- Seção do Formulário (Laranja) --- */
+        .form-section {
+            background-color: var(--cor-laranja-fundo);
+            padding: 50px 20px;
+            border-radius: 30px 30px 0 0; 
+            margin-top: -30px; 
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.1);
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* O input de email foi removido */
+        textarea {
+            width: 100%;
+            background-color: var(--cor-input-fundo);
+            border: 2px solid transparent; 
+            border-radius: 10px; 
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            color: #333;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            height: 250px;
+            resize: vertical; 
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--cor-borda-foco);
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(232, 121, 51, 0.3);
+        }
+
+        ::placeholder {
+            color: var(--cor-placeholder);
+            font-weight: 500;
+            font-family: Arial, sans-serif;
+        }
+
+        .btn-submit {
+            background-color: #fff;
+            color: var(--cor-laranja-fundo);
+            font-family: Arial, sans-serif;
+            border: none;
+            border-radius: 10px;
+            padding: 18px;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #f8f8f8;
+            transform: scale(1.02);
+        }
+
+        /* --- Rodapé --- */
+        footer {
+            background-color: var(--cor-footer); /* Tom laranja escuro */
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.9rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        /* --- Modal (Pop-up) de Agradecimento --- */
+        .modal-overlay {
+            display: none; 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .modal-content i {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        
+        .modal-content h2 {
+            font-size: 1.5rem;
+            color: var(--cor-texto);
+            margin-bottom: 10px;
+        }
+        
+        .modal-content p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .modal-close-btn {
+            background-color: var(--cor-laranja-fundo);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .modal-close-btn:hover {
+            background-color: #c76426;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="top-section">
+        
+        <div class="user-bar">
+            <div class="user-info">
+                <i class="fa-solid fa-user-circle"></i>
+                <div>
+                    <strong>Bruno</strong>
+                    <span>cliente</span>
+                </div>
+            </div>
+            <a href="SalgaderiaMestreLogOn.html" id="exit-link" class="header-exit" title="Sair">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </a>
+        </div>
+        
+        <div class="intro-text">
+            <h1>Fale Conosco</h1>
+            <p>Tem alguma sugestão para nos dar? Envie uma mensagem e nós iremos te responder.</p>
+            <p>A resposta será enviada no seu e-mail.</p>
+        </div>
+    </header>
+
+    <main class="form-section">
+        <form id="contact-form">
+            
+            <textarea name="assunto" placeholder="Olá Bruno, digite sua mensagem aqui..." required></textarea>
+
+            <button type="submit" class="btn-submit">Enviar Mensagem</button>
+
+        </form>
+    </main>
+
+    <footer>
+        <p>© MESTRE DOS SALGADOS. TODOS OS DIREITOS RESERVADOS</p>
+    </footer>
+    
+    <div class="modal-overlay" id="thanks-modal">
+        <div class="modal-content">
+            <i class="fa-solid fa-circle-check"></i>
+            <h2>Obrigado, Bruno!</h2>
+            <p>Sua mensagem foi enviada com sucesso. Responderemos em breve!</p>
+            <button class="modal-close-btn" id="close-modal-btn">Fechar</button>
+        </div>
+    </div>
+
+
+    <script>
+        const form = document.getElementById('contact-form');
+        const modal = document.getElementById('thanks-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const exitLink = document.getElementById('exit-link');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); 
+            modal.style.display = 'flex';
+            form.reset();
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        exitLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Simulando logout...');
+            // Em um site real, aqui você faria o logout
+            // e redirecionaria para a página de login.
+        });
+    </script>
+
+</body>
+</html>
