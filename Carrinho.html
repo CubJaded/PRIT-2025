@@ -23,6 +23,7 @@
             --color-bg-light: #f9f9f9;
             --color-success: #28a745;
             --color-danger: #dc3545;
+            --color-warning: #ffc107;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -83,10 +84,27 @@
             text-decoration: none; 
             font-size: 24px; 
             transition: transform 0.2s; 
+            position: relative;
         }
 
         .header-nav a:hover { 
             transform: scale(1.1); 
+        }
+
+        .cart-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--color-success);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         /* --- Container Principal --- */
@@ -118,6 +136,64 @@
             border-radius: 8px;
             padding: 24px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .cart-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .delivery-address {
+            background: var(--color-bg-light);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--color-border);
+        }
+
+        .address-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .address-details {
+            flex: 1;
+        }
+
+        .address-details strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .address-details p {
+            color: var(--color-text-light);
+            margin: 0;
+        }
+
+        .change-address-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .change-address-btn:hover {
+            background: var(--color-secondary);
         }
 
         .cart-item {
@@ -316,12 +392,17 @@
             font-weight: 500;
         }
 
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--color-border);
             border-radius: 4px;
             font-size: 16px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .address-options {
@@ -346,6 +427,17 @@
         .address-option.selected {
             border-color: var(--color-primary);
             background: rgba(217, 109, 36, 0.1);
+        }
+
+        .new-address-form {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .new-address-form.active {
+            display: block;
         }
 
         .modal-actions {
@@ -381,6 +473,36 @@
             background: var(--color-border);
         }
 
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--color-success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background-color: var(--color-danger);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
         /* --- Responsividade --- */
         @media (max-width: 768px) {
             .cart-layout {
@@ -394,6 +516,26 @@
             
             .item-details {
                 text-align: center;
+            }
+
+            .address-info {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .change-address-btn {
+                align-self: flex-end;
+            }
+            
+            .toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                transform: translateY(-100px);
+            }
+            
+            .toast.show {
+                transform: translateY(0);
             }
         }
     </style>
@@ -410,9 +552,9 @@
         </div>
         <nav class="header-nav">
             <a href="cardapio.html"><i class="fa-solid fa-utensils"></i></a>
-            <a href="Carrinho.html"><i class="fa-solid fa-cart-shopping"></i></a>
-            <a href="#"><i class="fa-solid fa-book-open"></i></a>
-            <a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+            <a href="Carrinho.html" id="cart-link"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-book-open"></i></a>
+            <a href="SalgaderiaMestreLogOff.html"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
         </nav>
     </header>
 
@@ -421,13 +563,39 @@
         
         <div class="cart-layout">
             <section class="cart-items" id="cart-items">
-                <div class="empty-cart">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    <h3>Seu carrinho está vazio</h3>
-                    <p>Adicione produtos incríveis do nosso cardápio!</p>
-                    <a href="cardapio.html" style="color: var(--color-primary); text-decoration: none; font-weight: 600; margin-top: 16px; display: inline-block;">
-                        Ver Cardápio
-                    </a>
+                <div class="cart-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Endereço de Entrega
+                    </h3>
+                    <div class="delivery-address" id="delivery-address">
+                        <div class="address-info">
+                            <div class="address-details">
+                                <strong id="address-title">Carregando endereço...</strong>
+                                <p id="address-details">Selecione um endereço de entrega</p>
+                            </div>
+                            <button class="change-address-btn" id="change-address-btn">
+                                <i class="fa-solid fa-pencil"></i> Alterar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-section">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                        Itens do Pedido
+                    </h3>
+                    <div id="cart-items-container">
+                        <div class="empty-cart">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <h3>Seu carrinho está vazio</h3>
+                            <p>Adicione produtos incríveis do nosso cardápio!</p>
+                            <a href="cardapio.html" style="color: var(--color-primary); text-decoration: none; font-weight: 600; margin-top: 16px; display: inline-block;">
+                                Ver Cardápio
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -470,21 +638,54 @@
                     <strong>Trabalho</strong>
                     <p>Av. Paulista, 1000 - Bela Vista, São Paulo - SP</p>
                 </div>
+                <div class="address-option" data-address="novo">
+                    <strong>+ Adicionar novo endereço</strong>
+                    <p>Cadastrar um endereço diferente</p>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="delivery-option">Forma de Entrega</label>
-                <select id="delivery-option">
-                    <option value="delivery">Entrega</option>
-                    <option value="pickup">Retirar no Local</option>
-                </select>
+            <div class="new-address-form" id="new-address-form">
+                <div class="form-group">
+                    <label for="address-name">Apelido do Endereço</label>
+                    <input type="text" id="address-name" placeholder="Ex: Casa, Trabalho, etc.">
+                </div>
+                <div class="form-group">
+                    <label for="address-street">Rua</label>
+                    <input type="text" id="address-street" placeholder="Nome da rua">
+                </div>
+                <div class="form-group">
+                    <label for="address-number">Número</label>
+                    <input type="text" id="address-number" placeholder="Número">
+                </div>
+                <div class="form-group">
+                    <label for="address-complement">Complemento</label>
+                    <input type="text" id="address-complement" placeholder="Apartamento, bloco, etc.">
+                </div>
+                <div class="form-group">
+                    <label for="address-neighborhood">Bairro</label>
+                    <input type="text" id="address-neighborhood" placeholder="Bairro">
+                </div>
+                <div class="form-group">
+                    <label for="address-city">Cidade</label>
+                    <input type="text" id="address-city" placeholder="Cidade">
+                </div>
+                <div class="form-group">
+                    <label for="address-notes">Observações</label>
+                    <textarea id="address-notes" placeholder="Pontos de referência, instruções para entrega..."></textarea>
+                </div>
             </div>
 
             <div class="modal-actions">
                 <button class="btn btn-secondary" id="cancel-address">Cancelar</button>
-                <button class="btn btn-primary" id="confirm-address">Confirmar</button>
+                <button class="btn btn-primary" id="confirm-address">Confirmar Endereço</button>
             </div>
         </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-check-circle"></i>
+        <span id="toast-message">Produto adicionado ao carrinho!</span>
     </div>
 
     <script>
@@ -505,11 +706,13 @@
 
         let cart = [];
         let selectedAddress = null;
-        let deliveryOption = 'delivery';
+        let isNewAddress = false;
 
         document.addEventListener('DOMContentLoaded', function() {
             loadCart();
+            loadAddress();
             setupEventListeners();
+            updateCartCounter();
         });
 
         function loadCart() {
@@ -526,11 +729,32 @@
             localStorage.setItem('cart', JSON.stringify(cart));
         }
 
+        function loadAddress() {
+            // Recuperar endereço do localStorage
+            const savedAddress = localStorage.getItem('selectedAddress');
+            if (savedAddress) {
+                selectedAddress = JSON.parse(savedAddress);
+                updateAddressDisplay();
+            } else {
+                // Endereço padrão
+                selectedAddress = {
+                    type: 'casa',
+                    title: 'Casa',
+                    details: 'R. Delfim, 156 - Jardim Paraiso, Barueri - SP'
+                };
+                updateAddressDisplay();
+            }
+        }
+
+        function saveAddress() {
+            localStorage.setItem('selectedAddress', JSON.stringify(selectedAddress));
+        }
+
         function renderCart() {
-            const cartItems = document.getElementById('cart-items');
+            const cartItemsContainer = document.getElementById('cart-items-container');
             
             if (cart.length === 0) {
-                cartItems.innerHTML = `
+                cartItemsContainer.innerHTML = `
                     <div class="empty-cart">
                         <i class="fa-solid fa-cart-shopping"></i>
                         <h3>Seu carrinho está vazio</h3>
@@ -543,7 +767,7 @@
                 return;
             }
 
-            cartItems.innerHTML = cart.map(item => `
+            cartItemsContainer.innerHTML = cart.map(item => `
                 <div class="cart-item" data-id="${item.id}">
                     <img src="${item.imagemUrl || 'https://via.placeholder.com/80'}" alt="${item.nome}" class="item-image">
                     <div class="item-details">
@@ -571,6 +795,7 @@
                 saveCart();
                 renderCart();
                 updateSummary();
+                updateCartCounter();
             }
         }
 
@@ -583,6 +808,7 @@
                     saveCart();
                     renderCart();
                     updateSummary();
+                    updateCartCounter();
                 }
             }
         }
@@ -592,11 +818,13 @@
             saveCart();
             renderCart();
             updateSummary();
+            updateCartCounter();
+            showToast('Produto removido do carrinho', 'success');
         }
 
         function updateSummary() {
             const subtotal = cart.reduce((sum, item) => sum + (item.preco * item.quantity), 0);
-            const deliveryFee = deliveryOption === 'delivery' ? 5.00 : 0.00;
+            const deliveryFee = 5.00; // Taxa fixa de entrega
             const total = subtotal + deliveryFee;
 
             document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
@@ -607,52 +835,184 @@
             document.getElementById('checkout-btn').disabled = cart.length === 0;
         }
 
+        function updateAddressDisplay() {
+            if (selectedAddress) {
+                document.getElementById('address-title').textContent = selectedAddress.title;
+                document.getElementById('address-details').textContent = selectedAddress.details;
+            }
+        }
+
         function setupEventListeners() {
-            // Botão de checkout
-            document.getElementById('checkout-btn').addEventListener('click', () => {
-                document.getElementById('address-modal').classList.add('active');
+            // Botão de alterar endereço
+            document.getElementById('change-address-btn').addEventListener('click', () => {
+                openAddressModal();
             });
 
-            // Seleção de endereço
+            // Seleção de endereço no modal
             document.querySelectorAll('.address-option').forEach(option => {
                 option.addEventListener('click', () => {
                     document.querySelectorAll('.address-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
                     option.classList.add('selected');
-                    selectedAddress = option.dataset.address;
+                    
+                    const addressType = option.dataset.address;
+                    if (addressType === 'novo') {
+                        isNewAddress = true;
+                        document.getElementById('new-address-form').classList.add('active');
+                    } else {
+                        isNewAddress = false;
+                        document.getElementById('new-address-form').classList.remove('active');
+                        selectedAddress = getPredefinedAddress(addressType);
+                    }
                 });
-            });
-
-            // Opção de entrega
-            document.getElementById('delivery-option').addEventListener('change', (e) => {
-                deliveryOption = e.target.value;
-                updateSummary();
             });
 
             // Confirmar endereço
             document.getElementById('confirm-address').addEventListener('click', () => {
-                if (!selectedAddress) {
-                    alert('Por favor, selecione um endereço de entrega.');
-                    return;
+                if (isNewAddress) {
+                    const newAddress = getNewAddressData();
+                    if (validateNewAddress(newAddress)) {
+                        selectedAddress = newAddress;
+                        saveAddress();
+                        updateAddressDisplay();
+                        document.getElementById('address-modal').classList.remove('active');
+                        showToast('Endereço atualizado com sucesso!', 'success');
+                    } else {
+                        showToast('Preencha todos os campos obrigatórios', 'error');
+                    }
+                } else if (selectedAddress) {
+                    saveAddress();
+                    updateAddressDisplay();
+                    document.getElementById('address-modal').classList.remove('active');
+                    showToast('Endereço atualizado com sucesso!', 'success');
+                } else {
+                    showToast('Selecione um endereço', 'error');
                 }
-
-                // Salvar informações de entrega
-                const deliveryInfo = {
-                    address: selectedAddress,
-                    option: deliveryOption,
-                    timestamp: new Date().toISOString()
-                };
-                localStorage.setItem('deliveryInfo', JSON.stringify(deliveryInfo));
-
-                // Redirecionar para pagamento
-                window.location.href = 'pagamento.html';
             });
 
             // Cancelar seleção de endereço
             document.getElementById('cancel-address').addEventListener('click', () => {
                 document.getElementById('address-modal').classList.remove('active');
+                isNewAddress = false;
+                document.getElementById('new-address-form').classList.remove('active');
             });
+
+            // Botão de checkout
+            document.getElementById('checkout-btn').addEventListener('click', () => {
+                if (cart.length === 0) {
+                    showToast('Seu carrinho está vazio', 'error');
+                    return;
+                }
+
+                if (!selectedAddress) {
+                    showToast('Selecione um endereço de entrega', 'error');
+                    return;
+                }
+
+                // Salvar informações para a próxima página
+                const orderData = {
+                    cart: cart,
+                    address: selectedAddress,
+                    subtotal: cart.reduce((sum, item) => sum + (item.preco * item.quantity), 0),
+                    deliveryFee: 5.00,
+                    total: cart.reduce((sum, item) => sum + (item.preco * item.quantity), 0) + 5.00
+                };
+                
+                localStorage.setItem('currentOrder', JSON.stringify(orderData));
+                
+                // Redirecionar para página de pagamento
+                window.location.href = 'pagamento.html';
+            });
+        }
+
+        function openAddressModal() {
+            document.getElementById('address-modal').classList.add('active');
+            // Selecionar endereço atual se existir
+            if (selectedAddress) {
+                const addressOption = document.querySelector(`[data-address="${selectedAddress.type}"]`);
+                if (addressOption) {
+                    addressOption.click();
+                }
+            }
+        }
+
+        function getPredefinedAddress(type) {
+            const addresses = {
+                casa: {
+                    type: 'casa',
+                    title: 'Casa',
+                    details: 'R. Delfim, 156 - Jardim Paraiso, Barueri - SP'
+                },
+                trabalho: {
+                    type: 'trabalho',
+                    title: 'Trabalho',
+                    details: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP'
+                }
+            };
+            return addresses[type] || addresses.casa;
+        }
+
+        function getNewAddressData() {
+            return {
+                type: 'custom',
+                title: document.getElementById('address-name').value || 'Novo Endereço',
+                details: `${document.getElementById('address-street').value}, ${document.getElementById('address-number').value} - ${document.getElementById('address-neighborhood').value}, ${document.getElementById('address-city').value}`,
+                street: document.getElementById('address-street').value,
+                number: document.getElementById('address-number').value,
+                complement: document.getElementById('address-complement').value,
+                neighborhood: document.getElementById('address-neighborhood').value,
+                city: document.getElementById('address-city').value,
+                notes: document.getElementById('address-notes').value
+            };
+        }
+
+        function validateNewAddress(address) {
+            return address.street && address.number && address.neighborhood && address.city;
+        }
+
+        function updateCartCounter() {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            
+            // Atualizar o ícone do carrinho no header
+            const cartIcon = document.querySelector('#cart-link');
+            if (cartIcon) {
+                // Remover contador anterior se existir
+                const existingCounter = cartIcon.querySelector('.cart-counter');
+                if (existingCounter) {
+                    existingCounter.remove();
+                }
+                
+                // Adicionar novo contador se houver itens
+                if (totalItems > 0) {
+                    const counter = document.createElement('span');
+                    counter.className = 'cart-counter';
+                    counter.textContent = totalItems;
+                    cartIcon.appendChild(counter);
+                }
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            // Configurar estilo baseado no tipo
+            if (type === 'error') {
+                toast.className = 'toast error';
+                toast.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i><span id="toast-message">${message}</span>`;
+            } else {
+                toast.className = 'toast';
+                toast.innerHTML = `<i class="fa-solid fa-check-circle"></i><span id="toast-message">${message}</span>`;
+            }
+            
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            // Ocultar toast após 3 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
         // Funções globais para o HTML

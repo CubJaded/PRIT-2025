@@ -1,317 +1,378 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status do Pedido</title>
+    <title>Status do Pedido - Salgaderia Mestre</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
     <style>
         /* --- Configurações Globais --- */
         :root {
-            --cor-principal: #E46E22;
-            --cor-footer: #b3581b;
-            --cor-texto: #333;
-            --cor-cinza: #777;
-            --cor-borda: #ddd;
-            --cor-fundo-leve: #f5f5f5;
-            --cor-success: #28a745;
-            --cor-warning: #ffc107;
-            --cor-danger: #dc3545;
+            --color-primary: #d96d24;
+            --color-secondary: #b95c21;
+            --color-text-dark: #333;
+            --color-text-light: #555;
+            --color-border: #e9e9e9;
+            --color-bg-page: #ffffff;
+            --color-bg-light: #f9f9f9;
+            --color-success: #28a745;
+            --color-danger: #dc3545;
+            --color-warning: #ffc107;
+            --color-info: #17a2b8;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            background-color: #fff;
-            color: var(--cor-texto);
-            padding-bottom: 80px; 
-        }
-
-        .wrapper {
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 20px;
-            padding-right: 20px;
+            background-color: var(--color-bg-page);
+            color: var(--color-text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         /* --- Header --- */
-        header {
-            background-color: var(--cor-principal);
+        .top-bar {
+            background-color: var(--color-primary);
             color: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            justify-content: flex-start;
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
         }
 
-        .user-info i {
-            font-size: 24px;
+        .user-info .user-avatar { 
+            font-size: 36px; 
+            opacity: 0.9; 
         }
 
-        .user-info div {
-            display: flex;
-            flex-direction: column;
+        .user-info div { 
+            display: flex; 
+            flex-direction: column; 
+            font-size: 14px; 
         }
 
-        .user-info strong {
-            font-size: 1rem;
+        .user-info .user-name { 
+            font-weight: 600; 
         }
-        
-        .user-info span {
-            font-size: 0.8rem;
-            opacity: 0.9;
+
+        .user-info .user-type { 
+            font-size: 12px; 
+            opacity: 0.9; 
         }
-        
-        .header-title {
-            flex: 1;
+
+        .header-nav { 
+            display: flex; 
+            gap: 24px; 
+        }
+
+        .header-nav a { 
+            color: white; 
+            text-decoration: none; 
+            font-size: 24px; 
+            transition: transform 0.2s; 
+        }
+
+        .header-nav a:hover { 
+            transform: scale(1.1); 
+        }
+
+        /* --- Container Principal --- */
+        .page-container {
+            max-width: 800px;
+            width: 95%;
+            margin: 24px auto;
+            padding: 24px;
+            flex-grow: 1;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--color-primary);
             text-align: center;
         }
 
-        .header-title h1 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-
-        .header-title p {
-            margin: 2px 0 0;
-            font-size: 0.9rem;
-            font-weight: 300;
-            opacity: 0.9;
-        }
-
-        .header-exit {
-            flex: 1;
-            text-align: right;
-            font-size: 1.5rem;
-            color: white;
-            text-decoration: none;
-        }
-
-        /* --- Conteúdo Principal --- */
-        .container {
-            padding: 30px 0;
-        }
-
-        .order-info {
+        /* --- Card do Pedido --- */
+        .order-card {
             background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
         }
 
-        .order-id {
+        .order-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .order-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .status-confirmado { background: var(--color-info); color: white; }
+        .status-preparo { background: var(--color-warning); color: black; }
+        .status-caminho { background: var(--color-primary); color: white; }
+        .status-entregue { background: var(--color-success); color: white; }
+        .status-cancelado { background: var(--color-danger); color: white; }
+
+        /* --- Timeline --- */
+        .timeline {
+            position: relative;
+            margin: 32px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--color-border);
+        }
+
+        .timeline-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .timeline-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--color-bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            position: relative;
+            z-index: 2;
+            border: 2px solid var(--color-border);
+        }
+
+        .timeline-icon.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .timeline-icon.completed {
+            background: var(--color-success);
+            color: white;
+            border-color: var(--color-success);
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding-top: 8px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timeline-description {
+            color: var(--color-text-light);
+            font-size: 14px;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: var(--color-text-light);
+            margin-top: 4px;
+        }
+
+        /* --- Informações do Pedido --- */
+        .info-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
             font-size: 18px;
             font-weight: 600;
-            color: var(--cor-principal);
-            margin-bottom: 10px;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .status-box {
-            background-color: var(--cor-fundo-leve);
+        .info-card {
+            background: var(--color-bg-light);
             border-radius: 8px;
-            padding: 25px;
-            border: 1px solid var(--cor-borda);
-            margin-bottom: 20px;
+            padding: 16px;
         }
 
-        .status-steps {
+        .info-row {
             display: flex;
             justify-content: space-between;
-            text-align: center;
+            margin-bottom: 8px;
         }
 
-        .step {
-            flex: 1;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--cor-cinza);
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--cor-borda);
-            transition: all 0.4s ease;
-        }
-        
-        .step.active {
-            color: var(--cor-texto);
-            font-weight: 700;
-            border-bottom-color: var(--cor-principal);
-        }
-
-        .delivery-time {
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-top: 25px;
+        .info-row:last-child {
             margin-bottom: 0;
         }
 
-        .order-details {
-            margin-top: 30px;
-            border-top: 1px solid var(--cor-borda);
-            padding-top: 30px;
+        .items-list {
+            margin-top: 16px;
         }
 
-        .order-details h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--cor-cinza);
-            margin: 0 0 15px 0;
-        }
-        
-        .address-info {
+        .item-row {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--color-border);
         }
 
-        .address-info .icon {
-            font-size: 1.5rem;
-            color: var(--cor-texto);
+        .item-row:last-child {
+            border-bottom: none;
         }
 
-        .address-text p {
-            margin: 0;
-            font-size: 1rem;
+        .total-row {
             font-weight: 600;
-        }
-        
-        .address-text span {
-            font-size: 0.9rem;
-            color: var(--cor-cinza);
+            font-size: 18px;
+            color: var(--color-primary);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--color-border);
         }
 
-        .payment-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: var(--cor-fundo-leve);
+        /* --- Botões --- */
+        .btn {
+            padding: 12px 24px;
+            border: none;
             border-radius: 8px;
-        }
-
-        .payment-method {
+            cursor: pointer;
             font-weight: 600;
-            color: var(--cor-texto);
-        }
-        
-        .total-info {
-            margin-top: 25px;
-            font-size: 1.1rem;
-            color: var(--cor-cinza);
-            line-height: 1.5;
-        }
-
-        .total-info strong.free {
-            color: var(--cor-texto);
-            font-weight: 600;
-        }
-        
-        .total-info strong.price {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--cor-texto);
-            display: block;
-        }
-
-        /* --- Rodapé Fixo --- */
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--cor-footer);
-            color: white;
-            padding: 20px 0;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
             text-align: center;
-            font-size: 0.8rem;
-            opacity: 0.9;
         }
 
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-secondary);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-light);
+            color: var(--color-text-dark);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-border);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        /* --- Loading --- */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Not Found --- */
+        .not-found {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-light);
+        }
+
+        .not-found i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
 
-    <header>
+    <header class="top-bar">
         <div class="user-info">
-            <i class="fa-solid fa-user-circle"></i>
+            <i class="fa-solid fa-user-circle user-avatar"></i>
             <div>
-                <strong>Bruno</strong>
-                <span>cliente</span>
+                <span class="user-name">Bruno</span>
+                <span class="user-type">cliente</span>
             </div>
         </div>
-        
-        <div class="header-title">
-            <h1>Pedido</h1>
-            <p id="status-message">Em alguns minutos seu pedido estará com você</p>
-        </div>
-        
-        <a href="cardapio.html" class="header-exit">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
+        <nav class="header-nav">
+            <a href="cardapio.html"><i class="fa-solid fa-utensils"></i></a>
+            <a href="Carrinho.html"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-book-open"></i></a>
+            <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+        </nav>
     </header>
 
-    <main>
-        <div class="container wrapper">
-            
-            <div class="order-info">
-                <div class="order-id" id="order-id">Pedido #000001</div>
-                <div class="delivery-time" id="delivery-time">Previsão de entrega: 35-40min</div>
+    <main class="page-container">
+        <h1 class="page-title">Acompanhe seu Pedido</h1>
+        
+        <div id="order-content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando informações do pedido...</p>
             </div>
-
-            <section class="status-box">
-                <div class="status-steps">
-                    <div class="step active" id="step-1">Confirmando Pagamento</div>
-                    <div class="step" id="step-2">Sendo preparado</div>
-                    <div class="step" id="step-3">Entrega</div>
-                </div>
-            </section>
-
-            <section class="order-details">
-                <h2>Entrega no endereço</h2>
-                <div class="address-info">
-                    <i class="fa-solid fa-location-dot icon"></i>
-                    <div class="address-text" id="address-text">
-                        <p>Carregando endereço...</p>
-                        <span>Carregando...</span>
-                    </div>
-                </div>
-
-                <div class="payment-info">
-                    <h2>Forma de Pagamento</h2>
-                    <div class="payment-method" id="payment-method">Carregando...</div>
-                </div>
-                
-                <div class="total-info">
-                    Total com <strong class="free">entrega grátis</strong>
-                    <strong class="price" id="total-price">R$ 0,00</strong>
-                </div>
-            </section>
-
         </div>
     </main>
-
-    <footer>
-        <div class="wrapper">
-            <p>© MESTRE DOS SALGADOS. TODOS OS DIREITOS RESERVADOS</p>
-        </div>
-    </footer>
 
     <script>
         // Configuração do Firebase
@@ -329,156 +390,284 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let currentOrderId = null;
-        let orderData = null;
+        let currentOrder = null;
+        let orderId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Obter ID do pedido da URL
+            // Obter orderId da URL
             const urlParams = new URLSearchParams(window.location.search);
-            currentOrderId = urlParams.get('id');
-
-            if (currentOrderId) {
-                loadOrderData(currentOrderId);
-                startStatusUpdates();
+            orderId = urlParams.get('orderId');
+            
+            if (orderId) {
+                loadOrderData();
+                // Escutar atualizações em tempo real
+                listenForOrderUpdates();
             } else {
-                showError('ID do pedido não encontrado');
+                showOrderNotFound();
             }
         });
 
-        function loadOrderData(orderId) {
-            const docRef = db.collection("pedidos").doc(orderId);
-            
-            docRef.get().then((doc) => {
-                if (doc.exists) {
-                    orderData = {
-                        id: doc.id,
-                        ...doc.data()
-                    };
-                    updateOrderDisplay();
-                } else {
-                    showError('Pedido não encontrado');
-                }
-            }).catch((error) => {
-                console.error("Erro ao carregar pedido:", error);
-                showError('Erro ao carregar dados do pedido');
-            });
-        }
-
-        function updateOrderDisplay() {
-            if (!orderData) return;
-
-            // Atualizar informações básicas
-            document.getElementById('order-id').textContent = `Pedido #${orderData.id_num || orderData.id.substring(0, 8).toUpperCase()}`;
-            document.getElementById('total-price').textContent = `R$ ${orderData.total?.toFixed(2).replace('.', ',') || '0,00'}`;
-
-            // Atualizar endereço
-            const addressText = document.getElementById('address-text');
-            if (orderData.endereco) {
-                addressText.innerHTML = `
-                    <p>${orderData.endereco.rua}, ${orderData.endereco.numero}</p>
-                    <span>${orderData.endereco.bairro} - ${orderData.endereco.cidade}</span>
-                `;
-            }
-
-            // Atualizar forma de pagamento
-            const paymentMethod = document.getElementById('payment-method');
-            if (orderData.pagamento) {
-                let paymentText = '';
-                switch(orderData.pagamento.metodo) {
-                    case 'pix':
-                        paymentText = 'Pix';
-                        break;
-                    case 'cartao':
-                        paymentText = `Cartão de ${orderData.pagamento.tipo}`;
-                        break;
-                    case 'dinheiro':
-                        paymentText = 'Dinheiro na entrega';
-                        break;
-                    case 'cartao_entrega':
-                        paymentText = 'Cartão na entrega';
-                        break;
-                    default:
-                        paymentText = orderData.pagamento.metodo;
-                }
-                paymentMethod.textContent = paymentText;
-            }
-
-            // Atualizar status
-            updateStatusDisplay(orderData.status);
-        }
-
-        function updateStatusDisplay(status) {
-            const step1 = document.getElementById('step-1');
-            const step2 = document.getElementById('step-2');
-            const step3 = document.getElementById('step-3');
-            const statusMessage = document.getElementById('status-message');
-
-            // Resetar todos os steps
-            step1.classList.remove('active');
-            step2.classList.remove('active');
-            step3.classList.remove('active');
-
-            switch(status) {
-                case 'confirmando':
-                    step1.classList.add('active');
-                    statusMessage.textContent = 'Confirmando seu pagamento';
-                    break;
-                case 'preparando':
-                    step1.classList.add('active');
-                    step2.classList.add('active');
-                    statusMessage.textContent = 'Seu pedido está sendo preparado';
-                    break;
-                case 'entrega':
-                    step1.classList.add('active');
-                    step2.classList.add('active');
-                    step3.classList.add('active');
-                    statusMessage.textContent = 'Seu pedido saiu para entrega';
-                    break;
-                case 'entregue':
-                    step1.classList.add('active');
-                    step2.classList.add('active');
-                    step3.classList.add('active');
-                    statusMessage.textContent = 'Pedido entregue! Obrigado!';
-                    break;
-            }
-        }
-
-        function startStatusUpdates() {
-            if (!currentOrderId) return;
-
-            // Escutar atualizações em tempo real
-            db.collection("pedidos").doc(currentOrderId)
-                .onSnapshot((doc) => {
+        function loadOrderData() {
+            db.collection('pedidos').doc(orderId).get()
+                .then(doc => {
                     if (doc.exists) {
-                        orderData = {
-                            id: doc.id,
-                            ...doc.data()
-                        };
-                        updateOrderDisplay();
+                        currentOrder = { id: doc.id, ...doc.data() };
                         
-                        // Se o pedido foi entregue, parar de escutar
-                        if (orderData.status === 'entregue') {
-                            setTimeout(() => {
-                                alert('Pedido entregue com sucesso! Obrigado pela preferência.');
-                            }, 1000);
+                        // GARANTIR COMPATIBILIDADE
+                        if (!currentOrder.orderNumber) {
+                            currentOrder.orderNumber = currentOrder.id_num || currentOrder.id.substring(0, 8).toUpperCase();
                         }
+                        if (!currentOrder.customerName) {
+                            currentOrder.customerName = currentOrder.cliente?.nome || 'Cliente';
+                        }
+                        
+                        renderOrderStatus();
+                    } else {
+                        showOrderNotFound();
                     }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar pedido:', error);
+                    showOrderNotFound();
                 });
         }
 
-        function showError(message) {
-            const container = document.querySelector('.container');
-            container.innerHTML = `
-                <div style="text-align: center; padding: 60px 20px; color: var(--cor-danger);">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 64px; margin-bottom: 20px;"></i>
-                    <h2>Erro</h2>
-                    <p>${message}</p>
-                    <a href="cardapio.html" style="color: var(--cor-principal); text-decoration: none; font-weight: bold; margin-top: 20px; display: inline-block;">
-                        ← Voltar ao Cardápio
+        function listenForOrderUpdates() {
+            db.collection('pedidos').doc(orderId).onSnapshot(doc => {
+                if (doc.exists) {
+                    currentOrder = { id: doc.id, ...doc.data() };
+                    renderOrderStatus();
+                }
+            });
+        }
+
+        function renderOrderStatus() {
+            const orderContent = document.getElementById('order-content');
+            
+            if (!currentOrder) {
+                showOrderNotFound();
+                return;
+            }
+
+            const statusConfig = getStatusConfig(currentOrder.status);
+            
+            orderContent.innerHTML = `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-number">Pedido #${currentOrder.orderNumber}</div>
+                        <div class="order-status status-${currentOrder.status}">
+                            ${statusConfig.text}
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline">
+                        ${renderTimeline(currentOrder.status)}
+                    </div>
+
+                    <!-- Informações do Pedido -->
+                    <div class="info-section">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-list"></i>
+                            Itens do Pedido
+                        </h3>
+                        <div class="info-card">
+                            ${renderOrderItems()}
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-location-dot"></i>
+                            Endereço de Entrega
+                        </h3>
+                        <div class="info-card">
+                            <div class="info-row">
+                                <strong>${currentOrder.address?.title || 'Endereço de entrega'}</strong>
+                            </div>
+                            <div class="info-row">
+                                <span>${currentOrder.address?.details || currentOrder.endereco?.rua || 'Endereço não informado'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3 class="section-title">
+                            <i class="fa-solid fa-credit-card"></i>
+                            Pagamento
+                        </h3>
+                        <div class="info-card">
+                            <div class="info-row">
+                                <span>Método:</span>
+                                <span>${getPaymentMethodText(currentOrder.paymentMethod || currentOrder.pagamento?.metodo)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span>Total:</span>
+                                <span>R$ ${currentOrder.total?.toFixed(2).replace('.', ',') || '0,00'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="cardapio.html" class="btn btn-primary">
+                            <i class="fa-solid fa-utensils"></i> Fazer Novo Pedido
+                        </a>
+                        <button class="btn btn-secondary" onclick="cancelOrder()" 
+                                ${currentOrder.status !== 'confirmado' ? 'disabled style="opacity: 0.5;"' : ''}>
+                            <i class="fa-solid fa-times"></i> Cancelar Pedido
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTimeline(status) {
+            const steps = [
+                { 
+                    status: 'confirmado', 
+                    icon: 'fa-clipboard-check', 
+                    title: 'Pedido Confirmado', 
+                    description: 'Seu pedido foi recebido e confirmado',
+                    time: 'Agora'
+                },
+                { 
+                    status: 'preparo', 
+                    icon: 'fa-utensils', 
+                    title: 'Em Preparo', 
+                    description: 'Seus salgados estão sendo preparados',
+                    time: 'Em breve'
+                },
+                { 
+                    status: 'caminho', 
+                    icon: 'fa-motorcycle', 
+                    title: 'Saiu para Entrega', 
+                    description: 'Seu pedido está a caminho',
+                    time: '--'
+                },
+                { 
+                    status: 'entregue', 
+                    icon: 'fa-check', 
+                    title: 'Entregue', 
+                    description: 'Pedido entregue com sucesso',
+                    time: '--'
+                }
+            ];
+
+            let currentStepIndex = steps.findIndex(step => step.status === status);
+            if (currentStepIndex === -1) currentStepIndex = 0;
+
+            return steps.map((step, index) => {
+                let stepClass = '';
+                if (index < currentStepIndex) {
+                    stepClass = 'completed';
+                } else if (index === currentStepIndex) {
+                    stepClass = 'active';
+                }
+
+                return `
+                    <div class="timeline-step">
+                        <div class="timeline-icon ${stepClass}">
+                            <i class="fa-solid ${step.icon}"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">${step.title}</div>
+                            <div class="timeline-description">${step.description}</div>
+                            <div class="timeline-time">${step.time}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderOrderItems() {
+            // Usar cart ou itens dependendo da estrutura
+            const items = currentOrder.cart || currentOrder.itens;
+            if (!items || items.length === 0) return '<p>Nenhum item encontrado</p>';
+
+            let html = '';
+            items.forEach(item => {
+                const quantity = item.quantity || item.quantidade;
+                const price = item.preco || item.preco;
+                const name = item.nome || item.nome;
+                
+                html += `
+                    <div class="item-row">
+                        <span>${quantity}x ${name}</span>
+                        <span>R$ ${(price * quantity).toFixed(2).replace('.', ',')}</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="item-row">
+                    <span>Taxa de entrega</span>
+                    <span>R$ ${currentOrder.deliveryFee?.toFixed(2).replace('.', ',') || '0,00'}</span>
+                </div>
+                <div class="item-row total-row">
+                    <span>Total</span>
+                    <span>R$ ${currentOrder.total?.toFixed(2).replace('.', ',') || '0,00'}</span>
+                </div>
+            `;
+
+            return html;
+        }
+
+        function getStatusConfig(status) {
+            const configs = {
+                'confirmado': { text: 'Confirmado', color: 'info' },
+                'preparo': { text: 'Em Preparo', color: 'warning' },
+                'caminho': { text: 'Saiu para Entrega', color: 'primary' },
+                'entregue': { text: 'Entregue', color: 'success' },
+                'cancelado': { text: 'Cancelado', color: 'danger' }
+            };
+            return configs[status] || configs.confirmado;
+        }
+
+        function getPaymentMethodText(method) {
+            const methods = {
+                'pix': 'PIX',
+                'cartao': 'Cartão de Crédito',
+                'dinheiro': 'Dinheiro'
+            };
+            return methods[method] || method || 'Não informado';
+        }
+
+        async function cancelOrder() {
+            if (!currentOrder || currentOrder.status !== 'confirmado') {
+                alert('Este pedido não pode ser cancelado.');
+                return;
+            }
+
+            if (confirm('Tem certeza que deseja cancelar este pedido?')) {
+                try {
+                    await db.collection('pedidos').doc(orderId).update({
+                        status: 'cancelado',
+                        cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert('Pedido cancelado com sucesso.');
+                } catch (error) {
+                    console.error('Erro ao cancelar pedido:', error);
+                    alert('Erro ao cancelar pedido. Tente novamente.');
+                }
+            }
+        }
+
+        function showOrderNotFound() {
+            const orderContent = document.getElementById('order-content');
+            orderContent.innerHTML = `
+                <div class="not-found">
+                    <i class="fa-solid fa-box-open"></i>
+                    <h3>Pedido Não Encontrado</h3>
+                    <p>O pedido que você está procurando não existe ou não está mais disponível.</p>
+                    <a href="cardapio.html" class="btn btn-primary" style="margin-top: 16px;">
+                        <i class="fa-solid fa-utensils"></i> Fazer um Pedido
                     </a>
                 </div>
             `;
         }
+
+        // Funções globais
+        window.cancelOrder = cancelOrder;
     </script>
 </body>
 </html>

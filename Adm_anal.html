@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Análise de Vendas</title> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- Firebase v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <style>
         /* --- Configurações Globais --- */
         :root {
@@ -42,7 +47,6 @@
         }
 
         /* --- Header (Barra Laranja) --- */
-       /* --- Header (Barra Laranja) --- */
         .top-bar {
             background-color: var(--color-primary);
             color: white;
@@ -58,38 +62,29 @@
         .user-info .user-name { font-weight: 600; }
         .user-info .user-role { font-size: 12px; opacity: 0.8; }
         
-        /* --- CSS DA NAVBAR ATUALIZADO --- */
+        /* --- NAVBAR COM ESPAÇAMENTO IGUAL AOS OUTROS CÓDIGOS --- */
         .header-nav { 
             display: flex; 
             align-items: center; 
-            /* Removemos o 'gap' para controle total */
+            gap: 28px; /* MESMO ESPAÇAMENTO DOS OUTROS CÓDIGOS */
         }
         .header-nav a {
             color: white;
             text-decoration: none;
             opacity: 0.8; 
-            
-            /* A MÁGICA ESTÁ AQUI:
-            Adicionamos padding (espaçamento interno) a CADA link.
-            10px em cima/baixo e 15px nos lados.
-            Isso cria uma "caixa" de clique igual para cada ícone.
-            O espaço entre os ícones será de 15px + 15px = 30px.
-            */
-            padding: 10px 15px; 
-            border-radius: 6px; /* Deixa o hover mais bonito */
+            padding: 10px 15px; /* MESMO ESPAÇAMENTO DOS OUTROS CÓDIGOS */
+            border-radius: 6px; 
             transition: opacity 0.2s, background-color 0.2s;
         }
         .header-nav a:hover {
-            opacity: 1; /* Ícone fica 100% visível */
-            background-color: rgba(255, 255, 255, 0.1); /* Efeito de fundo sutil */
+            opacity: 1; 
+            background-color: rgba(255, 255, 255, 0.1); 
         }
         .header-nav i { 
             font-size: 20px; 
             cursor: pointer; 
-            display: block; /* Garante que o ícone se alinhe bem */
+            display: block; 
         }
-        /* --- FIM DA ATUALIZAÇÃO --- */
-
         /* --- Layout Principal --- */
         .page-container {
             max-width: 1100px;
@@ -141,7 +136,7 @@
         .y-axis::before { content: ''; position: absolute; left: 0; top: 0; width: 1px; height: calc(100% - 40px); background-color: var(--color-text-dark); }
         .y-axis::after { content: ''; position: absolute; left: 0; bottom: 40px; width: calc(100% - 50px); height: 1px; background-color: var(--color-text-dark); }
         .y-axis-label { position: absolute; left: -40px; font-size: 13px; color: var(--color-text-light); text-align: right; width: 35px; }
-        .grid-line { position: absolute; width: calc(100% - 50px); height: 1px; background-color: var(--color-grid-line); z-index: 0; left: 0; }
+        .grid-line { position: absolute; width: calc(100% - 50px); height: 1px; background-color: var(--color-border); z-index: 0; left: 0; }
         .y-axis-label[data-value="0"] { bottom: 40px; transform: translateY(50%); left: -45px; }
         .y-axis-label[data-value="50"] { bottom: calc(40px + (360px * 0.1)); transform: translateY(50%); }
         .grid-line[data-value="50"] { bottom: calc(40px + (360px * 0.1)); }
@@ -190,6 +185,28 @@
         .status-badge.status-blue { background-color: #e6f2ff; color: var(--color-secondary); }
         .status-badge.status-red { background-color: #fdecea; color: var(--color-danger); }
         
+        /* --- Loading --- */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-text-light);
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* --- Responsividade --- */
         @media (max-width: 768px) {
             .top-bar { flex-direction: column; gap: 16px; padding: 16px; }
@@ -247,14 +264,15 @@
             </div>
         </div>
         <nav class="header-nav">
-      <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
-      <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
-      <a href="Adm_anal.html"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
-      <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
-      <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
-      <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
-      <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>  <a href="SalgaderiaMestreLogOn.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
-     </nav>
+            <a href="Adm_status.html"><i class="fa-solid fa-list-check" title="Status"></i></a>
+            <a href="Adm_Ped.html"><i class="fa-solid fa-truck" title="Entregas"></i></a>
+            <a href="Adm_anal.html" style="background-color: rgba(255,255,255,0.2);"><i class="fa-solid fa-chart-line" title="Vendas"></i></a>
+            <a href="Adam_estoq.html"><i class="fa-solid fa-box" title="Estoque"></i></a>
+            <a href="Adm_agen.html"><i class="fa-solid fa-calendar-days" title="Agenda"></i></a>
+            <a href="Adm_Func.html"><i class="fa-solid fa-user" title="Funcionários"></i></a>
+            <a href="adm_adCard.html"><i class="fa-solid fa-utensils" title="Cardápio"></i></a>
+            <a href="SalgaderiaMestreLogOff.html"><i class="fa-solid fa-arrow-right-from-bracket" title="Sair"></i></a>
+        </nav>
     </header>
 
     <main class="page-container">
@@ -268,13 +286,13 @@
                 <i class="fa-solid fa-cash-register icon total"></i>
                 <div class="kpi-card-info">
                     <span class="kpi-value" id="kpi-total-units">0</span>
-                    <span class="kpi-title">Faturamento (Unid.)</span>
+                    <span class="kpi-title">Faturamento Total</span>
                 </div>
             </div>
             <div class="kpi-card">
                 <i class="fa-solid fa-calculator icon info"></i>
                 <div class="kpi-card-info">
-                    <span class="kpi-value" id="kpi-avg-units">0</span>
+                    <span class="kpi-value" id="kpi-avg-units">R$ 0</span>
                     <span class="kpi-title">Média Mensal</span>
                 </div>
             </div>
@@ -295,31 +313,37 @@
         </section>
 
         <section class="chart-section">
-            <div class="bar-chart-container">
+            <div class="loading" id="chart-loading">
+                <div class="spinner"></div>
+                <p>Calculando vendas mensais...</p>
+            </div>
+
+            <div class="bar-chart-container" id="chart-container" style="display: none;">
                 <div class="y-axis">
-                    <span class="y-axis-label" data-value="0">0</span>
-                    <span class="y-axis-label" data-value="50">50</span><div class="grid-line" data-value="50"></div>
-                    <span class="y-axis-label" data-value="100">100</span><div class="grid-line" data-value="100"></div>
-                    <span class="y-axis-label" data-value="150">150</span><div class="grid-line" data-value="150"></div>
-                    <span class="y-axis-label" data-value="200">200</span><div class="grid-line" data-value="200"></div>
-                    <span class="y-axis-label" data-value="250">250</span><div class="grid-line" data-value="250"></div>
-                    <span class="y-axis-label" data-value="300">300</span><div class="grid-line" data-value="300"></div>
-                    <span class="y-axis-label" data-value="350">350</span><div class="grid-line" data-value="350"></div>
-                    <span class="y-axis-label" data-value="400">400</span><div class="grid-line" data-value="400"></div>
-                    <span class="y-axis-label" data-value="450">450</span><div class="grid-line" data-value="450"></div>
-                    <span class="y-axis-label" data-value="500+">500+</span><div class="grid-line" data-value="500"></div>
+                    <span class="y-axis-label" data-value="0">R$ 0</span>
+                    <span class="y-axis-label" data-value="50">R$ 50</span><div class="grid-line" data-value="50"></div>
+                    <span class="y-axis-label" data-value="100">R$ 100</span><div class="grid-line" data-value="100"></div>
+                    <span class="y-axis-label" data-value="150">R$ 150</span><div class="grid-line" data-value="150"></div>
+                    <span class="y-axis-label" data-value="200">R$ 200</span><div class="grid-line" data-value="200"></div>
+                    <span class="y-axis-label" data-value="250">R$ 250</span><div class="grid-line" data-value="250"></div>
+                    <span class="y-axis-label" data-value="300">R$ 300</span><div class="grid-line" data-value="300"></div>
+                    <span class="y-axis-label" data-value="350">R$ 350</span><div class="grid-line" data-value="350"></div>
+                    <span class="y-axis-label" data-value="400">R$ 400</span><div class="grid-line" data-value="400"></div>
+                    <span class="y-axis-label" data-value="450">R$ 450</span><div class="grid-line" data-value="450"></div>
+                    <span class="y-axis-label" data-value="500+">R$ 500+</span><div class="grid-line" data-value="500"></div>
                 </div>
 
                 <div class="chart-scroll-wrapper">
                     <div class="bars" id="chart-bars">
-                        </div>
+                        <!-- Barras serão geradas dinamicamente -->
+                    </div>
                 </div>
             </div>
 
-            <div class="chart-legend">
+            <div class="chart-legend" id="chart-legend" style="display: none;">
                 <div class="legend-item">
                     <span class="legend-color green"></span>
-                    <span>VENDAS ACIMA</span>
+                    <span>VENDAS ACIMA DA MÉDIA</span>
                 </div>
                 <div class="legend-item">
                     <span class="legend-color blue"></span>
@@ -327,37 +351,37 @@
                 </div>
                 <div class="legend-item">
                     <span class="legend-color red"></span>
-                    <span>VENDAS ABAIXO</span>
+                    <span>VENDAS ABAIXO DA MÉDIA</span>
                 </div>
             </div>
         </section>
         
         <section class="data-table-container">
             <h2 class="section-title">Dados Detalhados</h2>
-            <div class="table-wrapper">
+            <div class="loading" id="table-loading">
+                <div class="spinner"></div>
+                <p>Carregando dados...</p>
+            </div>
+            <div class="table-wrapper" id="table-container" style="display: none;">
                 <table>
                     <thead>
                         <tr>
-                            <th>Mês</th>
-                            <th>Vendas (Unidades)</th>
+                            <th>Mês/Ano</th>
+                            <th>Total de Vendas</th>
+                            <th>Nº de Pedidos</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="data-table-body">
-                        </tbody>
+                        <!-- Dados serão preenchidos dinamicamente -->
+                    </tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <script type="module">
-        // --- 1. IMPORTS DO FIREBASE ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-        import { 
-            getFirestore, collection, getDocs, query, orderBy 
-        } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-        
-        // --- 2. CONFIGURAÇÃO DO FIREBASE ---
+    <script>
+        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCn694_Aswhv1Fb2dn7pnWox4JVW66Xy2k",
             authDomain: "salgaderia-mestre.firebaseapp.com",
@@ -368,122 +392,172 @@
             measurementId: "G-1QSMWQ65ZZ"
         };
 
-        // --- 3. INICIALIZAÇÃO ---
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const vendasCollectionRef = collection(db, "vendas_mensais");
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // --- 4. SELETORES DO DOM ---
-        const timestampElement = document.getElementById('current-timestamp');
-        const barsContainer = document.getElementById('chart-bars');
-        const tableBody = document.getElementById('data-table-body');
-        const kpiTotalUnits = document.getElementById('kpi-total-units');
-        const kpiAvgUnits = document.getElementById('kpi-avg-units');
-        const kpiBestMonth = document.getElementById('kpi-best-month');
-        const kpiWorstMonth = document.getElementById('kpi-worst-month');
-        
-        // --- 5. ATUALIZAÇÃO DO TIMESTAMP ---
-        function updateCurrentTime() {
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+            
+            loadSalesData();
+        });
+
+        function updateTimestamp() {
             const now = new Date();
-            const optionsDate = { day: '2-digit', month: '2-digit', year: '2-digit' };
-            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            const date = now.toLocaleDateString('pt-BR', optionsDate);
-            const time = now.toLocaleTimeString('pt-BR', optionsTime);
-            if (timestampElement) { timestampElement.textContent = `${date} ${time}`; }
+            const date = now.toLocaleDateString('pt-BR');
+            const time = now.toLocaleTimeString('pt-BR');
+            document.getElementById('current-timestamp').textContent = `${date} ${time}`;
         }
-        updateCurrentTime();
-        setInterval(updateCurrentTime, 1000);
 
-        // --- 6. FUNÇÃO DE RENDERIZAÇÃO (Gráfico e Tabela) ---
+        async function loadSalesData() {
+            try {
+                // Buscar todos os pedidos entregues
+                const querySnapshot = await db.collection("pedidos")
+                    .where("status", "==", "entregue")
+                    .get();
+
+                const monthlySales = calculateMonthlySales(querySnapshot);
+                renderDashboard(monthlySales);
+                
+            } catch (error) {
+                console.error("Erro ao carregar dados de vendas:", error);
+                document.getElementById('chart-loading').innerHTML = '<p style="color: red;">Erro ao carregar dados de vendas</p>';
+                document.getElementById('table-loading').innerHTML = '<p style="color: red;">Erro ao carregar dados</p>';
+            }
+        }
+
+        function calculateMonthlySales(querySnapshot) {
+            const monthlyData = {};
+            const monthNames = [
+                'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+                'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+            ];
+
+            querySnapshot.forEach((doc) => {
+                const order = doc.data();
+                if (order.createdAt && order.total) {
+                    const orderDate = new Date(order.createdAt.seconds * 1000);
+                    const monthYear = `${monthNames[orderDate.getMonth()]}/${orderDate.getFullYear()}`;
+                    
+                    if (!monthlyData[monthYear]) {
+                        monthlyData[monthYear] = {
+                            total: 0,
+                            count: 0,
+                            month: monthNames[orderDate.getMonth()],
+                            year: orderDate.getFullYear(),
+                            fullDate: orderDate
+                        };
+                    }
+                    
+                    monthlyData[monthYear].total += order.total;
+                    monthlyData[monthYear].count += 1;
+                }
+            });
+
+            // Converter para array e ordenar por data
+            return Object.values(monthlyData)
+                .sort((a, b) => a.fullDate - b.fullDate)
+                .map(item => ({
+                    mes: `${item.month}/${item.year}`,
+                    valor: item.total,
+                    pedidos: item.count,
+                    fullDate: item.fullDate
+                }));
+        }
+
         function renderDashboard(vendasData) {
-            barsContainer.innerHTML = '';
-            tableBody.innerHTML = '';
+            // Esconder loading e mostrar conteúdo
+            document.getElementById('chart-loading').style.display = 'none';
+            document.getElementById('table-loading').style.display = 'none';
+            document.getElementById('chart-container').style.display = 'block';
+            document.getElementById('chart-legend').style.display = 'flex';
+            document.getElementById('table-container').style.display = 'block';
+
+            const barsContainer = document.getElementById('chart-bars');
+            const tableBody = document.getElementById('data-table-body');
             
             if (vendasData.length === 0) {
-                // Lida com o caso de não haver dados
                 barsContainer.innerHTML = '<span style="color: var(--color-text-light); padding: 20px;">Nenhum dado de venda encontrado.</span>';
-                tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--color-text-light);">Nenhum dado encontrado.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-text-light);">Nenhum dado encontrado.</td></tr>';
                 return;
             }
 
-            const maxValue = 500; // Valor máximo do eixo Y
+            // Calcular média para determinar cores
+            const totalVendas = vendasData.reduce((sum, item) => sum + item.valor, 0);
+            const mediaMensal = totalVendas / vendasData.length;
+
+            // Encontrar melhor e pior mês
+            const melhorMes = vendasData.reduce((best, current) => 
+                current.valor > best.valor ? current : best, vendasData[0]);
+            const piorMes = vendasData.reduce((worst, current) => 
+                current.valor < worst.valor ? current : worst, vendasData[0]);
+
+            // Atualizar KPIs
+            document.getElementById('kpi-total-units').textContent = `R$ ${totalVendas.toFixed(2)}`;
+            document.getElementById('kpi-avg-units').textContent = `R$ ${mediaMensal.toFixed(2)}`;
+            document.getElementById('kpi-best-month').textContent = `${melhorMes.mes} (R$ ${melhorMes.valor.toFixed(2)})`;
+            document.getElementById('kpi-worst-month').textContent = `${piorMes.mes} (R$ ${piorMes.valor.toFixed(2)})`;
+
+            // Configurar gráfico
+            const maxValue = Math.max(...vendasData.map(item => item.valor), 500);
             barsContainer.style.width = `${vendasData.length * 120}px`;
 
-            let totalVendas = 0;
-            let melhorMes = { mes: '--', valor: -Infinity };
-            let piorMes = { mes: '--', valor: Infinity };
-
+            // Renderizar barras do gráfico
+            barsContainer.innerHTML = '';
             vendasData.forEach(item => {
-                const valor = Number(item.valor) || 0;
-                totalVendas += valor;
-
-                if (valor > melhorMes.valor) melhorMes = item;
-                if (valor < piorMes.valor) piorMes = item;
-
-                // --- Renderiza o Gráfico ---
-                const barHeightPercentage = Math.min((valor / maxValue) * 100, 100);
+                const barHeightPercentage = Math.min((item.valor / maxValue) * 100, 100);
                 
+                let colorClass = 'blue'; // Normal
+                let statusTexto = 'Normal';
+                
+                if (item.valor > mediaMensal * 1.1) {
+                    colorClass = 'green';
+                    statusTexto = 'Acima';
+                } else if (item.valor < mediaMensal * 0.9) {
+                    colorClass = 'red';
+                    statusTexto = 'Abaixo';
+                }
+
                 const barItem = document.createElement('div');
-                let colorClass = 'blue'; // Padrão 'normal'
-                if (item.status === 'green') colorClass = 'green';
-                if (item.status === 'red') colorClass = 'red';
-                
                 barItem.className = `bar-item ${colorClass}`;
                 barItem.style.height = `${barHeightPercentage}%`;
-                barItem.innerHTML = `<span class="bar-label">${item.mes}</span>`;
+                barItem.innerHTML = `
+                    <span class="bar-label">${item.mes}</span>
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 600; color: var(--color-text-dark);">
+                        R$ ${item.valor.toFixed(2)}
+                    </div>
+                `;
                 barsContainer.appendChild(barItem);
 
-                // --- Renderiza a Tabela ---
+                // Adicionar tooltip
+                barItem.title = `${item.mes}: R$ ${item.valor.toFixed(2)} (${item.pedidos} pedidos)`;
+            });
+
+            // Renderizar tabela
+            tableBody.innerHTML = '';
+            vendasData.forEach(item => {
+                let colorClass = 'blue';
+                let statusTexto = 'Normal';
+                
+                if (item.valor > mediaMensal * 1.1) {
+                    colorClass = 'green';
+                    statusTexto = 'Acima da Média';
+                } else if (item.valor < mediaMensal * 0.9) {
+                    colorClass = 'red';
+                    statusTexto = 'Abaixo da Média';
+                }
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${item.mes}</td>
-                    <td>${valor}</td>
-                    <td><span class="status-badge status-${colorClass}">${item.statusTexto}</span></td>
+                    <td><strong>${item.mes}</strong></td>
+                    <td>R$ ${item.valor.toFixed(2)}</td>
+                    <td>${item.pedidos}</td>
+                    <td><span class="status-badge status-${colorClass}">${statusTexto}</span></td>
                 `;
                 tableBody.appendChild(row);
             });
-
-            // --- Atualiza KPIs ---
-            const mediaMensal = totalVendas / vendasData.length;
-            kpiTotalUnits.textContent = totalVendas;
-            kpiAvgUnits.textContent = mediaMensal.toFixed(0);
-            kpiBestMonth.textContent = `${melhorMes.mes} (${melhorMes.valor})`;
-            kpiWorstMonth.textContent = `${piorMes.mes} (${piorMes.valor})`;
         }
-
-        // --- 7. CARREGAMENTO INICIAL DO FIRESTORE ---
-        async function loadAndRenderChart() {
-            try {
-                // Ordena pelo campo 'ordem'
-                const q = query(vendasCollectionRef, orderBy("ordem", "asc"));
-                const querySnapshot = await getDocs(q);
-                
-                let localVendasData = [];
-                querySnapshot.forEach((doc) => {
-                    localVendasData.push({ id: doc.id, ...doc.data() });
-                });
-                
-                renderDashboard(localVendasData);
-            } catch (error) {
-                console.error("Erro ao carregar dados de vendas: ", error);
-                // Se der erro de índice, o Firestore avisará no console
-                // Por enquanto, tenta buscar sem ordenar
-                if (error.code === 'failed-precondition') {
-                    console.warn("Firestore: Índice não encontrado. Carregando sem ordenação.");
-                    const fallbackSnapshot = await getDocs(vendasCollectionRef);
-                    let localVendasData = [];
-                    fallbackSnapshot.forEach((doc) => {
-                        localVendasData.push({ id: doc.id, ...doc.data() });
-                    });
-                    renderDashboard(localVendasData);
-                } else {
-                    barsContainer.innerHTML = '<span style="color: red; padding: 20px;">Erro ao carregar gráfico.</span>';
-                }
-            }
-        }
-
-        // --- 8. INICIALIZAÇÃO ---
-        loadAndRenderChart();
     </script>
 </body>
 </html>
