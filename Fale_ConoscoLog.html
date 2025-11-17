@@ -302,12 +302,10 @@
             }
         });
         
-        exitLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Simulando logout...');
-            // Em um site real, aqui você faria o logout
-            // e redirecionaria para a página de login.
-        });
+        // O link de saída agora usa o comportamento padrão do anchor
+        // (navegar para `SalgaderiaMestreLogOn.html`). Se quiser um
+        // comportamento de logout customizado, podemos implementar
+        // aqui (ex.: chamada API + redirect).
     </script>
 
 </body>
